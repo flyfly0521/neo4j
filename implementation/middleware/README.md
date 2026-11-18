@@ -23,7 +23,7 @@ BI3 原建索引脚本仍未支持。第 11.2、11.3 节及全量报告保留为
 
 NeuG FILL 文件注册后改写 Neo4j 原始查询的 11 个未命中案例，见 [BI 改写失败定位](neo4j-bi-neug-fill-rewrite-diagnosis.md)。
 
-**最新进度（2026-11-18）**：NeuG FILL 注册后 Neo4j 原始查询改写 **9/17**（新增 BI2、BI14、BI17），仍未改写的查询、对应索引、卡点和下一步见 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)。本轮引入声明约束（profile `constraints:`，SF1 上 8/8 成立）。
+**最新进度（2026-11-18）**：NeuG FILL 注册后 Neo4j 原始查询改写 **8/17**（新增 BI2、BI14、BI17），仍未改写的查询、对应索引、卡点和下一步见 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)。本轮引入声明约束（profile `constraints:`，SF1 上 8/8 成立）。
 
 已注册但未命中的历史定位见 [`neo4j-bi-rewrite-root-cause.md`](neo4j-bi-rewrite-root-cause.md)，首轮修复见 [`neo4j-bi-rewrite-fix.md`](neo4j-bi-rewrite-fix.md)。**最新增强见 [以 QueryPart 正确性定义增强中间件](neo4j-theory-hardening.md)**：按 wiki 的接口、作用域和重数约束支持相关图计数/存在性表达式、有限记录传入 CALL、保守的外层类型推断及探针参数隔离。65/65 回归通过，13/13 个独立小图用例实际结果多重集一致，全部事务回滚。BI 原始覆盖仍为 8/15；BI8/16 还受未公开 Tag 接口的限制，不能只补语法或放松匹配来解决。未执行 BI 负载查询。
 

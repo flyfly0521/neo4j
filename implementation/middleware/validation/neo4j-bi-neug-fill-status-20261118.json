@@ -1,6 +1,6 @@
 {
  "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
- "middleware_commit": "dd22408e58f7176988ab9e10dd6d1eadc5f01073",
+ "middleware_commit": "f0c587cfb7d04b1d2182c5f77bab614edcc7be5f",
  "sample": 0,
  "indexes_built": false,
  "workload_queries_executed": false,
@@ -42,7 +42,13 @@
    "seconds": 0.1,
    "indexes_registered": [
     "PERSON(countryName)"
-   ]
+   ],
+   "fills": {
+    "PERSON(countryName)": [
+     "FILL PERSON(countryName) FROM (\nMATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)\nRETURN person.id, country.name)"
+    ]
+   },
+   "query_text": "// Q10. Experts in social circle\n// Requires the Neo4j APOC library\n/*\n:params {\n    personId: 30786325588624,\n    country: 'China',\n    tagClass: 'MusicalArtist',\n    minPathDistance: 3,\n    maxPathDistance: 4\n}\n*/\nMATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance\n// compute the difference of sets: nodesCloserThanMaxPathDistance - nodesCloserThanMinPathDistance\nWITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons\nUNWIND expertCandidatePersons AS expertCandidatePerson\nMATCH\n  (expertCandidatePerson)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(:Country {name: $country}),\n  (expertCandidatePerson)<-[:HAS_CREATOR]-(message:Message)-[:HAS_TAG]->(:Tag)-[:HAS_TYPE]->\n  (:TagClass {name: $tagClass})\nMATCH\n  (message)-[:HAS_TAG]->(tag:Tag)\nRETURN\n  expertCandidatePerson.id,\n  tag.name,\n  count(DISTINCT message) AS messageCount\nORDER BY\n  messageCount DESC,\n  tag.name ASC,\n  expertCandidatePerson.id ASC\nLIMIT 100\n"
   },
   {
    "case": "bi11",
@@ -79,7 +85,13 @@
    "seconds": 0.1,
    "indexes_registered": [
     "PERSON(countryName)"
-   ]
+   ],
+   "fills": {
+    "PERSON(countryName)": [
+     "FILL PERSON(countryName) FROM (\nMATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)\nRETURN person.id, country.name)"
+    ]
+   },
+   "query_text": "// Q11. Friend triangles\n/*\n:params {\n  country: 'India',\n  startDate: datetime('2012-09-29'),\n  endDate: datetime('2013-01-01')\n}\n*/\nMATCH (a:Person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country:Country {name: $country}),\n      (a)-[k1:KNOWS]-(b:Person)\nWHERE a.id < b.id\n  AND $startDate <= k1.creationDate AND k1.creationDate <= $endDate\nWITH DISTINCT country, a, b\nMATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b\nMATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c\nMATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c\nRETURN count(*) AS count\n"
   },
   {
    "case": "bi13",
@@ -143,7 +155,13 @@
    "seconds": 0.2,
    "indexes_registered": [
     "PERSON(bi13MessageCount)"
-   ]
+   ],
+   "fills": {
+    "PERSON(bi13MessageCount)": [
+     "FILL PERSON(bi13MessageCount) FROM (\n  MATCH (person:PERSON)<-[:HASCREATOR]-(message:POST:COMMENT)\n  WHERE message.creationDate < TIMESTAMP('2012-10-28 00:00:00')\n  RETURN person.id, count(message)\n)"
+    ]
+   },
+   "query_text": "// Q13. Zombies in a country\n/*\n:params { country: 'France', endDate: datetime('2013-01-01') }\n*/\nMATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie\nOPTIONAL MATCH (zombie)<-[:HAS_CREATOR]-(message:Message)\nWHERE message.creationDate < $endDate\nWITH\n  country,\n  zombie,\n  count(message) AS messageCount\nWITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1\nWITH\n  country,\n  collect(zombie) AS zombies\nUNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount\nRETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100\n"
   },
   {
    "case": "bi14",
@@ -360,7 +378,34 @@
     "KNOWS(bi14_case3_rev)",
     "KNOWS(bi14_case4_fwd)",
     "KNOWS(bi14_case4_rev)"
-   ]
+   ],
+   "fills": {
+    "KNOWS(bi14_case1_fwd)": [
+     "FILL KNOWS(bi14_case1_fwd) FROM (\nMATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\nWITH pA, pB\nMATCH (pA)<-[:HASCREATOR]-(c:COMMENT)-[:REPLYOF]->(:COMMENT:POST)-[:HASCREATOR]->(pB)\nRETURN pA.id, pB.id, count(c) AS cnt)"
+    ],
+    "KNOWS(bi14_case1_rev)": [
+     "FILL KNOWS(bi14_case1_rev) FROM (\nMATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\nWITH pA, pB\nMATCH (pB)<-[:HASCREATOR]-(c:COMMENT)-[:REPLYOF]->(:COMMENT:POST)-[:HASCREATOR]->(pA)\nRETURN pA.id, pB.id, count(c) AS cnt)"
+    ],
+    "KNOWS(bi14_case2_fwd)": [
+     "FILL KNOWS(bi14_case2_fwd) FROM (\nMATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\nWITH pA, pB\nMATCH (pA)<-[:HASCREATOR]-(m:COMMENT:POST)<-[:REPLYOF]-(:COMMENT)-[:HASCREATOR]->(pB)\nRETURN pA.id, pB.id, count(m) AS cnt)"
+    ],
+    "KNOWS(bi14_case2_rev)": [
+     "FILL KNOWS(bi14_case2_rev) FROM (\nMATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\nWITH pA, pB\nMATCH (pB)<-[:HASCREATOR]-(m:COMMENT:POST)<-[:REPLYOF]-(:COMMENT)-[:HASCREATOR]->(pA)\nRETURN pA.id, pB.id, count(m) AS cnt)"
+    ],
+    "KNOWS(bi14_case3_fwd)": [
+     "FILL KNOWS(bi14_case3_fwd) FROM (\nMATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\nWITH pA, pB\nMATCH (pA)-[:LIKES]->(m:COMMENT:POST)-[:HASCREATOR]->(pB)\nRETURN pA.id, pB.id, count(m) AS cnt)"
+    ],
+    "KNOWS(bi14_case3_rev)": [
+     "FILL KNOWS(bi14_case3_rev) FROM (\nMATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\nWITH pA, pB\nMATCH (pB)-[:LIKES]->(m:COMMENT:POST)-[:HASCREATOR]->(pA)\nRETURN pA.id, pB.id, count(m) AS cnt)"
+    ],
+    "KNOWS(bi14_case4_fwd)": [
+     "FILL KNOWS(bi14_case4_fwd) FROM (\nMATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\nWITH pA, pB\nMATCH (pA)<-[:HASCREATOR]-(m:COMMENT:POST)<-[:LIKES]-(pB)\nRETURN pA.id, pB.id, count(m) AS cnt)"
+    ],
+    "KNOWS(bi14_case4_rev)": [
+     "FILL KNOWS(bi14_case4_rev) FROM (\nMATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\nWITH pA, pB\nMATCH (pB)<-[:HASCREATOR]-(m:COMMENT:POST)<-[:LIKES]-(pA)\nRETURN pA.id, pB.id, count(m) AS cnt)"
+    ]
+   },
+   "query_text": "// Q14. International dialog\n/*\n:params { country1: 'Chile', country2: 'Argentina' }\n*/\nMATCH\n  (country1:Country {name: $country1})<-[:IS_PART_OF]-(city1:City)<-[:IS_LOCATED_IN]-(person1:Person),\n  (country2:Country {name: $country2})<-[:IS_PART_OF]-(city2:City)<-[:IS_LOCATED_IN]-(person2:Person),\n  (person1)-[:KNOWS]-(person2)\nWITH person1, person2, city1, 0 AS score\n// case 1\nOPTIONAL MATCH (person1)<-[:HAS_CREATOR]-(c:Comment)-[:REPLY_OF]->(:Message)-[:HAS_CREATOR]->(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN c IS NULL THEN 0 ELSE  4 END) AS score\n// case 2\nOPTIONAL MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:REPLY_OF]-(:Comment)-[:HAS_CREATOR]->(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE  1 END) AS score\n// case 3\nOPTIONAL MATCH (person1)-[:LIKES]->(m:Message)-[:HAS_CREATOR]->(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE 10 END) AS score\n// case 4\nOPTIONAL MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:LIKES]-(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE  1 END) AS score\n// preorder\nORDER BY\n  city1.name ASC,\n  score DESC,\n  person1.id ASC,\n  person2.id ASC\nWITH city1, collect({score: score, person1Id: person1.id, person2Id: person2.id})[0] AS top\nRETURN\n  top.person1Id,\n  top.person2Id,\n  city1.name,\n  top.score\nORDER BY\n  top.score DESC,\n  top.person1Id ASC,\n  top.person2Id ASC\nLIMIT 100\n"
   },
   {
    "case": "bi15",
@@ -442,7 +487,19 @@
     "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
     "KNOWS(bi14_case1_rev,bi15_post_rev)",
     "KNOWS(bi15_weight)"
-   ]
+   ],
+   "fills": {
+    "KNOWS(bi14_case1_fwd,bi15_post_fwd)": [
+     "FILL  KNOWS(bi14_case1_fwd, bi15_post_fwd) FROM (\n  MATCH (pA:PERSON)-[:KNOWS]->(pB:PERSON)\n  WITH pA, pB\n  MATCH (pA)<-[:HASCREATOR]-(comment:COMMENT)-[:REPLYOF]->(target:COMMENT:POST)-[:HASCREATOR]->(pB)\n  RETURN pA.id, pB.id, count(comment),\n         sum(CASE label(target) = 'POST' WHEN TRUE THEN 1 ELSE 0 END))"
+    ],
+    "KNOWS(bi14_case1_rev,bi15_post_rev)": [
+     "FILL  KNOWS(bi14_case1_rev, bi15_post_rev) FROM (\n  MATCH (pA:PERSON)-[:KNOWS]->(pB:PERSON)\n  WITH pA, pB\n  MATCH (pB)<-[:HASCREATOR]-(comment:COMMENT)-[:REPLYOF]->(target:COMMENT:POST)-[:HASCREATOR]->(pA)\n  RETURN pA.id, pB.id, count(comment),\n         sum(CASE label(target) = 'POST' WHEN TRUE THEN 1 ELSE 0 END))"
+    ],
+    "KNOWS(bi15_weight)": [
+     "FILL  KNOWS(bi15_weight) FROM (\n  MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\n  WITH pA, pB, knows,\n       knows.bi14_case1_fwd + knows.bi14_case1_rev AS replyCount,\n       knows.bi15_post_fwd + knows.bi15_post_rev AS postReplyCount\n  RETURN pA.id, pB.id,\n         1.0 / (0.5 * (replyCount + postReplyCount) + 1.0))"
+    ]
+   },
+   "query_text": "// Q15. Weighted interaction paths\n// Requires the Neo4j Graph Data Science library\n/*\n:params {\n    person1Id: 14,\n    person2Id: 16,\n    startDate: datetime('2010-11-01'),\n    endDate: datetime('2010-12-01')\n}\n*/\nCALL gds.graph.drop('bi15', false)\nYIELD graphName\n\n// ----------------------------------------------------------------------------------------------------\nWITH count(*) AS dummy\n// ----------------------------------------------------------------------------------------------------\n\nCALL gds.graph.project.cypher(\n  'bi15',\n  'MATCH (p:Person) RETURN id(p) AS id',\n  'MATCH (pA:Person)-[knows:KNOWS]-(pB:Person)\n      OPTIONAL MATCH (pA)<-[:HAS_CREATOR]-(m1:Message)-[r:REPLY_OF]-(m2:Message)-[:HAS_CREATOR]->(pB)\n      OPTIONAL MATCH (m1)-[:REPLY_OF*0..]->(:Post)<-[:CONTAINER_OF]-(forum:Forum)\n              WHERE forum.creationDate >= datetime({epochmillis: ' + $startDate.epochMillis + '})\n                AND forum.creationDate <= datetime({epochmillis: ' + $endDate.epochMillis   + '})\n      WITH pA, pB,\n          sum(CASE forum IS NOT NULL\n              WHEN true THEN\n                  CASE (m1:Post OR m2:Post) WHEN true THEN 1.0\n                  ELSE 0.5 END\n              ELSE 0.0 END\n          ) AS w\n      RETURN\n        id(pA) AS source,\n        id(pB) AS target,\n        1/(w+1) AS weight\n  '\n)\nYIELD graphName\n\n// ----------------------------------------------------------------------------------------------------\nWITH count(*) AS dummy\n// ----------------------------------------------------------------------------------------------------\n\nCALL {\n  MATCH (person1:Person {id: $person1Id}), (person2:Person {id: $person2Id})\n  CALL gds.shortestPath.dijkstra.stream('bi15', {\n    sourceNode: person1,\n    targetNode: person2,\n    relationshipWeightProperty: 'weight'\n  })\n  YIELD index, sourceNode, targetNode, totalCost, nodeIds, costs, path\n  RETURN totalCost\n  UNION ALL\n  RETURN -1.0 AS totalCost\n}\nRETURN max(totalCost) AS totalCost\n"
   },
   {
    "case": "bi15w",
@@ -518,7 +575,19 @@
     "KNOWS(bi15w_reply_fwd,bi15w_post_fwd)",
     "KNOWS(bi15w_reply_rev,bi15w_post_rev)",
     "KNOWS(bi15w_weight)"
-   ]
+   ],
+   "fills": {
+    "KNOWS(bi15w_reply_fwd,bi15w_post_fwd)": [
+     "FILL KNOWS(bi15w_reply_fwd, bi15w_post_fwd) FROM (\n  MATCH (pA:PERSON)-[:KNOWS]->(pB:PERSON)\n  WITH pA, pB\n  MATCH\n    (pA)<-[:HASCREATOR]-(comment:COMMENT)-[:REPLYOF]->(target:COMMENT:POST)-[:HASCREATOR]->(pB),\n    (comment)-[:REPLYOF*0..]->(:POST)<-[:CONTAINEROF]-(forum:FORUM)\n  WHERE forum.creationDate >= TIMESTAMP('2012-11-06 00:00:00')\n    AND forum.creationDate <= TIMESTAMP('2012-11-07 00:00:00')\n  RETURN pA.id, pB.id, count(comment),\n         sum(CASE label(target) = 'POST' WHEN TRUE THEN 1 ELSE 0 END))"
+    ],
+    "KNOWS(bi15w_reply_rev,bi15w_post_rev)": [
+     "FILL KNOWS(bi15w_reply_rev, bi15w_post_rev) FROM (\n  MATCH (pA:PERSON)-[:KNOWS]->(pB:PERSON)\n  WITH pA, pB\n  MATCH\n    (pB)<-[:HASCREATOR]-(comment:COMMENT)-[:REPLYOF]->(target:COMMENT:POST)-[:HASCREATOR]->(pA),\n    (comment)-[:REPLYOF*0..]->(:POST)<-[:CONTAINEROF]-(forum:FORUM)\n  WHERE forum.creationDate >= TIMESTAMP('2012-11-06 00:00:00')\n    AND forum.creationDate <= TIMESTAMP('2012-11-07 00:00:00')\n  RETURN pA.id, pB.id, count(comment),\n         sum(CASE label(target) = 'POST' WHEN TRUE THEN 1 ELSE 0 END))"
+    ],
+    "KNOWS(bi15w_weight)": [
+     "FILL KNOWS(bi15w_weight) FROM (\n  MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\n  WITH pA, pB, knows,\n       knows.bi15w_reply_fwd + knows.bi15w_reply_rev AS replyCount,\n       knows.bi15w_post_fwd + knows.bi15w_post_rev AS postReplyCount\n  RETURN pA.id, pB.id, 1.0 / (0.5 * (replyCount + postReplyCount) + 1.0))"
+    ]
+   },
+   "query_text": "// Q15. Weighted interaction paths\n// Requires the Neo4j Graph Data Science library\n/*\n:params {\n    person1Id: 14,\n    person2Id: 16,\n    startDate: datetime('2010-11-01'),\n    endDate: datetime('2010-12-01')\n}\n*/\nCALL gds.graph.drop('bi15', false)\nYIELD graphName\n\n// ----------------------------------------------------------------------------------------------------\nWITH count(*) AS dummy\n// ----------------------------------------------------------------------------------------------------\n\nCALL gds.graph.project.cypher(\n  'bi15',\n  'MATCH (p:Person) RETURN id(p) AS id',\n  'MATCH (pA:Person)-[knows:KNOWS]-(pB:Person)\n      OPTIONAL MATCH (pA)<-[:HAS_CREATOR]-(m1:Message)-[r:REPLY_OF]-(m2:Message)-[:HAS_CREATOR]->(pB)\n      OPTIONAL MATCH (m1)-[:REPLY_OF*0..]->(:Post)<-[:CONTAINER_OF]-(forum:Forum)\n              WHERE forum.creationDate >= datetime({epochmillis: ' + $startDate.epochMillis + '})\n                AND forum.creationDate <= datetime({epochmillis: ' + $endDate.epochMillis   + '})\n      WITH pA, pB,\n          sum(CASE forum IS NOT NULL\n              WHEN true THEN\n                  CASE (m1:Post OR m2:Post) WHEN true THEN 1.0\n                  ELSE 0.5 END\n              ELSE 0.0 END\n          ) AS w\n      RETURN\n        id(pA) AS source,\n        id(pB) AS target,\n        1/(w+1) AS weight\n  '\n)\nYIELD graphName\n\n// ----------------------------------------------------------------------------------------------------\nWITH count(*) AS dummy\n// ----------------------------------------------------------------------------------------------------\n\nCALL {\n  MATCH (person1:Person {id: $person1Id}), (person2:Person {id: $person2Id})\n  CALL gds.shortestPath.dijkstra.stream('bi15', {\n    sourceNode: person1,\n    targetNode: person2,\n    relationshipWeightProperty: 'weight'\n  })\n  YIELD index, sourceNode, targetNode, totalCost, nodeIds, costs, path\n  RETURN totalCost\n  UNION ALL\n  RETURN -1.0 AS totalCost\n}\nRETURN max(totalCost) AS totalCost\n"
   },
   {
    "case": "bi16",
@@ -570,7 +639,16 @@
    "indexes_registered": [
     "PERSON(bi16MessageCountA)",
     "PERSON(bi16MessageCountB)"
-   ]
+   ],
+   "fills": {
+    "PERSON(bi16MessageCountA)": [
+     "FILL PERSON(bi16MessageCountA) FROM (\n  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate < TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m)\n)"
+    ],
+    "PERSON(bi16MessageCountB)": [
+     "FILL PERSON(bi16MessageCountB) FROM (\n  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Romania' AND m.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND m.creationDate < TIMESTAMP('2012-05-09 00:00:00') RETURN p.id,count(DISTINCT m)\n)"
+    ]
+   },
+   "query_text": "// Q16. Fake news detection\n// These parameters return a 'false positive' as the maxKnowsLimit is set too high.\n/*\n:params {\n  tagA: 'Meryl_Streep',\n  dateA: datetime('2012-09-16'),\n  tagB: 'Hank_Williams',\n  dateB: datetime('2012-05-08'),\n  maxKnowsLimit: 4\n}\n*/\nUNWIND [\n    {letter: 'A', tag: $tagA, date: $dateA},\n    {letter: 'B', tag: $tagB, date: $dateB}\n  ] AS param\nWITH param.letter AS paramLetter, param.tag AS paramTagX, param.date AS paramDateX\nCALL {\n  WITH paramTagX, paramDateX\n  MATCH (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:HAS_TAG]->(tag:Tag {name: paramTagX})\n  WHERE date(message1.creationDate) = date(paramDateX)\n  // filter out Persons with more than $maxKnowsLimit friends who created the same kind of Message\n  OPTIONAL MATCH (person1)-[:KNOWS]-(person2:Person)<-[:HAS_CREATOR]-(message2:Message)-[:HAS_TAG]->(tag)\n  WHERE date(message2.creationDate) = date(paramDateX)\n  WITH person1, count(DISTINCT message1) AS cm, count(DISTINCT person2) AS cp2\n  WHERE cp2 <= $maxKnowsLimit\n  // return count\n  RETURN person1, cm\n}\nWITH person1, collect({letter: paramLetter, messageCount: cm}) AS results\nWHERE size(results) = 2\nRETURN\n  person1.id,\n  [r IN results WHERE r.letter = 'A' | r.messageCount][0] AS messageCountA,\n  [r IN results WHERE r.letter = 'B' | r.messageCount][0] AS messageCountB\nORDER BY messageCountA + messageCountB DESC, person1.id ASC\nLIMIT 20\n"
   },
   {
    "case": "bi17",
@@ -645,10 +723,16 @@
    "detail": "relation carrier substituted for variable-length paths",
    "output": "MATCH\n  (tag:Tag {name: $tag}),\n  (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:ROOT_POST]->(post1:Post)<-[:CONTAINER_OF]-(forum1:Forum),\n  (message1)-[:HAS_TAG]->(tag),\n\n\n  (forum1)<-[:HAS_MEMBER]->(person2:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:HAS_TAG]->(tag),\n  (forum1)<-[:HAS_MEMBER]->(person3:Person)<-[:HAS_CREATOR]-(message2:Message),\n  (comment)-[:REPLY_OF]->(message2)-[:ROOT_POST]->(post2:Post)<-[:CONTAINER_OF]-(forum2:Forum)\n\n\n\nMATCH (comment)-[:HAS_TAG]->(tag)\nMATCH (message2)-[:HAS_TAG]->(tag)\nWHERE forum1 <> forum2\n  AND message2.creationDate > message1.creationDate + duration({hours: $delta})\n  AND NOT (forum2)-[:HAS_MEMBER]->(person1)\nRETURN person1.id, count(DISTINCT message2) AS messageCount\nORDER BY messageCount DESC, person1.id ASC\nLIMIT 10",
    "engine_restarts": 3,
-   "seconds": 21.1,
+   "seconds": 21.3,
    "indexes_registered": [
     "ROOT_POST()"
-   ]
+   ],
+   "fills": {
+    "ROOT_POST()": [
+     "FILL ROOT_POST() FROM (\n  MATCH (post:POST)<-[:REPLYOF*0..]-(message:COMMENT:POST)\n  RETURN DISTINCT message.id, post.id\n)"
+    ]
+   },
+   "query_text": "// Q17. Information propagation analysis\n/*\n:params { tag: 'Slavoj_Žižek', delta: 4 }\n*/\nMATCH\n  (tag:Tag {name: $tag}),\n  (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:REPLY_OF*0..]->(post1:Post)<-[:CONTAINER_OF]-(forum1:Forum),\n  (message1)-[:HAS_TAG]->(tag),\n// Having two HAS_MEMBER edges in the same MATCH clause ensures that person2 and person3 are different\n// as Cypher's edge-isomorphic matching does not allow for such a match in a single MATCH clause.\n  (forum1)<-[:HAS_MEMBER]->(person2:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:HAS_TAG]->(tag),\n  (forum1)<-[:HAS_MEMBER]->(person3:Person)<-[:HAS_CREATOR]-(message2:Message),\n  (comment)-[:REPLY_OF]->(message2)-[:REPLY_OF*0..]->(post2:Post)<-[:CONTAINER_OF]-(forum2:Forum)\n// The query allows message2 = post2. If this is the case, their HAS_TAG edges to tag overlap,\n// and Cypher's edge-isomorphic matching does not allow for such a match in a single MATCH clause.\n// To work around this, we add them in separate MATCH clauses.\nMATCH (comment)-[:HAS_TAG]->(tag)\nMATCH (message2)-[:HAS_TAG]->(tag)\nWHERE forum1 <> forum2\n  AND message2.creationDate > message1.creationDate + duration({hours: $delta})\n  AND NOT (forum2)-[:HAS_MEMBER]->(person1)\nRETURN person1.id, count(DISTINCT message2) AS messageCount\nORDER BY messageCount DESC, person1.id ASC\nLIMIT 10\n"
   },
   {
    "case": "bi19a",
@@ -723,12 +807,24 @@
    "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
    "output": "",
    "engine_restarts": 0,
-   "seconds": 0.2,
+   "seconds": 0.1,
    "indexes_registered": [
     "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
     "KNOWS(bi14_case1_rev,bi15_post_rev)",
     "KNOWS(weight_bi19)"
-   ]
+   ],
+   "fills": {
+    "KNOWS(bi14_case1_fwd,bi15_post_fwd)": [
+     "FILL  KNOWS(bi14_case1_fwd, bi15_post_fwd) FROM (\n  MATCH (pA:PERSON)-[:KNOWS]->(pB:PERSON)\n  WITH pA, pB\n  MATCH (pA)<-[:HASCREATOR]-(comment:COMMENT)-[:REPLYOF]->(target:COMMENT:POST)-[:HASCREATOR]->(pB)\n  RETURN pA.id, pB.id, count(comment),\n         sum(CASE label(target) = 'POST' WHEN TRUE THEN 1 ELSE 0 END))"
+    ],
+    "KNOWS(bi14_case1_rev,bi15_post_rev)": [
+     "FILL  KNOWS(bi14_case1_rev, bi15_post_rev) FROM (\n  MATCH (pA:PERSON)-[:KNOWS]->(pB:PERSON)\n  WITH pA, pB\n  MATCH (pB)<-[:HASCREATOR]-(comment:COMMENT)-[:REPLYOF]->(target:COMMENT:POST)-[:HASCREATOR]->(pA)\n  RETURN pA.id, pB.id, count(comment),\n         sum(CASE label(target) = 'POST' WHEN TRUE THEN 1 ELSE 0 END))"
+    ],
+    "KNOWS(weight_bi19)": [
+     "FILL  KNOWS(weight_bi19) FROM (\n  MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON)\n  WITH pA, pB, knows,\n       knows.bi14_case1_fwd + knows.bi14_case1_rev AS replyCount\n  RETURN pA.id, pB.id,\n         CAST(CASE replyCount = 0\n               WHEN TRUE THEN 10000000000000.0\n               ELSE CASE ROUND(40.0 - SQRT(replyCount), 0) > 1.0\n                    WHEN TRUE THEN ROUND(40.0 - SQRT(replyCount), 0)\n                    ELSE 1.0\n                    END\n               END, 'DOUBLE'))"
+    ]
+   },
+   "query_text": "// Q19. Interaction path between cities\n// Requires the Neo4j Graph Data Science library\n/*\n:params { city1Id: 669, city2Id: 648 }\n*/\nMATCH\n  (person1:Person)-[:IS_LOCATED_IN]->(city1:City {id: $city1Id}),\n  (person2:Person)-[:IS_LOCATED_IN]->(city2:City {id: $city2Id})\nCALL gds.shortestPath.dijkstra.stream('bi19', {\n  sourceNode: person1,\n  targetNode: person2,\n  relationshipWeightProperty: 'weight'\n})\nYIELD totalCost\nWITH person1.id AS person1Id, person2.id AS person2Id, totalCost AS totalWeight\nORDER BY totalWeight ASC, person1.id ASC, person2.id ASC\nWITH collect({person1Id: person1Id, person2Id: person2Id, totalWeight: totalWeight}) AS results\nUNWIND results AS result\nWITH result.person1Id AS person1Id, result.person2Id AS person2Id, result.totalWeight AS totalWeight\nWHERE totalWeight = results[0].totalWeight\nRETURN person1Id, person2Id, totalWeight\nORDER BY person1Id, person2Id\n"
   },
   {
    "case": "bi2",
@@ -778,11 +874,20 @@
    "detail": "valid only for the given values of $date",
    "output": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
    "engine_restarts": 0,
-   "seconds": 0.2,
+   "seconds": 0.1,
    "indexes_registered": [
     "TAG(bi2Window1MessageCount)",
     "TAG(bi2Window2MessageCount)"
-   ]
+   ],
+   "fills": {
+    "TAG(bi2Window1MessageCount)": [
+     "FILL TAG(bi2Window1MessageCount) FROM (\n  MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate < TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)\n)"
+    ],
+    "TAG(bi2Window2MessageCount)": [
+     "FILL TAG(bi2Window2MessageCount) FROM (\n  MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate < TIMESTAMP('2010-12-26 00:00:00') RETURN t.id,count(m)\n)"
+    ]
+   },
+   "query_text": "// Q2. Tag evolution\n/*\n:params { date: datetime('2012-06-01'), tagClass: 'MusicalArtist' }\n*/\nMATCH (tag:Tag)-[:HAS_TYPE]->(:TagClass {name: $tagClass})\n// window 1\nOPTIONAL MATCH (message1:Message)-[:HAS_TAG]->(tag)\n  WHERE $date <= message1.creationDate\n    AND message1.creationDate < $date + duration({days: 100})\nWITH tag, count(message1) AS countWindow1\n// window 2\nOPTIONAL MATCH (message2:Message)-[:HAS_TAG]->(tag)\n  WHERE $date + duration({days: 100}) <= message2.creationDate\n    AND message2.creationDate < $date + duration({days: 200})\nWITH\n  tag,\n  countWindow1,\n  count(message2) AS countWindow2\nRETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100\n"
   },
   {
    "case": "bi20",
@@ -843,7 +948,16 @@
    "indexes_registered": [
     "KNOWS(bi20_direct)",
     "KNOWS(bi20_weight)"
-   ]
+   ],
+   "fills": {
+    "KNOWS(bi20_direct)": [
+     "FILL  KNOWS(bi20_direct) FROM (\n  MATCH\n    (personA:PERSON)-[:KNOWS]->(personB:PERSON),\n    (personA)-[saA:STUDYAT]->(university:ORGANISATION)<-[saB:STUDYAT]-(personB)\n  RETURN\n    personA.id,\n    personB.id,\n    min(CASE saA.classYear >= saB.classYear\n        WHEN TRUE THEN saA.classYear - saB.classYear\n        ELSE saB.classYear - saA.classYear\n        END) + 1)"
+    ],
+    "KNOWS(bi20_weight)": [
+     "FILL  KNOWS(bi20_weight) FROM (\n  MATCH (personA:PERSON)-[knows:KNOWS]->(personB:PERSON)\n  RETURN\n    personA.id,\n    personB.id,\n    CASE knows.bi20_direct = 0\n    WHEN TRUE THEN 10000000000000.0\n    ELSE cast(knows.bi20_direct, 'DOUBLE')\n    END)"
+    ]
+   },
+   "query_text": "// Q20. Recruitment\n// Requires the Neo4j Graph Data Science library\n/*\n:params { company: 'Falcon_Air', person2Id: 66 }\n*/\nMATCH\n  (company:Company {name: $company})<-[:WORK_AT]-(person1:Person),\n  (person2:Person {id: $person2Id})\nCALL gds.shortestPath.dijkstra.stream('bi20', {\n  sourceNode: person1,\n  targetNode: person2,\n  relationshipWeightProperty: 'weight'\n})\nYIELD totalCost\nWHERE person1.id <> $person2Id\nWITH person1.id AS person1Id, totalCost AS totalWeight\nORDER BY totalWeight ASC\nWITH collect({person1Id: person1Id, totalWeight: totalWeight}) AS results\nUNWIND results AS result\nWITH result.person1Id AS person1Id, result.totalWeight AS totalWeight\nWHERE totalWeight = results[0].totalWeight\nRETURN person1Id, totalWeight\nORDER BY person1Id ASC\nLIMIT 20\n"
   },
   {
    "case": "bi3",
@@ -900,7 +1014,16 @@
    "indexes_registered": [
     "PERSON(countryName)",
     "ROOT_POST()"
-   ]
+   ],
+   "fills": {
+    "PERSON(countryName)": [
+     "FILL PERSON(countryName) FROM (\nMATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)\nRETURN person.id, country.name)"
+    ],
+    "ROOT_POST()": [
+     "FILL ROOT_POST() FROM (\nMATCH (post:Post)<-[e:REPLYOF*0..4294967295]-(message:COMMENT:POST)\nRETURN DISTINCT message.id, post.id)"
+    ]
+   },
+   "query_text": "// Q3. Popular topics in a country\n/*\n:params { tagClass: 'MusicalArtist', country: 'Burma' }\n*/\nMATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message\nMATCH\n  (message)-[:REPLY_OF*0..]->(post:Post)<-[:CONTAINER_OF]-\n  (forum:Forum)-[:HAS_MODERATOR]->(person:Person)-[:IS_LOCATED_IN]->\n  (:City)-[:IS_PART_OF]->(:Country {name: $country})\nRETURN\n  forum.id,\n  forum.title,\n  forum.creationDate,\n  person.id,\n  count(DISTINCT message) AS messageCount\nORDER BY\n  messageCount DESC,\n  forum.id ASC\nLIMIT 20\n"
   },
   {
    "case": "bi4",
@@ -941,7 +1064,13 @@
    "seconds": 0.1,
    "indexes_registered": [
     "BI4_MESSAGE_COUNT()"
-   ]
+   ],
+   "fills": {
+    "BI4_MESSAGE_COUNT()": [
+     "FILL BI4_MESSAGE_COUNT() FROM (\n  MATCH\n    (forum:FORUM)-[:CONTAINEROF]->(post:POST)<-[:REPLYOF*0..]-\n    (message:COMMENT:POST)-[:HASCREATOR]->(person:PERSON)\n  RETURN forum.id, person.id, count(DISTINCT message)\n)"
+    ]
+   },
+   "query_text": "// Q4. Top message creators in a country\n/*\n:params { date: datetime('2010-01-29') }\n*/\nMATCH (country:Country)<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(person:Person)<-[:HAS_MEMBER]-(forum:Forum)\nWHERE forum.creationDate > $date\nWITH country, forum, count(person) AS numberOfMembers\nORDER BY numberOfMembers DESC, forum.id ASC, country.id\nWITH DISTINCT forum AS topForum\nLIMIT 100\n\nWITH collect(topForum) AS topForums\n\nCALL {\n  WITH topForums\n  UNWIND topForums AS topForum1\n  MATCH (topForum1)-[:CONTAINER_OF]->(post:Post)<-[:REPLY_OF*0..]-(message:Message)-[:HAS_CREATOR]->(person:Person)<-[:HAS_MEMBER]-(topForum2:Forum)\n  WITH person, message, topForum2\n  WHERE topForum2 IN topForums\n  RETURN person, count(DISTINCT message) AS messageCount\nUNION ALL\n  // Ensure that people who are members of top forums but have 0 messages are also returned.\n  // To this end, we return each person with a 0 messageCount\n  WITH topForums\n  UNWIND topForums AS topForum1\n  MATCH (person:Person)<-[:HAS_MEMBER]-(topForum1:Forum)\n  RETURN person, 0 AS messageCount\n}\nRETURN\n  person.id AS personId,\n  person.firstName AS personFirstName,\n  person.lastName AS personLastName,\n  person.creationDate AS personCreationDate,\n  sum(messageCount) AS messageCount\nORDER BY\n  messageCount DESC,\n  person.id ASC\nLIMIT 100\n"
   },
   {
    "case": "bi5",
@@ -1020,7 +1149,22 @@
     "COMMENT(replyCount)",
     "POST(likeCount)",
     "POST(replyCount)"
-   ]
+   ],
+   "fills": {
+    "COMMENT(likeCount)": [
+     "FILL COMMENT(likeCount) FROM (\nMATCH (message:COMMENT)<-[:LIKES]-(liker:PERSON)\nRETURN message.id, count(liker))"
+    ],
+    "POST(likeCount)": [
+     "FILL POST(likeCount) FROM (\nMATCH (message:POST)<-[:LIKES]-(liker:PERSON)\nRETURN message.id, count(liker))"
+    ],
+    "COMMENT(replyCount)": [
+     "FILL COMMENT(replyCount) FROM (\nMATCH (message:COMMENT)<-[:REPLYOF]-(reply:COMMENT)\nRETURN message.id, count(reply))"
+    ],
+    "POST(replyCount)": [
+     "FILL POST(replyCount) FROM (\nMATCH (message:POST)<-[:REPLYOF]-(reply:COMMENT)\nRETURN message.id, count(reply))"
+    ]
+   },
+   "query_text": "// Q5. Most active Posters of a given Topic\n/*\n:params { tag: 'Abbas_I_of_Persia' }\n*/\nMATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)\nOPTIONAL MATCH (message)<-[likes:LIKES]-(:Person)\nWITH person, message, count(likes) AS likeCount\nOPTIONAL MATCH (message)<-[:REPLY_OF]-(reply:Comment)\nWITH person, message, likeCount, count(reply) AS replyCount\nWITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount\nRETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100\n"
   },
   {
    "case": "bi6",
@@ -1057,7 +1201,13 @@
    "seconds": 0.1,
    "indexes_registered": [
     "PERSON(likeCount)"
-   ]
+   ],
+   "fills": {
+    "PERSON(likeCount)": [
+     "FILL PERSON(likeCount) FROM (\nMATCH (person2)<-[:HASCREATOR]-(message2:COMMENT:POST)<-[like:LIKES]-(person3:Person)\nRETURN person2.id, count(person3))"
+    ]
+   },
+   "query_text": "// Q6. Most authoritative users on a given topic\n/*\n:params { tag: 'Arnold_Schwarzenegger' }\n*/\nMATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) {\n  OPTIONAL MATCH (person2)<-[:HAS_CREATOR]-(:Message)<-[like:LIKES]-(:Person)\n  RETURN count(like) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100\n\n// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.\n// This might change in the future with new Cypher versions and GQL.\n"
   },
   {
    "case": "bi8",
@@ -1094,7 +1244,13 @@
    "seconds": 0.2,
    "indexes_registered": [
     "PERSON(bi8MessageCount)"
-   ]
+   ],
+   "fills": {
+    "PERSON(bi8MessageCount)": [
+     "FILL PERSON(bi8MessageCount) FROM (\n  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)\n  WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00') \n  RETURN p.id,count(m)\n)"
+    ]
+   },
+   "query_text": "// Q8. Central Person for a Tag\n/*\n:params { tag: 'Che_Guevara', startDate: datetime('2011-07-20'), endDate: datetime('2011-07-25') }\n*/\nMATCH (tag:Tag {name: $tag})\n// score\nOPTIONAL MATCH (tag)<-[interest:HAS_INTEREST]-(person:Person)\nWITH tag, collect(person) AS interestedPersons\nOPTIONAL MATCH (tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)\n         WHERE $startDate < message.creationDate\n           AND message.creationDate < $endDate\nWITH tag, interestedPersons, interestedPersons + collect(person) AS persons\nUNWIND persons AS person\nWITH DISTINCT tag, person\nWITH\n  tag,\n  person,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(person) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS score\nOPTIONAL MATCH (person)-[:KNOWS]-(friend)\n// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.\n// This might change in the future with new Cypher versions and GQL.\nWITH\n  person,\n  score,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(friend) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(friend) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS friendScore\nRETURN\n  person.id,\n  score,\n  sum(friendScore) AS friendsScore\nORDER BY\n  score + friendsScore DESC,\n  person.id ASC\nLIMIT 100\n"
   },
   {
    "case": "bi9",
@@ -1138,7 +1294,13 @@
    "seconds": 0.1,
    "indexes_registered": [
     "ROOT_POST()"
-   ]
+   ],
+   "fills": {
+    "ROOT_POST()": [
+     "FILL ROOT_POST() FROM (\n  MATCH (post:Post)<-[e:REPLYOF*0..4294967295]-(message:COMMENT:POST)\n  RETURN DISTINCT message.id, post.id\n)"
+    ]
+   },
+   "query_text": "// Q9. Top thread initiators\n/*\n:params { startDate: datetime('2011-10-01'), endDate: datetime('2011-10-15') }\n*/\nMATCH (person:Person)<-[:HAS_CREATOR]-(post:Post)<-[:REPLY_OF*0..]-(reply:Message)\nWHERE  post.creationDate >= $startDate\n  AND  post.creationDate <= $endDate\n  AND reply.creationDate >= $startDate\n  AND reply.creationDate <= $endDate\nRETURN\n  person.id,\n  person.firstName,\n  person.lastName,\n  count(DISTINCT post) AS threadCount,\n  count(DISTINCT reply) AS messageCount\nORDER BY\n  messageCount DESC,\n  person.id ASC\nLIMIT 100\n"
   }
  ]
 }
