@@ -522,7 +522,16 @@ class IndexMiddleware:
         scalar_text, scalar_indexes, proofs, scalar_notes = rewrite_scalar_regions(
             self, strip_comments(source), types, inline)
         source = scalar_text or source
-        result = self._rewrite_parts(source, types, inline)
+        # Relationship-carrier existence parts (edge_carriers.py): a separate
+        # local rule, used only where RewriterV4 leaves the part unchanged.
+        from .edge_carriers import rewrite_parts as carrier_parts
+        try:
+            overrides, carrier_notes = carrier_parts(self, strip_comments(source), types, inline)
+        except (Unsupported, EngineError) as error:
+            overrides, carrier_notes = {}, ['carrier existence: ' + str(error)[:200]]
+        result = self._rewrite_parts(source, types, inline, overrides)
+        if carrier_notes and not result.rewritten:
+            result.detail = ' | '.join(filter(None, [result.detail, ' | '.join(carrier_notes)]))
         if call_notes:
             result.detail = ' | '.join(filter(None, [result.detail, 'CALL: ' + ' | '.join(call_notes)]))
         if scalar_notes:
@@ -552,16 +561,23 @@ class IndexMiddleware:
         internal = self._to_internal(typed, inline)
         return self.engine.bind(internal, _used(types, internal))
 
-    def _rewrite_parts(self, cypher, types, inline=None):
+    def _rewrite_parts(self, cypher, types, inline=None, overrides=None):
         parts = queryparts.split_parts(strip_comments(cypher))
         if parts is None or len(parts) == 1:
             return self._rewrite(cypher, types, inline)
-        new, notes, indexes, rewritten, results = list(parts), [], set(), [], []
+        new, notes, indexes, rewritten, results, proofs = list(parts), [], set(), [], [], []
         for i, part in enumerate(parts):
             if not queryparts.has_match(part):
                 continue
             result = self._rewrite_part(parts, i, types, inline)
             results.append(result)
+            if not result.rewritten and overrides and i in overrides:
+                text, used, proof = overrides[i]
+                new[i] = text
+                indexes.update(used)
+                proofs.append(proof)
+                rewritten.append(i + 1)
+                continue
             if not result.rewritten:
                 notes.append(f'part {i + 1}: {result.reason} {result.detail[:200]}'.strip())
                 continue
@@ -575,7 +591,7 @@ class IndexMiddleware:
         text = ' '.join(new)
         return Result('query', cypher=text, original=cypher, rewritten=True, reason='rewritten',
                       detail=' | '.join(notes), indexes=sorted(indexes), parts=rewritten,
-                      route='parts:' + ','.join(map(str, rewritten)))
+                      route='parts:' + ','.join(map(str, rewritten)), proofs=proofs)
 
     def _rank(self, result):
         reason = result.reason.split(':')[0]

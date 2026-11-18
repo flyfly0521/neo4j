@@ -1,0 +1,567 @@
+{
+ "uri": "bolt://127.0.0.1:7693",
+ "workload_queries_executed": false,
+ "transaction_rolled_back": true,
+ "cases": [
+  {
+   "seed": 0,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 0,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 1,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 1,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 2,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 2,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 3,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 3,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 4,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 4,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 5,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 5,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 6,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 6,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 7,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 10,
+   "equal": true
+  },
+  {
+   "seed": 7,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 10,
+   "equal": true
+  },
+  {
+   "seed": 8,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 16,
+   "equal": true
+  },
+  {
+   "seed": 8,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 16,
+   "equal": true
+  },
+  {
+   "seed": 9,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 9,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 10,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 10,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 11,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 11,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 12,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 12,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 13,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 13,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 14,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 14,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 15,
+   "query": "bi14",
+   "rows": 1,
+   "knows": 15,
+   "equal": true
+  },
+  {
+   "seed": 15,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 15,
+   "equal": true
+  },
+  {
+   "seed": 16,
+   "query": "bi14",
+   "rows": 1,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 16,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 17,
+   "query": "bi14",
+   "rows": 1,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 17,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 18,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 11,
+   "equal": true
+  },
+  {
+   "seed": 18,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 11,
+   "equal": true
+  },
+  {
+   "seed": 19,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 15,
+   "equal": true
+  },
+  {
+   "seed": 19,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 15,
+   "equal": true
+  },
+  {
+   "seed": 20,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 11,
+   "equal": true
+  },
+  {
+   "seed": 20,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 11,
+   "equal": true
+  },
+  {
+   "seed": 21,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 9,
+   "equal": true
+  },
+  {
+   "seed": 21,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 9,
+   "equal": true
+  },
+  {
+   "seed": 22,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 17,
+   "equal": true
+  },
+  {
+   "seed": 22,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 17,
+   "equal": true
+  },
+  {
+   "seed": 23,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 23,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 24,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 16,
+   "equal": true
+  },
+  {
+   "seed": 24,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 16,
+   "equal": true
+  },
+  {
+   "seed": 25,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 25,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 14,
+   "equal": true
+  },
+  {
+   "seed": 26,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 26,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 12,
+   "equal": true
+  },
+  {
+   "seed": 27,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 27,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 13,
+   "equal": true
+  },
+  {
+   "seed": 28,
+   "query": "bi14",
+   "rows": 1,
+   "knows": 11,
+   "equal": true
+  },
+  {
+   "seed": 28,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 11,
+   "equal": true
+  },
+  {
+   "seed": 29,
+   "query": "bi14",
+   "rows": 2,
+   "knows": 16,
+   "equal": true
+  },
+  {
+   "seed": 29,
+   "query": "no_knows_fallback",
+   "rows": 16,
+   "knows": 16,
+   "equal": true
+  }
+ ],
+ "rewrites": {
+  "bi14": {
+   "cypher": "MATCH\n  (country1:Country {name: $country1})<-[:IS_PART_OF]-(city1:City)<-[:IS_LOCATED_IN]-(person1:Person),\n  (country2:Country {name: $country2})<-[:IS_PART_OF]-(city2:City)<-[:IS_LOCATED_IN]-(person2:Person),\n  (person1)-[:KNOWS]-(person2)\nWITH person1, person2, city1, 0 AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)<-[:HAS_CREATOR]-(c:Comment)-[:REPLY_OF]->(:Message)-[:HAS_CREATOR]->(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case1_fwd, 0) > 0 ELSE coalesce(cico_k.bi14_case1_rev, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE  4 END) AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:REPLY_OF]-(:Comment)-[:HAS_CREATOR]->(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case1_rev, 0) > 0 ELSE coalesce(cico_k.bi14_case1_fwd, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE  1 END) AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)-[:LIKES]->(m:Message)-[:HAS_CREATOR]->(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case3_fwd, 0) > 0 ELSE coalesce(cico_k.bi14_case3_rev, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE 10 END) AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:LIKES]-(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case3_rev, 0) > 0 ELSE coalesce(cico_k.bi14_case3_fwd, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE  1 END) AS score\n\nORDER BY\n  city1.name ASC,\n  score DESC,\n  person1.id ASC,\n  person2.id ASC WITH city1, collect({score: score, person1Id: person1.id, person2Id: person2.id})[0] AS top RETURN\n  top.person1Id,\n  top.person2Id,\n  city1.name,\n  top.score\nORDER BY\n  top.score DESC,\n  top.person1Id ASC,\n  top.person2Id ASC\nLIMIT 100000",
+   "proofs": [
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 2,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ab": "KNOWS(bi14_case1_fwd)",
+      "ba": "KNOWS(bi14_case1_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    },
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 3,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ba": "KNOWS(bi14_case1_fwd)",
+      "ab": "KNOWS(bi14_case1_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    },
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 4,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ab": "KNOWS(bi14_case3_fwd)",
+      "ba": "KNOWS(bi14_case3_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    },
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 5,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ba": "KNOWS(bi14_case3_fwd)",
+      "ab": "KNOWS(bi14_case3_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    }
+   ]
+  },
+  "no_knows_fallback": {
+   "cypher": "MATCH\n  (country1:Country {name: $country1})<-[:IS_PART_OF]-(city1:City)<-[:IS_LOCATED_IN]-(person1:Person),\n  (country2:Country {name: $country2})<-[:IS_PART_OF]-(city2:City)<-[:IS_LOCATED_IN]-(person2:Person)\nWITH person1, person2, city1, 0 AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)<-[:HAS_CREATOR]-(c:Comment)-[:REPLY_OF]->(:Message)-[:HAS_CREATOR]->(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case1_fwd, 0) > 0 ELSE coalesce(cico_k.bi14_case1_rev, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE 4 END) AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)-[:LIKES]->(m:Message)-[:HAS_CREATOR]->(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case3_fwd, 0) > 0 ELSE coalesce(cico_k.bi14_case3_rev, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (cico_exists) THEN 10 ELSE 0 END) AS score RETURN person1.id AS p1, person2.id AS p2, city1.name AS city, score",
+   "proofs": [
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 2,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ab": "KNOWS(bi14_case1_fwd)",
+      "ba": "KNOWS(bi14_case1_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    },
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 3,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ab": "KNOWS(bi14_case3_fwd)",
+      "ba": "KNOWS(bi14_case3_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    }
+   ]
+  }
+ },
+ "all_equal": true,
+ "nonempty": 60
+}
