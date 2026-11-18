@@ -8,6 +8,7 @@
 - 查询：`Neo4j/queries/baseline/ldbc-bi/bi-N.cypher` 原文；Neo4j profile 输入、输出。
 - 中间件：提交 `ea549ab8`（`develop`）。每个索引目录单独注册、单独改写一次；只编译，不物化索引、不执行 BI 查询。
 - 复现：`python3 middleware/tests/neug_fill_bi_status.py --output s.json && python3 middleware/tests/render_bi_status.py s.json`。
+- “方言转换后的 NeuG 查询”由中间件自身的转换路径生成（`_to_internal`：Neo4j 前端翻译 + 常量折叠 + NeuG 语言检查），与改写时交给 NeuG/RewriterV4 的文本一致。整条语句不能转换时（APOC/GDS 过程、`CALL {}`、列表拼接等），按 QueryPart 和 CALL 分支分别转换并给出原因；分段转换不带输入类型桩，实际改写的探针会为输入变量加标签。只有参数拼接（如 `duration({hours: $delta})`）阻止转换时，另给出按第 0 组参数内联后的结果。
 
 ## 总览：12/17 改写（上一轮诊断 5/17）
 
@@ -120,6 +121,47 @@ ORDER BY messageCountA + messageCountB DESC, person1.id ASC
 LIMIT 20
 ```
 
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：map literal or map projection: NeuG has no map/struct literals
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 2 段 CALL 第 1 个分支（单独转换，导入变量未加类型桩）：
+
+```cypher
+WITH paramTagX, paramDateX
+  MATCH (person1:PERSON)<-[:HASCREATOR]-(message1:COMMENT:POST)-[:HASTAG]->(tag:TAG {name: paramTagX})
+  WHERE date(message1.creationDate) = date(paramDateX)
+  
+  OPTIONAL MATCH (person1)-[:KNOWS]-(person2:PERSON)<-[:HASCREATOR]-(message2:COMMENT:POST)-[:HASTAG]->(tag)
+  WHERE date(message2.creationDate) = date(paramDateX)
+  WITH person1, count(DISTINCT message1) AS cm, count(DISTINCT person2) AS cp2
+  WHERE cp2 <= $maxKnowsLimit
+  
+  RETURN person1, cm
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：list or pattern comprehension: no NeuG equivalent
+```
+
 **中间件返回的 detail**
 
 ```
@@ -204,6 +246,41 @@ RETURN person1Id, person2Id, totalWeight
 ORDER BY person1Id, person2Id
 ```
 
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：map literal or map projection: NeuG has no map/struct literals
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+UNWIND results AS result
+WITH result.person1Id AS person1Id, result.person2Id AS person2Id, result.totalWeight AS totalWeight
+WHERE totalWeight = results[0].totalWeight
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+RETURN person1Id, person2Id, totalWeight
+ORDER BY person1Id, person2Id
+```
+
 **中间件返回的 detail**
 
 ```
@@ -278,6 +355,42 @@ WITH collect({person1Id: person1Id, totalWeight: totalWeight}) AS results
 UNWIND results AS result
 WITH result.person1Id AS person1Id, result.totalWeight AS totalWeight
 WHERE totalWeight = results[0].totalWeight
+RETURN person1Id, totalWeight
+ORDER BY person1Id ASC
+LIMIT 20
+```
+
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：map literal or map projection: NeuG has no map/struct literals
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+UNWIND results AS result
+WITH result.person1Id AS person1Id, result.totalWeight AS totalWeight
+WHERE totalWeight = results[0].totalWeight
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
 RETURN person1Id, totalWeight
 ORDER BY person1Id ASC
 LIMIT 20
@@ -395,6 +508,44 @@ CALL {
   RETURN -1.0 AS totalCost
 }
 RETURN max(totalCost) AS totalCost
+```
+
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 3 段 CALL 第 1 个分支（单独转换，导入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 3 段 CALL 第 2 个分支（单独转换，导入变量未加类型桩）：
+
+```cypher
+RETURN -1.0 AS totalCost
 ```
 
 **中间件返回的 detail**
@@ -516,6 +667,44 @@ CALL {
 RETURN max(totalCost) AS totalCost
 ```
 
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 3 段 CALL 第 1 个分支（单独转换，导入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 3 段 CALL 第 2 个分支（单独转换，导入变量未加类型桩）：
+
+```cypher
+RETURN -1.0 AS totalCost
+```
+
 **中间件返回的 detail**
 
 ```
@@ -530,15 +719,17 @@ CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_se
 
 - 同 BI15。
 
-## 已改写的查询（本轮新增）
+## 已改写的查询
 
-### bi2 → `bi-2.cypher`
+本轮新增在前，原有的在后。每条给出 FILL、原始查询、方言转换后的 NeuG 查询、改写输出，以及改写输出转换回 NeuG 方言的结果（关系载体存在性规则输出的 `startNode`、`EXISTS {}` 等 Neo4j 写法没有 NeuG 对应，会注明转换失败；这些规则的正确性见各自的 Neo4j 比对）。
+
+### bi2 → `bi-2.cypher`（本轮新增）
 
 - 路径：`parts:1,2`；读取：`TAG(bi2Window1MessageCount)`, `TAG(bi2Window2MessageCount)`；参数特化：$date
 - 前提（声明约束）：无
 - 证明记录：RewriterV4 + 回译验证
 
-<details><summary>FILL、原始查询与改写输出</summary>
+**注册的 FILL（NeuG 方言，参数已渲染）**
 
 ```cypher
 FILL TAG(bi2Window1MessageCount) FROM (
@@ -552,7 +743,7 @@ FILL TAG(bi2Window2MessageCount) FROM (
 )
 ```
 
-原始查询：
+**原始 Neo4j 查询**
 
 ```cypher
 // Q2. Tag evolution
@@ -584,7 +775,37 @@ ORDER BY
 LIMIT 100
 ```
 
-改写输出：
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+MATCH (tag:TAG)-[:HASTYPE]->(:TAGCLASS {name: $tagClass})
+
+OPTIONAL MATCH (message1:COMMENT:POST)-[:HASTAG]->(tag)
+  WHERE $date <= message1.creationDate
+    AND message1.creationDate < $date + duration('100 days')
+WITH tag, count(message1) AS countWindow1
+
+OPTIONAL MATCH (message2:COMMENT:POST)-[:HASTAG]->(tag)
+  WHERE $date + duration('100 days') <= message2.creationDate
+    AND message2.creationDate < $date + duration('200 days')
+WITH
+  tag,
+  countWindow1,
+  count(message2) AS countWindow2
+RETURN
+  tag.name,
+  countWindow1,
+  countWindow2,
+  abs(countWindow1 - countWindow2) AS diff
+ORDER BY
+  diff DESC,
+  tag.name ASC
+LIMIT 100
+```
+
+**改写输出（Neo4j）**
 
 ```cypher
 MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN
@@ -598,15 +819,29 @@ ORDER BY
 LIMIT 100
 ```
 
-</details>
+**改写输出转换回 NeuG 方言**
 
-### bi4 → `bi-4.cypher`
+整条语句：
+
+```cypher
+MATCH (tag:TAG)-[cico_r2:HASTYPE]->(cico_n1:TAGCLASS) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN
+  tag.name,
+  countWindow1,
+  countWindow2,
+  abs(countWindow1 - countWindow2) AS diff
+ORDER BY
+  diff DESC,
+  tag.name ASC
+LIMIT 100
+```
+
+### bi4 → `bi-4.cypher`（本轮新增）
 
 - 路径：`subqueries`；读取：`BI4_MESSAGE_COUNT()`
 - 前提（声明约束）：`at_most_one: (:Message)-[:REPLY_OF]->`, `at_most_one: -[:CONTAINER_OF]->(:Post)`
 - 证明记录：distinct_partition_carrier
 
-<details><summary>FILL、原始查询与改写输出</summary>
+**注册的 FILL（NeuG 方言，参数已渲染）**
 
 ```cypher
 FILL BI4_MESSAGE_COUNT() FROM (
@@ -617,7 +852,7 @@ FILL BI4_MESSAGE_COUNT() FROM (
 )
 ```
 
-原始查询：
+**原始 Neo4j 查询**
 
 ```cypher
 // Q4. Top message creators in a country
@@ -660,7 +895,63 @@ ORDER BY
 LIMIT 100
 ```
 
-改写输出：
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+MATCH (country:PLACE {type: 'Country'})<-[:ISPARTOF]-(:PLACE {type: 'City'})<-[:ISLOCATEDIN]-(person:PERSON)<-[:HASMEMBER]-(forum:FORUM)
+WHERE forum.creationDate > $date
+WITH country, forum, count(person) AS numberOfMembers
+ORDER BY numberOfMembers DESC, forum.id ASC, country.id
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+WITH DISTINCT forum AS topForum
+LIMIT 100
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+WITH collect(topForum) AS topForums
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 4 段 CALL 第 1 个分支（单独转换，导入变量未加类型桩）：
+
+```cypher
+WITH topForums
+  UNWIND topForums AS topForum1
+  MATCH (topForum1)-[:CONTAINEROF]->(post:POST)<-[:REPLYOF*0..4294967295]-(message:COMMENT:POST)-[:HASCREATOR]->(person:PERSON)<-[:HASMEMBER]-(topForum2:FORUM)
+  WITH person, message, topForum2
+  WHERE topForum2 IN topForums
+  RETURN person, count(DISTINCT message) AS messageCount
+```
+
+第 4 段 CALL 第 2 个分支（单独转换，导入变量未加类型桩）：
+
+```cypher
+WITH topForums
+  UNWIND topForums AS topForum1
+  MATCH (person:PERSON)<-[:HASMEMBER]-(topForum1:FORUM)
+  RETURN person, 0 AS messageCount
+```
+
+**改写输出（Neo4j）**
 
 ```cypher
 MATCH (country:Country)<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(person:Person)<-[:HAS_MEMBER]-(forum:Forum)
@@ -694,15 +985,64 @@ ORDER BY
 LIMIT 100
 ```
 
-</details>
+**改写输出转换回 NeuG 方言**
 
-### bi8 → `bi-8.cypher`
+整条语句：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+MATCH (country:PLACE {type: 'Country'})<-[:ISPARTOF]-(:PLACE {type: 'City'})<-[:ISLOCATEDIN]-(person:PERSON)<-[:HASMEMBER]-(forum:FORUM)
+WHERE forum.creationDate > $date
+WITH country, forum, count(person) AS numberOfMembers
+ORDER BY numberOfMembers DESC, forum.id ASC, country.id
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+WITH DISTINCT forum AS topForum
+LIMIT 100
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+WITH collect(topForum) AS topForums
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 4 段 CALL 第 1 个分支（单独转换，导入变量未加类型桩）：
+
+```cypher
+WITH topForums UNWIND topForums AS topForum1 WITH DISTINCT topForums, topForum1 MATCH (topForum1)-[cico_part:BI4_MESSAGE_COUNT]->(person:PERSON) WHERE EXISTS { MATCH (topForum2:FORUM)-[:HASMEMBER]->(person) WHERE (topForum2 IN topForums) } RETURN person, sum(cico_part.messageCount) AS messageCount
+```
+
+第 4 段 CALL 第 2 个分支（单独转换，导入变量未加类型桩）：
+
+```cypher
+WITH topForums
+  UNWIND topForums AS topForum1
+  MATCH (person:PERSON)<-[:HASMEMBER]-(topForum1:FORUM)
+  RETURN person, 0 AS messageCount
+```
+
+### bi8 → `bi-8.cypher`（本轮新增）
 
 - 路径：`declared_constraints:expressions`；读取：`PERSON(bi8MessageCount)`；参数特化：$startDate, $endDate, $tag
 - 前提（声明约束）：`required_property: Tag.name`, `unique_property: Tag.name`
 - 证明记录：constraint_implied_labels, correlated_graph_count
 
-<details><summary>FILL、原始查询与改写输出</summary>
+**注册的 FILL（NeuG 方言，参数已渲染）**
 
 ```cypher
 FILL PERSON(bi8MessageCount) FROM (
@@ -712,7 +1052,7 @@ FILL PERSON(bi8MessageCount) FROM (
 )
 ```
 
-原始查询：
+**原始 Neo4j 查询**
 
 ```cypher
 // Q8. Central Person for a Tag
@@ -752,7 +1092,123 @@ ORDER BY
 LIMIT 100
 ```
 
-改写输出：
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：function size(): not in the NeuG catalog
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+MATCH (tag:TAG {name: $tag})
+
+OPTIONAL MATCH (tag)<-[interest:HASINTEREST]-(person:PERSON)
+WITH tag, collect(person) AS interestedPersons
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+OPTIONAL MATCH (tag:TAG)<-[:HASTAG]-(message:COMMENT:POST)-[:HASCREATOR]->(person:PERSON)
+         WHERE $startDate < message.creationDate
+           AND message.creationDate < $endDate
+WITH tag, interestedPersons, interestedPersons + collect(person) AS persons
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+UNWIND persons AS person
+WITH DISTINCT tag, person
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function size(): not in the NeuG catalog
+```
+
+第 5 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function size(): not in the NeuG catalog
+```
+
+第 6 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+RETURN
+  person.id,
+  score,
+  sum(friendScore) AS friendsScore
+ORDER BY
+  score + friendsScore DESC,
+  person.id ASC
+LIMIT 100
+```
+
+**声明约束重试阶段实际改写的 NeuG 查询（类型谓词已由约束去掉、键身份已改写）**
+
+整条语句：
+
+```cypher
+-- 转换失败：function size(): not in the NeuG catalog
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+MATCH (tag:TAG {name: $tag})
+
+OPTIONAL MATCH (tag)<-[interest:HASINTEREST]-(person:PERSON)
+WITH tag, collect(person) AS interestedPersons
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+OPTIONAL MATCH (tag:TAG)<-[:HASTAG]-(message:COMMENT:POST)-[:HASCREATOR]->(person:PERSON)
+         WHERE $startDate < message.creationDate
+           AND message.creationDate < $endDate
+WITH tag, interestedPersons, interestedPersons + collect(person) AS persons
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+UNWIND persons AS person
+WITH DISTINCT tag, person
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function size(): not in the NeuG catalog
+```
+
+第 5 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function size(): not in the NeuG catalog
+```
+
+第 6 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+RETURN
+  person.id,
+  score,
+  sum(friendScore) AS friendsScore
+ORDER BY
+  score + friendsScore DESC,
+  person.id ASC
+LIMIT 100
+```
+
+**改写输出（Neo4j）**
 
 ```cypher
 MATCH (tag:Tag {name: $tag})
@@ -788,15 +1244,71 @@ ORDER BY
 LIMIT 100
 ```
 
-</details>
+**改写输出转换回 NeuG 方言**
 
-### bi10 → `bi-10.cypher`
+整条语句：
+
+```cypher
+-- 转换失败：function size(): not in the NeuG catalog
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+MATCH (tag:TAG {name: $tag})
+
+OPTIONAL MATCH (tag)<-[interest:HASINTEREST]-(person:PERSON)
+WITH tag, collect(person) AS interestedPersons
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+OPTIONAL MATCH (tag:TAG)<-[:HASTAG]-(message:COMMENT:POST)-[:HASCREATOR]->(person:PERSON)
+         WHERE $startDate < message.creationDate
+           AND message.creationDate < $endDate
+WITH tag, interestedPersons, interestedPersons + collect(person) AS persons
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+UNWIND persons AS person
+WITH DISTINCT tag, person
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function size(): not in the NeuG catalog
+```
+
+第 5 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function size(): not in the NeuG catalog
+```
+
+第 6 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+RETURN
+  person.id,
+  score,
+  sum(friendScore) AS friendsScore
+ORDER BY
+  score + friendsScore DESC,
+  person.id ASC
+LIMIT 100
+```
+
+### bi10 → `bi-10.cypher`（本轮新增）
 
 - 路径：`declared_constraints:parts:4`；读取：`PERSON(countryName)`
 - 前提（声明约束）：`at_least_one: (:City)-[:IS_PART_OF]->`, `at_least_one: (:Person)-[:IS_LOCATED_IN]->`, `at_most_one: (:City)-[:IS_PART_OF]->`, `at_most_one: (:Person)-[:IS_LOCATED_IN]->`, `endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)`, `endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)`
 - 证明记录：constraint_implied_labels
 
-<details><summary>FILL、原始查询与改写输出</summary>
+**注册的 FILL（NeuG 方言，参数已渲染）**
 
 ```cypher
 FILL PERSON(countryName) FROM (
@@ -804,7 +1316,7 @@ MATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)
 RETURN person.id, country.name)
 ```
 
-原始查询：
+**原始 Neo4j 查询**
 
 ```cypher
 // Q10. Experts in social circle
@@ -853,7 +1365,101 @@ ORDER BY
 LIMIT 100
 ```
 
-改写输出：
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：list or pattern comprehension: no NeuG equivalent
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+UNWIND expertCandidatePersons AS expertCandidatePerson
+MATCH
+  (expertCandidatePerson)-[:ISLOCATEDIN|ORGANISATION_ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(:PLACE {name: $country, type: 'Country'}),
+  (expertCandidatePerson)<-[:HASCREATOR]-(message:COMMENT:POST)-[:HASTAG]->(:TAG)-[:HASTYPE]->
+  (:TAGCLASS {name: $tagClass})
+MATCH
+  (message)-[:HASTAG]->(tag:TAG)
+RETURN
+  expertCandidatePerson.id,
+  tag.name,
+  count(DISTINCT message) AS messageCount
+ORDER BY
+  messageCount DESC,
+  tag.name ASC,
+  expertCandidatePerson.id ASC
+LIMIT 100
+```
+
+**声明约束重试阶段实际改写的 NeuG 查询（类型谓词已由约束去掉、键身份已改写）**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：list or pattern comprehension: no NeuG equivalent
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+UNWIND expertCandidatePersons AS expertCandidatePerson
+MATCH
+  (expertCandidatePerson)-[:ISLOCATEDIN|ORGANISATION_ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(:PLACE {name: $country}),
+  (expertCandidatePerson)<-[:HASCREATOR]-(message:COMMENT:POST)-[:HASTAG]->(:TAG)-[:HASTYPE]->
+  (:TAGCLASS {name: $tagClass})
+MATCH
+  (message)-[:HASTAG]->(tag:TAG)
+RETURN
+  expertCandidatePerson.id,
+  tag.name,
+  count(DISTINCT message) AS messageCount
+ORDER BY
+  messageCount DESC,
+  tag.name ASC,
+  expertCandidatePerson.id ASC
+LIMIT 100
+```
+
+**改写输出（Neo4j）**
 
 ```cypher
 MATCH (startPerson:Person {id: $personId})
@@ -872,15 +1478,45 @@ YIELD node
 WITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100
 ```
 
-</details>
+**改写输出转换回 NeuG 方言**
 
-### bi11 → `bi-11.cypher`
+整条语句：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL procedure: no internal equivalent
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：list or pattern comprehension: no NeuG equivalent
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:COMMENT:POST)-[cico_r3:HASCREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HASTAG]->(cico_n1:TAG) MATCH (cico_n1)-[cico_r5:HASTYPE]->(cico_n2:TAGCLASS) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HASTAG]->(tag:TAG) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100
+```
+
+### bi11 → `bi-11.cypher`（本轮新增）
 
 - 路径：`declared_constraints:parts:1,2,3`；读取：`PERSON(countryName)`
 - 前提（声明约束）：`at_least_one: (:City)-[:IS_PART_OF]->`, `at_least_one: (:Person)-[:IS_LOCATED_IN]->`, `at_most_one: (:City)-[:IS_PART_OF]->`, `at_most_one: (:Person)-[:IS_LOCATED_IN]->`, `endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)`, `endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)`, `required_property: Country.name`, `unique_property: Country.name`
 - 证明记录：constraint_implied_labels
 
-<details><summary>FILL、原始查询与改写输出</summary>
+**注册的 FILL（NeuG 方言，参数已渲染）**
 
 ```cypher
 FILL PERSON(countryName) FROM (
@@ -888,7 +1524,7 @@ MATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)
 RETURN person.id, country.name)
 ```
 
-原始查询：
+**原始 Neo4j 查询**
 
 ```cypher
 // Q11. Friend triangles
@@ -917,7 +1553,52 @@ WITH DISTINCT a, b, c
 RETURN count(*) AS count
 ```
 
-改写输出：
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+MATCH (a:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {name: $country, type: 'Country'}),
+      (a)-[k1:KNOWS]-(b:PERSON)
+WHERE a.id < b.id
+  AND $startDate <= k1.creationDate AND k1.creationDate <= $endDate
+WITH DISTINCT country, a, b
+MATCH (b)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country)
+WITH DISTINCT country, a, b
+MATCH (b)-[k2:KNOWS]-(c:PERSON),
+      (c)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country)
+WHERE b.id < c.id
+  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate
+WITH DISTINCT a, b, c
+MATCH (c)-[k3:KNOWS]-(a)
+WHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate
+WITH DISTINCT a, b, c
+RETURN count(*) AS count
+```
+
+**声明约束重试阶段实际改写的 NeuG 查询（类型谓词已由约束去掉、键身份已改写）**
+
+整条语句：
+
+```cypher
+MATCH (a:PERSON)-[:ISLOCATEDIN]->(:PLACE)-[:ISPARTOF]-> (cico_key1:PLACE {name: $country}),
+      (a)-[k1:KNOWS]-(b:PERSON)
+WHERE a.id < b.id
+  AND $startDate <= k1.creationDate AND k1.creationDate <= $endDate WITH DISTINCT a, b MATCH (country:PLACE {name: $country, type: 'Country'}) WITH DISTINCT country, a, b
+MATCH (b)-[:ISLOCATEDIN]->(:PLACE)-[:ISPARTOF]-> (cico_key2:PLACE)  WHERE (cico_key2.name = country.name AND (country.type = 'Country'))
+WITH DISTINCT country, a, b
+MATCH (b)-[k2:KNOWS]-(c:PERSON),
+      (c)-[:ISLOCATEDIN]->(:PLACE)-[:ISPARTOF]-> (cico_key3:PLACE)
+WHERE  ( b.id < c.id
+  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate ) AND (cico_key3.name = country.name AND (country.type = 'Country'))
+WITH DISTINCT a, b, c
+MATCH (c)-[k3:KNOWS]-(a)
+WHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate
+WITH DISTINCT a, b, c
+RETURN count(*) AS count
+```
+
+**改写输出（Neo4j）**
 
 ```cypher
 MATCH (a:Person)-[k1:KNOWS]-(b:Person) WHERE ((((a.countryName = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT a, b MATCH (country:Country) WHERE (country.name = $country) WITH DISTINCT country, a, b MATCH (b) WHERE ((b.countryName = country.name) AND (country:Country)) WITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person) WHERE (((((b.id < c.id) AND ($startDate <= k2.creationDate)) AND (k2.creationDate <= $endDate)) AND (c.countryName = country.name)) AND (country:Country)) WITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)
@@ -925,15 +1606,23 @@ WHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate
 WITH DISTINCT a, b, c RETURN count(*) AS count
 ```
 
-</details>
+**改写输出转换回 NeuG 方言**
 
-### bi14 → `bi-14.cypher`
+整条语句：
+
+```cypher
+MATCH (a:PERSON)-[k1:KNOWS]-(b:PERSON) WHERE ((((a.countryName = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT a, b MATCH (country:PLACE {type: 'Country'}) WHERE (country.name = $country) WITH DISTINCT country, a, b MATCH (b) WHERE ((b.countryName = country.name) AND ((country.type = 'Country'))) WITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:PERSON) WHERE (((((b.id < c.id) AND ($startDate <= k2.creationDate)) AND (k2.creationDate <= $endDate)) AND (c.countryName = country.name)) AND ((country.type = 'Country'))) WITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)
+WHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate
+WITH DISTINCT a, b, c RETURN count(*) AS count
+```
+
+### bi14 → `bi-14.cypher`（本轮新增）
 
 - 路径：`parts:2,3,4,5`；读取：`KNOWS(bi14_case1_fwd)`, `KNOWS(bi14_case1_rev)`, `KNOWS(bi14_case3_fwd)`, `KNOWS(bi14_case3_rev)`
 - 前提（声明约束）：无
 - 证明记录：relationship_carrier_existence
 
-<details><summary>FILL、原始查询与改写输出</summary>
+**注册的 FILL（NeuG 方言，参数已渲染）**
 
 ```cypher
 FILL KNOWS(bi14_case1_fwd) FROM (
@@ -999,7 +1688,7 @@ MATCH (pB)<-[:HASCREATOR]-(m:COMMENT:POST)<-[:LIKES]-(pA)
 RETURN pA.id, pB.id, count(m) AS cnt)
 ```
 
-原始查询：
+**原始 Neo4j 查询**
 
 ```cypher
 // Q14. International dialog
@@ -1042,7 +1731,80 @@ ORDER BY
 LIMIT 100
 ```
 
-改写输出：
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：map literal or map projection: NeuG has no map/struct literals
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+MATCH
+  (country1:PLACE {name: $country1, type: 'Country'})<-[cico_u1:ISPARTOF]-(city1:PLACE {type: 'City'})<-[cico_u3:ISLOCATEDIN]-(person1:PERSON),
+  (country2:PLACE {name: $country2, type: 'Country'})<-[cico_u2:ISPARTOF]-(city2:PLACE {type: 'City'})<-[cico_u4:ISLOCATEDIN]-(person2:PERSON),
+  (person1)-[:KNOWS]-(person2) WHERE cico_u1 <> cico_u2 AND id(cico_u3) <> id(cico_u4)
+WITH person1, person2, city1, 0 AS score
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+OPTIONAL MATCH (person1:PERSON)<-[cico_u1:HASCREATOR]-(c:COMMENT)-[:REPLYOF]->(:COMMENT:POST)-[cico_u2:HASCREATOR]->(person2:PERSON) WHERE id(cico_u1) <> id(cico_u2)
+WITH DISTINCT person1, person2, city1, score + (CASE WHEN c IS NULL THEN 0 ELSE  4 END) AS score
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+OPTIONAL MATCH (person1:PERSON)<-[cico_u1:HASCREATOR]-(m:COMMENT:POST)<-[:REPLYOF]-(:COMMENT)-[cico_u2:HASCREATOR]->(person2:PERSON) WHERE id(cico_u1) <> id(cico_u2)
+WITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE  1 END) AS score
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+OPTIONAL MATCH (person1:PERSON)-[:LIKES]->(m:COMMENT:POST)-[:HASCREATOR]->(person2:PERSON)
+WITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE 10 END) AS score
+```
+
+第 5 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+OPTIONAL MATCH (person1:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)<-[:LIKES]-(person2:PERSON)
+WITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE  1 END) AS score
+
+ORDER BY
+  city1.name ASC,
+  score DESC,
+  person1.id ASC,
+  person2.id ASC
+```
+
+第 6 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：map literal or map projection: NeuG has no map/struct literals
+```
+
+第 7 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+RETURN
+  top.person1Id,
+  top.person2Id,
+  city1.name,
+  top.score
+ORDER BY
+  top.score DESC,
+  top.person1Id ASC,
+  top.person2Id ASC
+LIMIT 100
+```
+
+**改写输出（Neo4j）**
 
 ```cypher
 MATCH
@@ -1067,15 +1829,106 @@ ORDER BY
 LIMIT 100
 ```
 
-</details>
+**改写输出转换回 NeuG 方言**
 
-### bi17 → `bi-17.cypher`
+整条语句：
+
+```cypher
+-- 转换失败：function startNode(): not in the NeuG catalog
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+MATCH
+  (country1:PLACE {name: $country1, type: 'Country'})<-[cico_u1:ISPARTOF]-(city1:PLACE {type: 'City'})<-[cico_u3:ISLOCATEDIN]-(person1:PERSON),
+  (country2:PLACE {name: $country2, type: 'Country'})<-[cico_u2:ISPARTOF]-(city2:PLACE {type: 'City'})<-[cico_u4:ISLOCATEDIN]-(person2:PERSON),
+  (person1)-[:KNOWS]-(person2) WHERE cico_u1 <> cico_u2 AND id(cico_u3) <> id(cico_u4)
+WITH person1, person2, city1, 0 AS score
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function startNode(): not in the NeuG catalog
+```
+
+第 3 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE  4 END) AS score
+```
+
+第 4 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function startNode(): not in the NeuG catalog
+```
+
+第 5 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE  1 END) AS score
+```
+
+第 6 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function startNode(): not in the NeuG catalog
+```
+
+第 7 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE 10 END) AS score
+```
+
+第 8 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：function startNode(): not in the NeuG catalog
+```
+
+第 9 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE  1 END) AS score
+
+ORDER BY
+  city1.name ASC,
+  score DESC,
+  person1.id ASC,
+  person2.id ASC
+```
+
+第 10 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：map literal or map projection: NeuG has no map/struct literals
+```
+
+第 11 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+RETURN
+  top.person1Id,
+  top.person2Id,
+  city1.name,
+  top.score
+ORDER BY
+  top.score DESC,
+  top.person1Id ASC,
+  top.person2Id ASC
+LIMIT 100
+```
+
+### bi17 → `bi-17.cypher`（本轮新增）
 
 - 路径：`path_carriers`；读取：`ROOT_POST()`
 - 前提（声明约束）：`at_most_one: (:Message)-[:REPLY_OF]->`, `at_most_one: -[:CONTAINER_OF]->(:Post)`
 - 证明记录：relation_carrier_path
 
-<details><summary>FILL、原始查询与改写输出</summary>
+**注册的 FILL（NeuG 方言，参数已渲染）**
 
 ```cypher
 FILL ROOT_POST() FROM (
@@ -1084,7 +1937,7 @@ FILL ROOT_POST() FROM (
 )
 ```
 
-原始查询：
+**原始 Neo4j 查询**
 
 ```cypher
 // Q17. Information propagation analysis
@@ -1113,7 +1966,34 @@ ORDER BY messageCount DESC, person1.id ASC
 LIMIT 10
 ```
 
-改写输出：
+**方言转换后的 NeuG 查询**
+
+整条语句（参数按第 0 组取值内联后转换）：
+
+```cypher
+MATCH
+  (tag:TAG {name: 'I_Luv_Your_Girl'}),
+  (person1:PERSON)<-[cico_u1:HASCREATOR]-(message1:COMMENT:POST)-[:REPLYOF*0..4294967295]->(post1:POST)<-[cico_u4:CONTAINEROF]-(forum1:FORUM),
+  (message1)-[cico_u6:HASTAG]->(tag),
+
+
+  (forum1)-[cico_u8:HASMEMBER]-(person2:PERSON)<-[cico_u2:HASCREATOR]-(comment:COMMENT)-[cico_u7:HASTAG]->(tag),
+  (forum1)-[cico_u9:HASMEMBER]-(person3:PERSON)<-[cico_u3:HASCREATOR]-(message2:COMMENT:POST),
+  (comment)-[:REPLYOF]->(message2)-[:REPLYOF*0..4294967295]->(post2:POST)<-[cico_u5:CONTAINEROF]-(forum2:FORUM) WHERE id(cico_u1) <> id(cico_u2) AND id(cico_u1) <> id(cico_u3) AND cico_u4 <> cico_u5 AND id(cico_u6) <> id(cico_u7) AND cico_u8 <> cico_u9 AND id(cico_u2) <> id(cico_u3)
+
+
+
+MATCH (comment)-[:HASTAG]->(tag)
+MATCH (message2)-[:HASTAG]->(tag)
+WHERE forum1 <> forum2
+  AND message2.creationDate > message1.creationDate + duration('12 hours')
+  AND NOT EXISTS { MATCH (forum2)-[:HASMEMBER]->(person1) }
+RETURN person1.id, count(DISTINCT message2) AS messageCount
+ORDER BY messageCount DESC, person1.id ASC
+LIMIT 10
+```
+
+**改写输出（Neo4j）**
 
 ```cypher
 MATCH
@@ -1138,7 +2018,618 @@ ORDER BY messageCount DESC, person1.id ASC
 LIMIT 10
 ```
 
-</details>
+**改写输出转换回 NeuG 方言**
+
+整条语句（参数按第 0 组取值内联后转换）：
+
+```cypher
+MATCH
+  (tag:TAG {name: 'I_Luv_Your_Girl'}),
+  (person1:PERSON)<-[cico_u1:HASCREATOR]-(message1:COMMENT:POST)-[cico_u4:ROOT_POST]->(post1:POST)<-[cico_u6:CONTAINEROF]-(forum1:FORUM),
+  (message1)-[cico_u8:HASTAG]->(tag),
+
+
+  (forum1)-[cico_u10:HASMEMBER]-(person2:PERSON)<-[cico_u2:HASCREATOR]-(comment:COMMENT)-[cico_u9:HASTAG]->(tag),
+  (forum1)-[cico_u11:HASMEMBER]-(person3:PERSON)<-[cico_u3:HASCREATOR]-(message2:COMMENT:POST),
+  (comment)-[:REPLYOF]->(message2)-[cico_u5:ROOT_POST]->(post2:POST)<-[cico_u7:CONTAINEROF]-(forum2:FORUM) WHERE id(cico_u1) <> id(cico_u2) AND id(cico_u1) <> id(cico_u3) AND id(cico_u4) <> id(cico_u5) AND cico_u6 <> cico_u7 AND id(cico_u8) <> id(cico_u9) AND cico_u10 <> cico_u11 AND id(cico_u2) <> id(cico_u3)
+
+
+
+MATCH (comment)-[:HASTAG]->(tag)
+MATCH (message2)-[:HASTAG]->(tag)
+WHERE forum1 <> forum2
+  AND message2.creationDate > message1.creationDate + duration('12 hours')
+  AND NOT EXISTS { MATCH (forum2)-[:HASMEMBER]->(person1) }
+RETURN person1.id, count(DISTINCT message2) AS messageCount
+ORDER BY messageCount DESC, person1.id ASC
+LIMIT 10
+```
+
+### bi3 → `bi-3.cypher`（原有）
+
+- 路径：`parts:2`；读取：`ROOT_POST()`
+- 前提（声明约束）：无
+- 证明记录：RewriterV4 + 回译验证
+
+**注册的 FILL（NeuG 方言，参数已渲染）**
+
+```cypher
+FILL PERSON(countryName) FROM (
+MATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)
+RETURN person.id, country.name)
+```
+
+```cypher
+FILL ROOT_POST() FROM (
+MATCH (post:Post)<-[e:REPLYOF*0..4294967295]-(message:COMMENT:POST)
+RETURN DISTINCT message.id, post.id)
+```
+
+**原始 Neo4j 查询**
+
+```cypher
+// Q3. Popular topics in a country
+/*
+:params { tagClass: 'MusicalArtist', country: 'Burma' }
+*/
+MATCH
+  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-
+  (message:Message)
+WITH DISTINCT message
+MATCH
+  (message)-[:REPLY_OF*0..]->(post:Post)<-[:CONTAINER_OF]-
+  (forum:Forum)-[:HAS_MODERATOR]->(person:Person)-[:IS_LOCATED_IN]->
+  (:City)-[:IS_PART_OF]->(:Country {name: $country})
+RETURN
+  forum.id,
+  forum.title,
+  forum.creationDate,
+  person.id,
+  count(DISTINCT message) AS messageCount
+ORDER BY
+  messageCount DESC,
+  forum.id ASC
+LIMIT 20
+```
+
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+MATCH
+  (:TAGCLASS {name: $tagClass})<-[:HASTYPE]-(:TAG)<-[:HASTAG]-
+  (message:COMMENT:POST)
+WITH DISTINCT message
+MATCH
+  (message)-[:REPLYOF*0..4294967295]->(post:POST)<-[:CONTAINEROF]-
+  (forum:FORUM)-[:HASMODERATOR]->(person:PERSON)-[:ISLOCATEDIN]->
+  (:PLACE {type: 'City'})-[:ISPARTOF]->(:PLACE {name: $country, type: 'Country'})
+RETURN
+  forum.id,
+  forum.title,
+  forum.creationDate,
+  person.id,
+  count(DISTINCT message) AS messageCount
+ORDER BY
+  messageCount DESC,
+  forum.id ASC
+LIMIT 20
+```
+
+**改写输出（Neo4j）**
+
+```cypher
+MATCH
+  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-
+  (message:Message)
+WITH DISTINCT message MATCH (message)-[cico_r3:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r4:CONTAINER_OF]->(post) MATCH (forum)-[cico_r5:HAS_MODERATOR]->(person:Person) MATCH (person)-[cico_r6:IS_LOCATED_IN]->(cico_n1:City) MATCH (cico_n1)-[cico_r7:IS_PART_OF]->(cico_n2:Country) WHERE (cico_n2.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20
+```
+
+**改写输出转换回 NeuG 方言**
+
+整条语句：
+
+```cypher
+MATCH
+  (:TAGCLASS {name: $tagClass})<-[:HASTYPE]-(:TAG)<-[:HASTAG]-
+  (message:COMMENT:POST)
+WITH DISTINCT message MATCH (message)-[cico_r3:ROOT_POST]->(post:POST) MATCH (forum:FORUM)-[cico_r4:CONTAINEROF]->(post) MATCH (forum)-[cico_r5:HASMODERATOR]->(person:PERSON) MATCH (person)-[cico_r6:ISLOCATEDIN]->(cico_n1:PLACE {type: 'City'}) MATCH (cico_n1)-[cico_r7:ISPARTOF]->(cico_n2:PLACE {type: 'Country'}) WHERE (cico_n2.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20
+```
+
+### bi5 → `bi-5.cypher`（原有）
+
+- 路径：`parts:1,2`；读取：`COMMENT(likeCount)`, `COMMENT(replyCount)`, `POST(likeCount)`, `POST(replyCount)`
+- 前提（声明约束）：无
+- 证明记录：RewriterV4 + 回译验证
+
+**注册的 FILL（NeuG 方言，参数已渲染）**
+
+```cypher
+FILL COMMENT(likeCount) FROM (
+MATCH (message:COMMENT)<-[:LIKES]-(liker:PERSON)
+RETURN message.id, count(liker))
+```
+
+```cypher
+FILL POST(likeCount) FROM (
+MATCH (message:POST)<-[:LIKES]-(liker:PERSON)
+RETURN message.id, count(liker))
+```
+
+```cypher
+FILL COMMENT(replyCount) FROM (
+MATCH (message:COMMENT)<-[:REPLYOF]-(reply:COMMENT)
+RETURN message.id, count(reply))
+```
+
+```cypher
+FILL POST(replyCount) FROM (
+MATCH (message:POST)<-[:REPLYOF]-(reply:COMMENT)
+RETURN message.id, count(reply))
+```
+
+**原始 Neo4j 查询**
+
+```cypher
+// Q5. Most active Posters of a given Topic
+/*
+:params { tag: 'Abbas_I_of_Persia' }
+*/
+MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)
+OPTIONAL MATCH (message)<-[likes:LIKES]-(:Person)
+WITH person, message, count(likes) AS likeCount
+OPTIONAL MATCH (message)<-[:REPLY_OF]-(reply:Comment)
+WITH person, message, likeCount, count(reply) AS replyCount
+WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount
+RETURN
+  person.id,
+  replyCount,
+  likeCount,
+  messageCount,
+  1*messageCount + 2*replyCount + 10*likeCount AS score
+ORDER BY
+  score DESC,
+  person.id ASC
+LIMIT 100
+```
+
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+MATCH (tag:TAG {name: $tag})<-[:HASTAG]-(message:COMMENT:POST)-[:HASCREATOR]->(person:PERSON)
+OPTIONAL MATCH (message)<-[likes:LIKES]-(cico_count_node:PERSON)
+WITH person, message, count(cico_count_node) AS likeCount
+OPTIONAL MATCH (message)<-[:REPLYOF]-(reply:COMMENT)
+WITH person, message, likeCount, count(reply) AS replyCount
+WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount
+RETURN
+  person.id,
+  replyCount,
+  likeCount,
+  messageCount,
+  1*messageCount + 2*replyCount + 10*likeCount AS score
+ORDER BY
+  score DESC,
+  person.id ASC
+LIMIT 100
+```
+
+**改写输出（Neo4j）**
+
+```cypher
+MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN
+  person.id,
+  replyCount,
+  likeCount,
+  messageCount,
+  1*messageCount + 2*replyCount + 10*likeCount AS score
+ORDER BY
+  score DESC,
+  person.id ASC
+LIMIT 100
+```
+
+**改写输出转换回 NeuG 方言**
+
+整条语句：
+
+```cypher
+MATCH (message:COMMENT:POST)-[cico_r1:HASTAG]->(tag:TAG) MATCH (message)-[cico_r2:HASCREATOR]->(person:PERSON) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN
+  person.id,
+  replyCount,
+  likeCount,
+  messageCount,
+  1*messageCount + 2*replyCount + 10*likeCount AS score
+ORDER BY
+  score DESC,
+  person.id ASC
+LIMIT 100
+```
+
+### bi6 → `bi-6.cypher`（原有）
+
+- 路径：`subqueries`；读取：`PERSON(likeCount)`
+- 前提（声明约束）：无
+- 证明记录：RewriterV4 + 回译验证
+
+**注册的 FILL（NeuG 方言，参数已渲染）**
+
+```cypher
+FILL PERSON(likeCount) FROM (
+MATCH (person2)<-[:HASCREATOR]-(message2:COMMENT:POST)<-[like:LIKES]-(person3:Person)
+RETURN person2.id, count(person3))
+```
+
+**原始 Neo4j 查询**
+
+```cypher
+// Q6. Most authoritative users on a given topic
+/*
+:params { tag: 'Arnold_Schwarzenegger' }
+*/
+MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)
+OPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)
+WITH DISTINCT person1, person2
+CALL (person2) {
+  OPTIONAL MATCH (person2)<-[:HAS_CREATOR]-(:Message)<-[like:LIKES]-(:Person)
+  RETURN count(like) AS likerScore
+}
+RETURN
+  person1.id,
+  sum(likerScore) AS authorityScore
+ORDER BY
+  authorityScore DESC,
+  person1.id ASC
+LIMIT 100
+
+// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.
+// This might change in the future with new Cypher versions and GQL.
+```
+
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+MATCH (tag:TAG {name: $tag})<-[:HASTAG]-(message1:COMMENT:POST)-[:HASCREATOR]->(person1:PERSON)
+OPTIONAL MATCH (message1)<-[:LIKES]-(person2:PERSON)
+WITH DISTINCT person1, person2
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+**改写输出（Neo4j）**
+
+```cypher
+MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)
+OPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)
+WITH DISTINCT person1, person2
+CALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore
+}
+RETURN
+  person1.id,
+  sum(likerScore) AS authorityScore
+ORDER BY
+  authorityScore DESC,
+  person1.id ASC
+LIMIT 100
+```
+
+**改写输出转换回 NeuG 方言**
+
+整条语句：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+第 1 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+MATCH (tag:TAG {name: $tag})<-[:HASTAG]-(message1:COMMENT:POST)-[:HASCREATOR]->(person1:PERSON)
+OPTIONAL MATCH (message1)<-[:LIKES]-(person2:PERSON)
+WITH DISTINCT person1, person2
+```
+
+第 2 段（单独转换，输入变量未加类型桩）：
+
+```cypher
+-- 转换失败：CALL subquery
+```
+
+### bi9 → `bi-9.cypher`（原有）
+
+- 路径：`initial`；读取：`ROOT_POST()`
+- 前提（声明约束）：无
+- 证明记录：RewriterV4 + 回译验证
+
+**注册的 FILL（NeuG 方言，参数已渲染）**
+
+```cypher
+FILL ROOT_POST() FROM (
+  MATCH (post:Post)<-[e:REPLYOF*0..4294967295]-(message:COMMENT:POST)
+  RETURN DISTINCT message.id, post.id
+)
+```
+
+**原始 Neo4j 查询**
+
+```cypher
+// Q9. Top thread initiators
+/*
+:params { startDate: datetime('2011-10-01'), endDate: datetime('2011-10-15') }
+*/
+MATCH (person:Person)<-[:HAS_CREATOR]-(post:Post)<-[:REPLY_OF*0..]-(reply:Message)
+WHERE  post.creationDate >= $startDate
+  AND  post.creationDate <= $endDate
+  AND reply.creationDate >= $startDate
+  AND reply.creationDate <= $endDate
+RETURN
+  person.id,
+  person.firstName,
+  person.lastName,
+  count(DISTINCT post) AS threadCount,
+  count(DISTINCT reply) AS messageCount
+ORDER BY
+  messageCount DESC,
+  person.id ASC
+LIMIT 100
+```
+
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+MATCH (person:PERSON)<-[:HASCREATOR]-(post:POST)<-[:REPLYOF*0..4294967295]-(reply:COMMENT:POST)
+WHERE  post.creationDate >= $startDate
+  AND  post.creationDate <= $endDate
+  AND reply.creationDate >= $startDate
+  AND reply.creationDate <= $endDate
+RETURN
+  person.id,
+  person.firstName,
+  person.lastName,
+  count(DISTINCT post) AS threadCount,
+  count(DISTINCT reply) AS messageCount
+ORDER BY
+  messageCount DESC,
+  person.id ASC
+LIMIT 100
+```
+
+**改写输出（Neo4j）**
+
+```cypher
+MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100
+```
+
+**改写输出转换回 NeuG 方言**
+
+整条语句：
+
+```cypher
+MATCH (post:POST)-[cico_r1:HASCREATOR]->(person:PERSON) MATCH (reply:COMMENT:POST)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100
+```
+
+### bi13 → `bi-13.cypher`（原有）
+
+- 路径：`parts:2`；读取：`PERSON(bi13MessageCount)`；参数特化：$endDate
+- 前提（声明约束）：无
+- 证明记录：RewriterV4 + 回译验证
+
+**注册的 FILL（NeuG 方言，参数已渲染）**
+
+```cypher
+FILL PERSON(bi13MessageCount) FROM (
+  MATCH (person:PERSON)<-[:HASCREATOR]-(message:POST:COMMENT)
+  WHERE message.creationDate < TIMESTAMP('2012-10-28 00:00:00')
+  RETURN person.id, count(message)
+)
+```
+
+**原始 Neo4j 查询**
+
+```cypher
+// Q13. Zombies in a country
+/*
+:params { country: 'France', endDate: datetime('2013-01-01') }
+*/
+MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)
+WHERE zombie.creationDate < $endDate
+WITH country, zombie
+OPTIONAL MATCH (zombie)<-[:HAS_CREATOR]-(message:Message)
+WHERE message.creationDate < $endDate
+WITH
+  country,
+  zombie,
+  count(message) AS messageCount
+WITH
+  country,
+  zombie,
+  12 * ($endDate.year  - zombie.creationDate.year )
+     + ($endDate.month - zombie.creationDate.month)
+     + 1 AS months,
+  messageCount
+WHERE messageCount / months < 1
+WITH
+  country,
+  collect(zombie) AS zombies
+UNWIND zombies AS zombie
+OPTIONAL MATCH
+  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)
+WHERE likerZombie IN zombies
+WITH
+  zombie,
+  count(likerZombie) AS zombieLikeCount
+OPTIONAL MATCH
+  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)
+WHERE likerPerson.creationDate < $endDate
+WITH
+  zombie,
+  zombieLikeCount,
+  count(likerPerson) AS totalLikeCount
+RETURN
+  zombie.id,
+  zombieLikeCount,
+  totalLikeCount,
+  CASE totalLikeCount
+    WHEN 0 THEN 0.0
+    ELSE zombieLikeCount / toFloat(totalLikeCount)
+  END AS zombieScore
+ORDER BY
+  zombieScore DESC,
+  zombie.id ASC
+LIMIT 100
+```
+
+**方言转换后的 NeuG 查询**
+
+整条语句：
+
+```cypher
+MATCH (country:PLACE {name: $country, type: 'Country'})<-[:ISPARTOF]-(:PLACE {type: 'City'})<-[:ISLOCATEDIN]-(zombie:PERSON)
+WHERE zombie.creationDate < $endDate
+WITH country, zombie
+OPTIONAL MATCH (zombie)<-[:HASCREATOR]-(message:COMMENT:POST)
+WHERE message.creationDate < $endDate
+WITH
+  country,
+  zombie,
+  count(message) AS messageCount
+WITH
+  country,
+  zombie,
+  12 * (date_part('year', $endDate)  - date_part('year', zombie.creationDate) )
+     + (date_part('month', $endDate) - date_part('month', zombie.creationDate))
+     + 1 AS months,
+  messageCount
+WHERE messageCount / months < 1
+WITH
+  country,
+  collect(zombie) AS zombies
+UNWIND zombies AS zombie
+OPTIONAL MATCH
+  (zombie)<-[:HASCREATOR]-(message:COMMENT:POST)<-[:LIKES]-(likerZombie:PERSON)
+WHERE likerZombie IN zombies
+WITH
+  zombie,
+  count(likerZombie) AS zombieLikeCount
+OPTIONAL MATCH
+  (zombie)<-[:HASCREATOR]-(message:COMMENT:POST)<-[:LIKES]-(likerPerson:PERSON)
+WHERE likerPerson.creationDate < $endDate
+WITH
+  zombie,
+  zombieLikeCount,
+  count(likerPerson) AS totalLikeCount
+RETURN
+  zombie.id,
+  zombieLikeCount,
+  totalLikeCount,
+  CASE totalLikeCount
+    WHEN 0 THEN 0.0
+    ELSE zombieLikeCount / CAST(totalLikeCount AS DOUBLE)
+  END AS zombieScore
+ORDER BY
+  zombieScore DESC,
+  zombie.id ASC
+LIMIT 100
+```
+
+**改写输出（Neo4j）**
+
+```cypher
+MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)
+WHERE zombie.creationDate < $endDate
+WITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH
+  country,
+  zombie,
+  12 * ($endDate.year  - zombie.creationDate.year )
+     + ($endDate.month - zombie.creationDate.month)
+     + 1 AS months,
+  messageCount
+WHERE messageCount / months < 1 WITH
+  country,
+  collect(zombie) AS zombies UNWIND zombies AS zombie
+OPTIONAL MATCH
+  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)
+WHERE likerZombie IN zombies
+WITH
+  zombie,
+  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH
+  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)
+WHERE likerPerson.creationDate < $endDate
+WITH
+  zombie,
+  zombieLikeCount,
+  count(likerPerson) AS totalLikeCount RETURN
+  zombie.id,
+  zombieLikeCount,
+  totalLikeCount,
+  CASE totalLikeCount
+    WHEN 0 THEN 0.0
+    ELSE zombieLikeCount / toFloat(totalLikeCount)
+  END AS zombieScore
+ORDER BY
+  zombieScore DESC,
+  zombie.id ASC
+LIMIT 100
+```
+
+**改写输出转换回 NeuG 方言**
+
+整条语句：
+
+```cypher
+MATCH (country:PLACE {name: $country, type: 'Country'})<-[:ISPARTOF]-(:PLACE {type: 'City'})<-[:ISLOCATEDIN]-(zombie:PERSON)
+WHERE zombie.creationDate < $endDate
+WITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH
+  country,
+  zombie,
+  12 * (date_part('year', $endDate)  - date_part('year', zombie.creationDate) )
+     + (date_part('month', $endDate) - date_part('month', zombie.creationDate))
+     + 1 AS months,
+  messageCount
+WHERE messageCount / months < 1 WITH
+  country,
+  collect(zombie) AS zombies UNWIND zombies AS zombie
+OPTIONAL MATCH
+  (zombie)<-[:HASCREATOR]-(message:COMMENT:POST)<-[:LIKES]-(likerZombie:PERSON)
+WHERE likerZombie IN zombies
+WITH
+  zombie,
+  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH
+  (zombie)<-[:HASCREATOR]-(message:COMMENT:POST)<-[:LIKES]-(likerPerson:PERSON)
+WHERE likerPerson.creationDate < $endDate
+WITH
+  zombie,
+  zombieLikeCount,
+  count(likerPerson) AS totalLikeCount RETURN
+  zombie.id,
+  zombieLikeCount,
+  totalLikeCount,
+  CASE totalLikeCount
+    WHEN 0 THEN 0.0
+    ELSE zombieLikeCount / CAST(totalLikeCount AS DOUBLE)
+  END AS zombieScore
+ORDER BY
+  zombieScore DESC,
+  zombie.id ASC
+LIMIT 100
+```
 
 ## 本轮新增的中间件能力
 

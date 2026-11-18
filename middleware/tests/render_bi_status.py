@@ -8,11 +8,13 @@ import json
 import sys
 from pathlib import Path
 
-sys.path[:0] = [str(Path(__file__).resolve().parents[1])]
+sys.path[:0] = [str(Path(__file__).resolve().parents[1]), str(Path(__file__).resolve().parent)]
 from cico import IndexMiddleware
 from cico.middleware import strip_comments
 from cico.neo4j import neo4j_profile
 from cico.queryparts import split_parts
+from cico.neo4j import tokenize, render as render_tokens
+from cico.syntax import closing
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -100,6 +102,92 @@ def block(text, lang=''):
     return f'{fence}{lang}\n{text}\n{fence}\n'
 
 
+def _attempt(mw, text, params):
+    """(internal Cypher, note) through the middleware's own conversion
+    (frontend + constant folding + NeuG language check), or (None, reason)."""
+    try:
+        return mw._to_internal(text), ''
+    except Exception as first:  # noqa: BLE001 - the verdict is the content
+        if params:
+            try:
+                return mw._to_internal(text, params), '（参数按第 0 组取值内联后转换）'
+            except Exception:  # noqa: BLE001
+                pass
+        return None, str(first).strip()
+
+
+def _call_branches(mw, text, params, where):
+    from cico.subqueries import branches
+    tokens, out, i = tokenize(text), [], 0
+    while i < len(tokens):
+        if tokens[i].kind == 'ident' and tokens[i].upper == 'CALL' and i + 1 < len(tokens) and tokens[i + 1].text == '{':
+            close = closing(tokens, i + 1)
+            for k, (lo, hi) in enumerate(branches(tokens[i + 2:close]), 1):
+                body = render_tokens(tokens[i + 2 + lo:i + 2 + hi]).strip()
+                internal, note = _attempt(mw, body, params)
+                label = f'{where}CALL 第 {k} 个分支（单独转换，导入变量未加类型桩）'
+                out.append((label + (note if internal is not None else ''),
+                            internal if internal is not None else f'-- 转换失败：{note}'))
+            i = close + 1
+        else:
+            i += 1
+    return out
+
+
+def neug_views(mw, text, params):
+    """[(label, internal Cypher or failure)] for a Neo4j statement."""
+    source = strip_comments(text)
+    internal, note = _attempt(mw, source, params)
+    if internal is not None:
+        return [('整条语句' + note, internal)]
+    views = [('整条语句', f'-- 转换失败：{note}')]
+    parts = split_parts(source)
+    if parts and len(parts) > 1:
+        for i, part in enumerate(parts, 1):
+            internal, note = _attempt(mw, part, params)
+            views.append((f'第 {i} 段（单独转换，输入变量未加类型桩）' + (note if internal is not None else ''),
+                          internal if internal is not None else f'-- 转换失败：{note}'))
+            if internal is None:
+                views += _call_branches(mw, part, params, f'第 {i} 段 ')
+    else:
+        views += _call_branches(mw, source, params, '')
+    return views
+
+
+def relaxed_views(mw, text, params):
+    """The conversion the declared-constraint retry stage rewrites."""
+    constants, _ = mw.frontend.key_constants(text)
+    mw.frontend.relax = True
+    try:
+        return neug_views(mw, constants or text, params)
+    finally:
+        mw.frontend.relax = False
+
+
+def view_lines(title, views):
+    lines = [f'**{title}**', '']
+    for label, text in views:
+        lines += [f'{label}：', '', block(text, 'cypher')]
+    return lines
+
+
+def case_middleware(c):
+    """A middleware with this case's NeuG files registered exactly as the status run did."""
+    import re
+    import workloads as W
+    from neug_fill_bi_status import register_case
+    mw = IndexMiddleware(ROOT / 'schemas/ldbc-bi.yaml', profile=neo4j_profile())
+    number = int(re.match(r'bi(\d+)', c['case']).group(1))
+    register_case(mw, W.DOCS / 'NeuG/queries/index/ldbc-bi' / c['case'], number, case_parameters(c))
+    return mw
+
+
+def case_parameters(c):
+    import workloads as W
+    path = W.DOCS / 'Neo4j/queries/baseline/ldbc-bi' / c['query']
+    return W.parameters('ldbc-bi', path, path.read_text())
+
+
 def translate(mw, query, indexes):
     parts = split_parts(strip_comments(query)) or []
     out = []
@@ -127,7 +215,10 @@ def render(status, out):
         '参数文件按 SF1 第 0 组参数渲染（BI13 的 `{}` 按 `run_workload.py` 用 `endDate` 渲染，BI15w 按文件注释的占位顺序渲染）。',
         '- 查询：`Neo4j/queries/baseline/ldbc-bi/bi-N.cypher` 原文；Neo4j profile 输入、输出。',
         f"- 中间件：提交 `{status['middleware_commit'][:8]}`（`develop`）。每个索引目录单独注册、单独改写一次；只编译，不物化索引、不执行 BI 查询。",
-        '- 复现：`python3 middleware/tests/neug_fill_bi_status.py --output s.json && python3 middleware/tests/render_bi_status.py s.json`。', '',
+        '- 复现：`python3 middleware/tests/neug_fill_bi_status.py --output s.json && python3 middleware/tests/render_bi_status.py s.json`。',
+        '- “方言转换后的 NeuG 查询”由中间件自身的转换路径生成（`_to_internal`：Neo4j 前端翻译 + 常量折叠 + NeuG 语言检查），与改写时交给 NeuG/RewriterV4 的文本一致。'
+        '整条语句不能转换时（APOC/GDS 过程、`CALL {}`、列表拼接等），按 QueryPart 和 CALL 分支分别转换并给出原因；分段转换不带输入类型桩，'
+        '实际改写的探针会为输入变量加标签。只有参数拼接（如 `duration({hours: $delta})`）阻止转换时，另给出按第 0 组参数内联后的结果。', '',
         f'## 总览：{len(done)}/{len(cases)} 改写（上一轮诊断 5/17）', '',
         '| 索引目录 | 查询 | 状态 | 读取的索引 | 路径 / 结论 |', '| --- | --- | --- | --- | --- |']
     for c in sorted(status['cases'], key=lambda c: (not c['rewritten'], int(''.join(ch for ch in c['case'] if ch.isdigit())))):
@@ -182,27 +273,36 @@ def render(status, out):
             for index_id, fills in c['fills'].items():
                 for fill in fills:
                     lines.append(block(fill, 'cypher'))
-            lines += ['**原始 Neo4j 查询**', '', block(c['query_text'], 'cypher'),
-                      '**中间件返回的 detail**', '', block(c['detail'] or '(无)'), '**卡点**', '', analysis, '']
-            for number, source, internal in translate(mw, c['query_text'], parts):
-                lines += [f'第 {number} 段原文与转换后的内部 Cypher（用于与 FILL 源对照；该段单独转换、未加输入桩，'
-                          '实际探针中输入变量带标签，关系表会按端点裁剪）：', '',
-                          block(source, 'cypher'), block(internal, 'cypher')]
+            lines += ['**原始 Neo4j 查询**', '', block(c['query_text'], 'cypher')]
+            with case_middleware(c) as cmw:
+                lines += view_lines('方言转换后的 NeuG 查询', neug_views(cmw, c['query_text'], case_parameters(c)))
+            lines += ['**中间件返回的 detail**', '', block(c['detail'] or '(无)'), '**卡点**', '', analysis, '']
             lines += ['**修复计划**', '', plan, '']
-    lines += ['## 已改写的查询（本轮新增）', '']
-    for name in ('bi2', 'bi4', 'bi8', 'bi10', 'bi11', 'bi14', 'bi17'):
-        c = cases[name]
-        lines += [f"### {name} → `{c['query']}`", '',
+    lines += ['## 已改写的查询', '',
+              '本轮新增在前，原有的在后。每条给出 FILL、原始查询、方言转换后的 NeuG 查询、改写输出，以及改写输出转换回 NeuG 方言的结果'
+              '（关系载体存在性规则输出的 `startNode`、`EXISTS {}` 等 Neo4j 写法没有 NeuG 对应，会注明转换失败；这些规则的正确性见各自的 Neo4j 比对）。', '']
+    rewritten = sorted((c for c in status['cases'] if c['rewritten']),
+                       key=lambda c: (c['case'] not in NEW, int(''.join(ch for ch in c['case'] if ch.isdigit()))))
+    for c in rewritten:
+        name = c['case']
+        lines += [f"### {name} → `{c['query']}`（{'本轮新增' if name in NEW else '原有'}）", '',
                   f"- 路径：`{c['route']}`；读取：{', '.join(f'`{i}`' for i in c['indexes'])}"
                   + (f"；参数特化：{', '.join('$' + p for p in c['specialized'])}" if c['specialized'] else ''),
                   f"- 前提（声明约束）：{', '.join(f'`{p}`' for p in c['premises']) or '无'}",
                   f"- 证明记录：{', '.join(sorted({p.get('rule', '') for p in c['proofs']})) or 'RewriterV4 + 回译验证'}", '',
-                  '<details><summary>FILL、原始查询与改写输出</summary>', '']
+                  '**注册的 FILL（NeuG 方言，参数已渲染）**', '']
         for fills in c['fills'].values():
             for fill in fills:
                 lines.append(block(fill, 'cypher'))
-        lines += ['原始查询：', '', block(c['query_text'], 'cypher'), '改写输出：', '', block(c['output'], 'cypher'),
-                  '</details>', '']
+        lines += ['**原始 Neo4j 查询**', '', block(c['query_text'], 'cypher')]
+        params = case_parameters(c)
+        with case_middleware(c) as cmw:
+            lines += view_lines('方言转换后的 NeuG 查询', neug_views(cmw, c['query_text'], params))
+            if c['route'].startswith('declared_constraints'):
+                lines += view_lines('声明约束重试阶段实际改写的 NeuG 查询（类型谓词已由约束去掉、键身份已改写）',
+                                    relaxed_views(cmw, c['query_text'], params))
+            lines += ['**改写输出（Neo4j）**', '', block(c['output'], 'cypher')]
+            lines += view_lines('改写输出转换回 NeuG 方言', neug_views(cmw, c['output'], params))
     lines += ['## 本轮新增的中间件能力', '',
               '| 能力 | 文件 | 对应理论条件 |', '| --- | --- | --- |',
               '| 时间字面量规范化、定长 duration 折叠 | `cico/normalize.py` | $(M_F)$：同一瞬间同一字面量 |',

@@ -52,6 +52,31 @@ def bi15w(text, params):
     return ddl + text.replace('{}', '\x00').replace('\x00', '{}').format(*values)
 
 
+def register_case(mw, directory, number, params):
+    """Register one NeuG index directory (DDL and FILL, parameter files rendered); per-statement log."""
+    log = []
+    for path in sorted(directory.glob('*.cypher'), key=lambda p: p.name != 'index.cypher'):
+        text = path.read_text()
+        if directory.name == 'bi15w':
+            text = bi15w(text, params)
+        elif path.name == 'parameter.cypher':
+            if number == 13:   # positional, as NeuG/scripts/benchmark/run_workload.py renders it
+                text = text.replace('{}', params['endDate'].strftime('%Y-%m-%d'))
+            text = inline_parameters(text, neug_parameters(number, params))
+        for s in statements(text):
+            if re.match(r'\s*MATCH\b', s, re.I):
+                continue    # reset statements (MATCH ... SET x = 0) are build steps, not definitions
+            try:
+                if s.upper().startswith('FILL'):
+                    r = mw.register_index([s], input_dialect='neug')
+                else:
+                    r = mw.apply_ddl(s, input_dialect='neug')
+                log.append(dict(file=path.name, ok=r.ok, reason=r.reason, detail=(r.detail or '')[:200]))
+            except Exception as error:  # noqa: BLE001 - record and continue
+                log.append(dict(file=path.name, ok=False, reason=type(error).__name__, detail=str(error)[:200]))
+    return log
+
+
 def run(output):
     docs = W.DOCS
     report = dict(docs_commit=subprocess.check_output(['git', '-C', str(docs), 'rev-parse', 'HEAD'], text=True).strip(),
@@ -69,27 +94,7 @@ def run(output):
                    registration=[])
         started = time.time()
         with IndexMiddleware(ROOT / 'schemas/ldbc-bi.yaml', profile=neo4j_profile()) as mw:
-            for path in sorted(directory.glob('*.cypher'), key=lambda p: p.name != 'index.cypher'):
-                text = path.read_text()
-                if directory.name == 'bi15w':
-                    text = bi15w(text, params)
-                elif path.name == 'parameter.cypher':
-                    if number == 13:   # positional, as NeuG/scripts/benchmark/run_workload.py renders it
-                        text = text.replace('{}', params['endDate'].strftime('%Y-%m-%d'))
-                    text = inline_parameters(text, neug_parameters(number, params))
-                for s in statements(text):
-                    if re.match(r'\s*MATCH\b', s, re.I):
-                        continue    # reset statements (MATCH ... SET x = 0) are build steps, not definitions
-                    try:
-                        if s.upper().startswith('FILL'):
-                            r = mw.register_index([s], input_dialect='neug')
-                        else:
-                            r = mw.apply_ddl(s, input_dialect='neug')
-                        row['registration'].append(dict(file=path.name, ok=r.ok, reason=r.reason,
-                                                        detail=(r.detail or '')[:200]))
-                    except Exception as error:  # noqa: BLE001 - record and continue
-                        row['registration'].append(dict(file=path.name, ok=False, reason=type(error).__name__,
-                                                        detail=str(error)[:200]))
+            row['registration'] = register_case(mw, directory, number, params)
             r = mw.execute(query, parameters=params)
             row.update(rewritten=r.rewritten, reason=r.reason, indexes=r.indexes, route=r.route,
                        specialized=r.specialized, proofs=r.proofs, premises=r.premises,

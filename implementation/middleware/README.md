@@ -10,7 +10,7 @@
 
 ## 当前交接入口（2026-11-18 更新）
 
-**最新状态先读 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)**（由 `middleware/tests/render_bi_status.py` 从实测结果生成，逐条给出 FILL、原始查询、中间件返回、卡点和计划）。口径：实验文档 `NeuG/queries/index/ldbc-bi/` 的 NeuG FILL 直接注册，改写 `Neo4j/queries/baseline/ldbc-bi/` 原始查询，SF1 第 0 组参数：**12/17 改写**（BI2、3、4、5、6、8、9、10、11、13、14、17）。用户 2026-11-18 同意使用**声明约束**（profile `constraints:`，SF1 上 12/12 成立），并要求遵循 QueryPart 定理（`theory.md`，即 wiki《QueryPart 索引改写的语义等价定理与 Lean 形式化》）。代码在分支 `develop`（`origin/develop`），每步修复单独提交。剩余：BI16 暂缓（收益低）；BI19/BI20 待用户决定是否纳入 create-graph 脚本；BI15/BI15w 不建议。
+**最新状态先读 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)**（由 `middleware/tests/render_bi_status.py` 从实测结果生成，17 个 case 逐条给出 FILL、原始 Neo4j 查询、**方言转换后的 NeuG 查询**（整条或按 QueryPart/CALL 分支，含不能转换的原因；声明约束重试阶段实际改写的转换文本）、中间件返回、改写输出及其 NeuG 转换、卡点和计划）。口径：实验文档 `NeuG/queries/index/ldbc-bi/` 的 NeuG FILL 直接注册，改写 `Neo4j/queries/baseline/ldbc-bi/` 原始查询，SF1 第 0 组参数：**12/17 改写**（BI2、3、4、5、6、8、9、10、11、13、14、17）。用户 2026-11-18 同意使用**声明约束**（profile `constraints:`，SF1 上 12/12 成立），并要求遵循 QueryPart 定理（`theory.md`，即 wiki《QueryPart 索引改写的语义等价定理与 Lean 形式化》）。代码在分支 `develop`（`origin/develop`），每步修复单独提交。剩余：BI16 暂缓（收益低）；BI19/BI20 待用户决定是否纳入 create-graph 脚本；BI15/BI15w 不建议。
 
 以下为 2026-11-17 的交接说明（旧 Neo4j 原生索引 15 组口径），保留作历史记录。
 
