@@ -47,7 +47,7 @@ class ConstraintTests(unittest.TestCase):
     def test_every_declared_constraint_has_a_violation_count(self):
         with IndexMiddleware(ROOT / 'schemas/ldbc-bi.yaml', profile=neo4j_profile()) as mw:
             checks = mw.constraint_checks()
-        self.assertEqual(len(checks), 10)
+        self.assertEqual(len(checks), 12)
         for check in checks:
             self.assertIn('AS violations', check['cypher'])
         self.assertIn('MATCH (n:`Message`)-[r:`REPLY_OF`]->()', checks[0]['cypher'])
@@ -153,6 +153,32 @@ class ImpliedLabelTests(unittest.TestCase):
         self.assertIsNone(c.at_most_one_out('IS_PART_OF', {'PLACE'}))          # a PLACE need not be a City
         self.assertIsNotNone(c.at_most_one_out('IS_PART_OF', {'PLACE'}, {'City'}))
         self.assertIsNotNone(c.at_most_one_out('REPLY_OF', {'COMMENT'}))        # Comment rows are Messages
+
+
+TRIANGLE = '''MATCH (a:Person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country:Country {name: $country}),
+      (a)-[:KNOWS]-(b:Person)
+WITH DISTINCT country, a, b
+MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)
+WITH DISTINCT country, a, b
+RETURN count(*) AS n'''
+
+
+class KeyIdentityTests(ImpliedLabelTests):
+    def test_key_node_deferred_and_bound_endpoint_compared_by_key(self):
+        r = self.run_with(True, TRIANGLE)
+        self.assertTrue(r.rewritten, r.to_dict())
+        self.assertIn('a.countryName = $country', r.cypher)
+        self.assertIn('WITH DISTINCT a, b MATCH (country:Country) WHERE (country.name = $country)', r.cypher)
+        self.assertIn('(b.countryName = country.name) AND (country:Country)', r.cypher)
+        for premise in ('unique_property: Country.name', 'required_property: Country.name'):
+            self.assertIn(premise, r.premises)
+
+    def test_without_a_declared_key_identity_stays(self):
+        for kind in ('unique_property', 'required_property'):
+            with self.subTest(kind):
+                r = self.run_with(lambda c, kind=kind: c['kind'] != kind, TRIANGLE)
+                self.assertNotIn('b.countryName', r.cypher)
+                self.assertNotIn('a.countryName', r.cypher)
 
 
 if __name__ == '__main__':

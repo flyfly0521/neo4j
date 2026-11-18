@@ -1,0 +1,183 @@
+{
+ "uri": "bolt://127.0.0.1:7693",
+ "read_only": true,
+ "cases": [
+  {
+   "sample": 0,
+   "parameters": {
+    "startDate": "2012-10-11 00:00:00",
+    "endDate": "2013-01-23 00:00:00",
+    "country": "India"
+   },
+   "rewritten": true,
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
+    "required_property: Country.name",
+    "unique_property: Country.name"
+   ],
+   "route": "declared_constraints:parts:1,2,3",
+   "rows": 1,
+   "equal": true,
+   "seconds": [
+    0.04,
+    0.03
+   ],
+   "first_row": [
+    0
+   ]
+  },
+  {
+   "sample": 1,
+   "parameters": {
+    "startDate": "2012-10-02 00:00:00",
+    "endDate": "2013-01-14 00:00:00",
+    "country": "India"
+   },
+   "rewritten": true,
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
+    "required_property: Country.name",
+    "unique_property: Country.name"
+   ],
+   "route": "declared_constraints:declared_constraints:parts:1,2,3",
+   "rows": 1,
+   "equal": true,
+   "seconds": [
+    0.03,
+    0.03
+   ],
+   "first_row": [
+    0
+   ]
+  },
+  {
+   "sample": 2,
+   "parameters": {
+    "startDate": "2012-09-26 00:00:00",
+    "endDate": "2013-01-08 00:00:00",
+    "country": "India"
+   },
+   "rewritten": true,
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
+    "required_property: Country.name",
+    "unique_property: Country.name"
+   ],
+   "route": "declared_constraints:declared_constraints:declared_constraints:parts:1,2,3",
+   "rows": 1,
+   "equal": true,
+   "seconds": [
+    0.04,
+    0.04
+   ],
+   "first_row": [
+    0
+   ]
+  },
+  {
+   "sample": 3,
+   "parameters": {
+    "startDate": "2012-10-09 00:00:00",
+    "endDate": "2013-01-09 00:00:00",
+    "country": "China"
+   },
+   "rewritten": true,
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
+    "required_property: Country.name",
+    "unique_property: Country.name"
+   ],
+   "route": "declared_constraints:declared_constraints:declared_constraints:declared_constraints:parts:1,2,3",
+   "rows": 1,
+   "equal": true,
+   "seconds": [
+    0.04,
+    0.03
+   ],
+   "first_row": [
+    0
+   ]
+  },
+  {
+   "sample": 4,
+   "parameters": {
+    "startDate": "2012-10-16 00:00:00",
+    "endDate": "2013-01-16 00:00:00",
+    "country": "China"
+   },
+   "rewritten": true,
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
+    "required_property: Country.name",
+    "unique_property: Country.name"
+   ],
+   "route": "declared_constraints:declared_constraints:declared_constraints:declared_constraints:declared_constraints:parts:1,2,3",
+   "rows": 1,
+   "equal": true,
+   "seconds": [
+    0.03,
+    0.03
+   ],
+   "first_row": [
+    0
+   ]
+  },
+  {
+   "sample": 5,
+   "parameters": {
+    "startDate": "2012-10-19 00:00:00",
+    "endDate": "2013-01-19 00:00:00",
+    "country": "China"
+   },
+   "rewritten": true,
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
+    "required_property: Country.name",
+    "unique_property: Country.name"
+   ],
+   "route": "declared_constraints:declared_constraints:declared_constraints:declared_constraints:declared_constraints:declared_constraints:parts:1,2,3",
+   "rows": 1,
+   "equal": true,
+   "seconds": [
+    0.03,
+    0.03
+   ],
+   "first_row": [
+    0
+   ]
+  }
+ ],
+ "persons_without_countryName": 0,
+ "persons_with_stale_countryName": 0,
+ "all_equal": true
+}

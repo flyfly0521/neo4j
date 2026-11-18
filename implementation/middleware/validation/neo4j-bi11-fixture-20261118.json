@@ -1,0 +1,2180 @@
+{
+ "uri": "bolt://127.0.0.1:7693",
+ "workload_queries_executed": false,
+ "transaction_rolled_back": true,
+ "rewritten": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) WHERE ((((a.countryName = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT a, b MATCH (country:Country) WHERE (country.name = $country) WITH DISTINCT country, a, b MATCH (b) WHERE ((b.countryName = country.name) AND (country:Country)) WITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person) WHERE (((((b.id < c.id) AND ($startDate <= k2.creationDate)) AND (k2.creationDate <= $endDate)) AND (c.countryName = country.name)) AND (country:Country)) WITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+ "premises": [
+  "at_least_one: (:City)-[:IS_PART_OF]->",
+  "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+  "at_most_one: (:City)-[:IS_PART_OF]->",
+  "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+  "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+  "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
+  "required_property: Country.name",
+  "unique_property: Country.name"
+ ],
+ "cases": [
+  {
+   "seed": 0,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 0,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 0,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 0,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 1,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 1,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 1,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 1,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 2,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 2,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 2,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 2,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 3,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 3,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 3,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     2
+    ]
+   ],
+   "rewritten": [
+    [
+     2
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 3,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 4,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 4,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 4,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 4,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 5,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     16
+    ]
+   ],
+   "rewritten": [
+    [
+     16
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 5,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     2
+    ]
+   ],
+   "rewritten": [
+    [
+     2
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 5,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 5,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 6,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 6,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 6,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     2
+    ]
+   ],
+   "rewritten": [
+    [
+     2
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 6,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 7,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 7,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 7,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 7,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 8,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 8,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 8,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     2
+    ]
+   ],
+   "rewritten": [
+    [
+     2
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 8,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 9,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     8
+    ]
+   ],
+   "rewritten": [
+    [
+     8
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 9,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 9,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 9,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 10,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 10,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 10,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     3
+    ]
+   ],
+   "rewritten": [
+    [
+     3
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 10,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 11,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     2
+    ]
+   ],
+   "rewritten": [
+    [
+     2
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 11,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 11,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 11,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 12,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     2
+    ]
+   ],
+   "rewritten": [
+    [
+     2
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 12,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 12,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     2
+    ]
+   ],
+   "rewritten": [
+    [
+     2
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 12,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 13,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     2
+    ]
+   ],
+   "rewritten": [
+    [
+     2
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 13,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 13,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 13,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 14,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 14,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 14,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     16
+    ]
+   ],
+   "rewritten": [
+    [
+     16
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 14,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     5
+    ]
+   ],
+   "rewritten": [
+    [
+     5
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 15,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 15,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 15,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 15,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 16,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 16,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 16,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 16,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 17,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     4
+    ]
+   ],
+   "rewritten": [
+    [
+     4
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 17,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 17,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 17,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 18,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 18,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 18,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 18,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 19,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     1
+    ]
+   ],
+   "rewritten": [
+    [
+     1
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 19,
+   "country": "0",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 19,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     1,
+     1
+    ],
+    [
+     2013,
+     1,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  },
+  {
+   "seed": 19,
+   "country": "1",
+   "window": [
+    [
+     2012,
+     3,
+     1
+    ],
+    [
+     2012,
+     9,
+     1
+    ]
+   ],
+   "original": [
+    [
+     0
+    ]
+   ],
+   "rewritten": [
+    [
+     0
+    ]
+   ],
+   "equal": true
+  }
+ ],
+ "all_equal": true,
+ "nonzero": 25
+}

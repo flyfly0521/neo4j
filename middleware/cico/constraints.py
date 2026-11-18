@@ -22,10 +22,11 @@ Kinds
                    (or: every `to` node has at least one incoming `rel`)
   endpoint_labels  every `rel` leaving a `from` node ends at a `to` node
   unique_property  no two `label` nodes share a non-null `property` value
+  required_property  every `label` node has a non-null `property`
 """
 from dataclasses import dataclass
 
-KINDS = {'at_most_one', 'at_least_one', 'endpoint_labels', 'unique_property'}
+KINDS = {'at_most_one', 'at_least_one', 'endpoint_labels', 'unique_property', 'required_property'}
 
 
 @dataclass(frozen=True)
@@ -43,7 +44,7 @@ class Constraint:
                     else f'{self.kind}: -[:{self.rel}]->(:{self.dst})')
         if self.kind == 'endpoint_labels':
             return f'endpoint_labels: (:{self.src})-[:{self.rel}]->(:{self.dst})'
-        return f'unique_property: {self.label}.{self.prop}'
+        return f'{self.kind}: {self.label}.{self.prop}'
 
     def check(self):
         """Neo4j Cypher returning one row {violations: n}; n must be 0."""
@@ -62,6 +63,8 @@ class Constraint:
         if self.kind == 'endpoint_labels':
             return (f'MATCH (:`{self.src}`)-[r:`{self.rel}`]->(x) WHERE NOT x:`{self.dst}` '
                     f'RETURN count(r) AS violations')
+        if self.kind == 'required_property':
+            return f'MATCH (n:`{self.label}`) WHERE n.`{self.prop}` IS NULL RETURN count(n) AS violations'
         return (f'MATCH (n:`{self.label}`) WHERE n.`{self.prop}` IS NOT NULL '
                 f'WITH n.`{self.prop}` AS v, count(n) AS c WHERE c > 1 RETURN count(v) AS violations')
 
@@ -79,8 +82,8 @@ class Constraints:
                 raise ValueError(f'{kind} needs exactly one of from/to: {entry}')
             if kind == 'endpoint_labels' and not (item.rel and item.src and item.dst):
                 raise ValueError(f'endpoint_labels needs rel, from and to: {entry}')
-            if kind == 'unique_property' and not (item.label and item.prop):
-                raise ValueError(f'unique_property needs label and property: {entry}')
+            if kind in ('unique_property', 'required_property') and not (item.label and item.prop):
+                raise ValueError(f'{kind} needs label and property: {entry}')
             self.items.append(item)
         self.labels = labels or {}   # Neo4j label -> internal tables (for coverage tests)
         self.typed = set(typed)      # labels that are a predicate on a table (City on PLACE)
@@ -120,6 +123,17 @@ class Constraints:
     def unique(self, label, prop):
         return next((c for c in self.items if c.kind == 'unique_property'
                      and c.label == label and c.prop == prop), None)
+
+    def key(self, label, prop=None):
+        """(property, unique, required) of a declared key of `label`: a
+        property that is unique and never null, so it identifies the node."""
+        for u in self.items:
+            if u.kind == 'unique_property' and u.label == label and (prop is None or u.prop == prop):
+                r = next((c for c in self.items if c.kind == 'required_property'
+                          and c.label == label and c.prop == u.prop), None)
+                if r is not None:
+                    return u.prop, u, r
+        return None
 
     def checks(self):
         return [dict(constraint=c.describe(), cypher=c.check()) for c in self.items]

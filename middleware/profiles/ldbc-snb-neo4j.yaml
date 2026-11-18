@@ -49,6 +49,8 @@ constraints:            # LDBC SNB data model; premises of individual rewrite st
   - {kind: endpoint_labels, rel: IS_PART_OF, from: City, to: Country}
   - {kind: unique_property, label: Tag, property: name}
   - {kind: unique_property, label: Country, property: name}
+  - {kind: required_property, label: Tag, property: name}
+  - {kind: required_property, label: Country, property: name}
 # Names not listed (e.g. derived index carriers such as ROOT_POST) are kept as is.
 procedure_types:
   # A type contract only: the procedure remains opaque in emitted Cypher.

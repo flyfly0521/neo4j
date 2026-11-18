@@ -128,7 +128,7 @@ class Neo4jFrontend:
         tokens = self._drop_hints(tokens)
         tokens = self._shortest_paths(tokens)
         if self.relax:
-            tokens = self._implied_typed_labels(tokens)
+            tokens = self._implied_typed_labels(self._key_identities(tokens))
         self.var_tables = self._collect_var_tables(tokens)
         from .normalize import entity_id_comparisons, rewrite_coalesce, split_chained_comparisons
         tokens = split_chained_comparisons(rewrite_coalesce(tokens))
@@ -440,19 +440,17 @@ class Neo4jFrontend:
         return clauses
 
     # ------------------------------------- implied typed labels (relax stage)
-    def _implied_typed_labels(self, tokens):
-        """Replace a typed label (City) by its base label (Place) where
-        declared endpoint_labels constraints imply it for every match, e.g.
-        (p:Person)-[:IS_LOCATED_IN]->(:City) under (:Person)-[:IS_LOCATED_IN]->(:City).
+    def _type_analysis(self, tokens):
+        """Labels known or implied for the node occurrences of a statement.
 
-        Types propagate along fixed-length, single-type, directed
-        relationships from labels written in the statement (a variable's
-        labels from all of its occurrences); the dropped label is then a
-        predicate true on every match, so the pattern matches the same rows
-        on every database satisfying the constraints.  Used only by the
-        relax stage, after the ordinary attempt left the statement unchanged."""
-        if not self.constraints.items:
-            return tokens
+        Returns (occurrences {'(' position: (key, labels)}, edges [(src key,
+        type, dst key, src position, dst position)], known {key: labels},
+        implied {key: labels}, used {(key, label): constraint}).  A key is the
+        variable name, or ('@', position) for an anonymous node.  Labels
+        written on a variable's occurrences are known for all of them, and
+        flow through `collect(x) AS L` / `UNWIND L AS v` for names bound once
+        in the statement.  Implied labels propagate along fixed-length,
+        single-type, directed relationships by endpoint_labels constraints."""
         def node_start(close):
             depth, k = 0, close
             while k >= 0:
@@ -468,9 +466,6 @@ class Neo4jFrontend:
                 var, labels = self._peek_node(tokens, i)
                 if var and labels:
                     declared.setdefault(var, set()).update(labels)
-        # Labels flow through `collect(x) AS L` (elements are x's values) and
-        # `UNWIND L AS v` (v ranges over L's elements); only for names bound
-        # once in the statement, so no other scope can reuse them.
         bound = {}
         for k in range(1, len(tokens)):
             if tokens[k - 1].upper == 'AS' and tokens[k].kind in ('ident', 'quoted'):
@@ -515,9 +510,9 @@ class Neo4jFrontend:
             into_right = tokens[close + 1].text == '->' and tokens[i - 1].text == '-'
             into_left = tokens[i - 1].text == '<-' and tokens[close + 1].text == '-'
             if into_right:
-                edges.append((keys[0], types[0], keys[1]))
+                edges.append((keys[0], types[0], keys[1], left, right))
             elif into_left:
-                edges.append((keys[1], types[0], keys[0]))
+                edges.append((keys[1], types[0], keys[0], right, left))
         known = {}
         for at, (key, labels) in occurrences.items():
             known.setdefault(key, set()).update(labels)
@@ -527,12 +522,24 @@ class Neo4jFrontend:
         changed = True
         while changed:
             changed = False
-            for src, rel, dst in edges:
+            for src, rel, dst, _, _ in edges:
                 for c in self.constraints.implied_endpoint(rel, known.get(src, set()) | implied.get(src, set())):
                     if c.dst not in implied.setdefault(dst, set()):
                         implied[dst].add(c.dst)
                         used[(dst, c.dst)] = c
                         changed = True
+        return occurrences, edges, known, implied, used
+
+    def _implied_typed_labels(self, tokens):
+        """Replace a typed label (City) by its base label (Place) where
+        declared endpoint_labels constraints imply it for every match, e.g.
+        (p:Person)-[:IS_LOCATED_IN]->(:City) under (:Person)-[:IS_LOCATED_IN]->(:City).
+        The dropped label is a predicate true on every match, so the pattern
+        matches the same rows on every database satisfying the constraints.
+        Used only by the relax stage."""
+        if not self.constraints.items:
+            return tokens
+        occurrences, _, _, implied, used = self._type_analysis(tokens)
         out = list(tokens)
         for at, (key, labels) in sorted(occurrences.items(), reverse=True):
             for label in labels:
@@ -551,6 +558,157 @@ class Neo4jFrontend:
                         break
                 self.premises.update(c.describe() for c in used.values())
         return out
+
+    def _key_identities(self, tokens):
+        """Relax stage: express a node's identity through a declared key so
+        that a location chain can end in a HIDDEN node a projection carrier
+        replaces (theory.md (M_P)(ii): the interface must be public).
+
+        T1  (v:L {p: E}) on a relationship chain, E a parameter or literal
+            ->  (k:L {p: E}) on the chain; v is bound again by its key.  When
+                v occurs in its QueryPart only there and as a bare item of the
+                part's WITH (no ORDER BY/SKIP/LIMIT), the binding is deferred:
+                `WITH [DISTINCT] items-v MATCH (v:L {p: E}) WITH [DISTINCT] items`
+                (RewriterV4 rejects a part with a disconnected node pattern).
+                v is constant on every row of the part (the only L with p = E,
+                which exists whenever the part has a row), so both projections
+                partition the rows alike.  Otherwise (v:L {p: E}) is added as
+                a separate pattern of the same clause.
+        T2  (v) bound by an earlier clause, whose incoming relationship forces
+            label L (endpoint_labels)
+            ->  (k:L) and `k.p = v.p AND v:L` added to the clause's WHERE
+
+        With p unique and never null on L (unique_property + required_property),
+        k and v denote the same node on every row of both forms: in T1 both
+        are the only L with p = E; in T2 the original row has v:L by the
+        endpoint constraint, so the guard drops nothing, and equal keys give
+        k = v.  Rows correspond one to one, so multiplicities are kept."""
+        if not self.constraints.items:
+            return tokens
+        occurrences, edges, known, implied, used = self._type_analysis(tokens)
+        clauses = self.clause_table(tokens)
+        first = {}
+        for k, t in enumerate(tokens):
+            if t.kind in ('ident', 'quoted') and not (k and tokens[k - 1].text in ('.', ':')):
+                first.setdefault(_ident(t), k)
+        taken = {_ident(t) for t in tokens if t.kind in ('ident', 'quoted')}
+
+        def fresh():
+            n = 1
+            while f'cico_key{n}' in taken:
+                n += 1
+            taken.add(f'cico_key{n}')
+            return f'cico_key{n}'
+
+        from .queryparts import _top_level, PROJECTION_TAIL
+        top = _top_level(tokens)
+
+        def deferral(var, at, spec):
+            """(lo, hi, text) rewriting the WITH that ends v's part, or None."""
+            after = [(i, w) for i, w in top if i > at]
+            with_at = next((i for i, w in after if w in ('WITH', 'RETURN')), None)
+            if with_at is None or tokens[with_at].upper != 'WITH':
+                return None
+            part_start = max([i for i, w in top if i <= at and w in ('WITH', 'RETURN')] or [-1]) + 1
+            i = with_at + 1
+            distinct = i < len(tokens) and tokens[i].upper == 'DISTINCT'
+            i += distinct
+            items, current, depth = [], [], 0
+            while i < len(tokens):
+                t = tokens[i]
+                depth += t.text in ('(', '[', '{')
+                depth -= t.text in (')', ']', '}')
+                if depth == 0 and t.kind == 'ident' and (t.upper in PROJECTION_TAIL or t.upper in self.CLAUSE_STARTS):
+                    break
+                if depth == 0 and t.text == ',':
+                    items.append(current)
+                    current = []
+                else:
+                    current.append(t)
+                i += 1
+            items.append(current)
+            if i < len(tokens) and tokens[i].upper in ('ORDER', 'SKIP', 'LIMIT'):
+                return None
+            bare = [it for it in items if len(it) == 1 and it[0].kind in ('ident', 'quoted') and _ident(it[0]) == var]
+            if len(bare) != 1:
+                return None
+            uses = [k for k in range(part_start, i) if tokens[k].kind in ('ident', 'quoted') and _ident(tokens[k]) == var
+                    and not (k and tokens[k - 1].text in ('.', ':'))]
+            if sorted(uses) != sorted([at + 1, next(k for k in range(with_at, i) if tokens[k] is bare[0][0])]):
+                return None
+            rest = [render(it).strip() for it in items if it is not bare[0]]
+            if not rest:
+                return None
+            head = 'WITH ' + ('DISTINCT ' if distinct else '')
+            text = (head + ', '.join(rest) + f' MATCH ({_q(var)}:{spec}) ' + head
+                    + ', '.join(render(it).strip() for it in items) + ' ')
+            return with_at, i, text
+
+        replacements, extra_patterns, conjuncts = [], {}, {}
+        for at, (key, labels) in sorted(occurrences.items()):
+            if not isinstance(key, str):
+                continue
+            clause = next((c for c in clauses if c[0] <= at < c[2]), None)
+            if clause is None:
+                continue
+            start, word, pattern_end, where, where_end = clause[:5]
+            try:
+                end = closing_index(tokens, at)
+            except Unsupported:
+                continue
+            body = tokens[at + 1:end]
+            if len(labels) == 1 and len(body) == 8 and body[1].text == ':' and body[3].text == '{' \
+                    and body[5].text == ':' and body[7].text == '}' and body[6].kind in ('param', 'string', 'number'):
+                label, prop = labels[0], _ident(body[4])
+                k = self.constraints.key(label, prop)
+                if k is None:
+                    continue
+                name = fresh()
+                spec = f'{_q(label)} {{{_q(prop)}: {body[6].text}}}'
+                replacements.append((at, end + 1, f'({name}:{spec})'))
+                deferred = deferral(key, at, spec)
+                if deferred is not None:
+                    replacements.append(deferred)
+                else:
+                    extra_patterns.setdefault(pattern_end, []).append(f'({_q(key)}:{spec})')
+                self.premises.update(c.describe() for c in k[1:])
+                continue
+            if labels or len(body) != 1 or first.get(key, at) >= start:
+                continue
+            for src, rel, dst, src_at, dst_at in edges:
+                if dst_at != at:
+                    continue
+                found = None
+                for c in self.constraints.implied_endpoint(rel, known.get(src, set()) | implied.get(src, set())):
+                    k = self.constraints.key(c.dst)
+                    if k is not None:
+                        found = (c, k)
+                        break
+                if found is None:
+                    continue
+                c, (prop, unique, required) = found
+                name = fresh()
+                replacements.append((at, end + 1, f'({name}:{_q(c.dst)})'))
+                conjuncts.setdefault((pattern_end, where, where_end), []).append(
+                    f'{name}.{_q(prop)} = {_q(key)}.{_q(prop)} AND {_q(key)}:{_q(c.dst)}')
+                self.premises.update(x.describe() for x in (c, unique, required, *used.values()))
+                break
+        if not replacements:
+            return tokens
+        edits = [(lo, hi, text) for lo, hi, text in replacements]
+        for position, patterns in extra_patterns.items():
+            edits.append((position, position, ', ' + ', '.join(patterns) + ' '))
+        for (pattern_end, where, where_end), conj in conjuncts.items():
+            text = ' AND '.join(f'({x})' for x in conj)
+            if where:
+                edits.append((pattern_end + 1, pattern_end + 1, ' ('))
+                edits.append((where_end, where_end, f') AND {text} '))
+            else:
+                edits.append((pattern_end, pattern_end, f' WHERE {text} '))
+        out = list(tokens)
+        for lo, hi, text in sorted(edits, key=lambda e: (e[0], e[1]), reverse=True):
+            out[lo:hi] = tokenize(' ' + text)
+        return tokenize(render(out))
 
     # ------------------------------------------- root paths (declared constraints)
     def _root_path(self, rel):

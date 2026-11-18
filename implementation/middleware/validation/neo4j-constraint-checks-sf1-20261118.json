@@ -7,13 +7,13 @@
    "constraint": "at_most_one: (:Message)-[:REPLY_OF]->",
    "cypher": "MATCH (n:`Message`)-[r:`REPLY_OF`]->() WITH n, count(r) AS c WHERE c > 1 RETURN count(n) AS violations",
    "violations": 0,
-   "seconds": 0.54
+   "seconds": 0.55
   },
   {
    "constraint": "at_most_one: -[:CONTAINER_OF]->(:Post)",
    "cypher": "MATCH ()-[r:`CONTAINER_OF`]->(n:`Post`) WITH n, count(r) AS c WHERE c > 1 RETURN count(n) AS violations",
    "violations": 0,
-   "seconds": 0.47
+   "seconds": 0.45
   },
   {
    "constraint": "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
@@ -31,19 +31,19 @@
    "constraint": "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
    "cypher": "MATCH (n:`Person`) WHERE NOT EXISTS { (n)-[:`IS_LOCATED_IN`]->() } RETURN count(n) AS violations",
    "violations": 0,
-   "seconds": 0.07
+   "seconds": 0.0
   },
   {
    "constraint": "at_least_one: (:City)-[:IS_PART_OF]->",
    "cypher": "MATCH (n:`City`) WHERE NOT EXISTS { (n)-[:`IS_PART_OF`]->() } RETURN count(n) AS violations",
    "violations": 0,
-   "seconds": 0.02
+   "seconds": 0.0
   },
   {
    "constraint": "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
    "cypher": "MATCH (:`Person`)-[r:`IS_LOCATED_IN`]->(x) WHERE NOT x:`City` RETURN count(r) AS violations",
    "violations": 0,
-   "seconds": 0.01
+   "seconds": 0.0
   },
   {
    "constraint": "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
@@ -62,6 +62,18 @@
    "cypher": "MATCH (n:`Country`) WHERE n.`name` IS NOT NULL WITH n.`name` AS v, count(n) AS c WHERE c > 1 RETURN count(v) AS violations",
    "violations": 0,
    "seconds": 0.0
+  },
+  {
+   "constraint": "required_property: Tag.name",
+   "cypher": "MATCH (n:`Tag`) WHERE n.`name` IS NULL RETURN count(n) AS violations",
+   "violations": 0,
+   "seconds": 0.01
+  },
+  {
+   "constraint": "required_property: Country.name",
+   "cypher": "MATCH (n:`Country`) WHERE n.`name` IS NULL RETURN count(n) AS violations",
+   "violations": 0,
+   "seconds": 0.01
   }
  ]
 }

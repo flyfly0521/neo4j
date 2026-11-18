@@ -1,4 +1,6 @@
-"""BI10 on the SF1 instance: original vs rewritten, read-only, a few parameter samples."""
+"""BI-N on the SF1 instance: original vs rewritten, read-only, a few parameter samples.
+
+Usage: bi_sf1_compare.py N INDEX_DIR [URI] [SAMPLES] [OUTPUT]; the index must already be built."""
 import json
 import sys
 import time
@@ -11,20 +13,21 @@ from cico import IndexMiddleware
 from cico.neo4j import neo4j_profile
 
 ROOT = Path(__file__).resolve().parents[1]
-FILL = (W.DOCS / 'NeuG/queries/index/ldbc-bi/bi10/index.cypher').read_text()
 
 
-def main(uri, samples, output):
-    path = W.DOCS / 'Neo4j/queries/baseline/ldbc-bi/bi-10.cypher'
+def main(number, index_dir, uri, samples, output):
+    FILL = '\n;\n'.join(p.read_text() for p in sorted((W.DOCS / 'NeuG/queries/index/ldbc-bi' / index_dir).glob('index.cypher')))
+    path = W.DOCS / f'Neo4j/queries/baseline/ldbc-bi/bi-{number}.cypher'
     query = path.read_text()
     report = dict(uri=uri, read_only=True, cases=[])
     with GraphDatabase.driver(uri, auth=None) as driver, driver.session() as session:
-        missing = session.run('MATCH (p:Person) WHERE p.countryName IS NULL OR p.countryName = "" '
-                              'RETURN count(p) AS n').single()['n']
-        stale = session.run('MATCH (p:Person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(c:Country) '
-                            'WHERE p.countryName <> c.name RETURN count(p) AS n').single()['n']
-        report.update(persons_without_countryName=missing, persons_with_stale_countryName=stale)
-        print('index state: missing', missing, 'stale', stale)
+        if index_dir in ('bi10', 'bi11'):
+            missing = session.run('MATCH (p:Person) WHERE p.countryName IS NULL OR p.countryName = "" '
+                                  'RETURN count(p) AS n').single()['n']
+            stale = session.run('MATCH (p:Person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(c:Country) '
+                                'WHERE p.countryName <> c.name RETURN count(p) AS n').single()['n']
+            report.update(persons_without_countryName=missing, persons_with_stale_countryName=stale)
+            print('index state: missing', missing, 'stale', stale)
         with IndexMiddleware(ROOT / 'schemas/ldbc-bi.yaml', profile=neo4j_profile()) as mw:
             from neug_fill_bi_status import statements
             for s in statements(FILL):
@@ -41,7 +44,8 @@ def main(uri, samples, output):
                         started = time.time()
                         outputs.append([rec.values() for rec in session.run(text, **params)])
                         times.append(round(time.time() - started, 2))
-                    case.update(rows=len(outputs[0]), equal=outputs[0] == outputs[1], seconds=times)
+                    case.update(rows=len(outputs[0]), equal=outputs[0] == outputs[1], seconds=times,
+                                first_row=outputs[0][0] if outputs[0] else None)
                 report['cases'].append(case)
                 print(json.dumps(case)[:300], flush=True)
     report['all_equal'] = all(c.get('equal') for c in report['cases'])
@@ -50,6 +54,6 @@ def main(uri, samples, output):
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else 'bolt://127.0.0.1:7693',
-                  int(sys.argv[2]) if len(sys.argv) > 2 else 3,
-                  sys.argv[3] if len(sys.argv) > 3 else '/tmp/bi10-sf1.json'))
+    a = sys.argv[1:]
+    sys.exit(main(int(a[0]), a[1], a[2] if len(a) > 2 else 'bolt://127.0.0.1:7693',
+                  int(a[3]) if len(a) > 3 else 3, a[4] if len(a) > 4 else f'/tmp/bi{a[0]}-sf1.json'))
