@@ -16,8 +16,8 @@ from cico.queryparts import split_parts
 
 ROOT = Path(__file__).resolve().parents[1]
 
-ORDER = ['bi10', 'bi11', 'bi4', 'bi8', 'bi16', 'bi19a', 'bi20', 'bi15', 'bi15w']
-NEW = {'bi2', 'bi14', 'bi17'}
+ORDER = ['bi11', 'bi4', 'bi8', 'bi16', 'bi19a', 'bi20', 'bi15', 'bi15w']
+NEW = {'bi2', 'bi10', 'bi14', 'bi17'}
 
 # case -> (one-line verdict, blocking analysis (markdown), fix plan (markdown), parts to translate (0-based))
 ANALYSIS = {
@@ -31,11 +31,11 @@ ANALYSIS = {
 - 实现：常规改写失败后的“声明约束重试”阶段（不改变 BI3 等已有输出形状，README 3.13）；重试结果读取投影载体时检查上述函数依赖，否则拒绝。代码已写好待部署（`p10`），见文末。''',
         [3]),
     'bi11': (
-        '可改写，依赖 BI10 的重试阶段 + `Country.name` 唯一',
-        '''- 四段都能转换并绑定，均 `no_index_selected`。
-- 除 BI10 的类型谓词问题外，第 1 段把 `country` **节点**投影出去（`WITH DISTINCT country, a, b`），第 2、3 段用 `(b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)` 与输入的同一个节点做身份连接。
+        '可改写，下一步修复：重试阶段已就绪，还需 `Country.name` 唯一处理节点身份',
+        '''- 四段都能转换并绑定，均 `no_index_selected`（声明约束重试阶段也不匹配）。
+- 类型谓词问题已由 BI10 的重试阶段解决；剩下的是：第 1 段把 `country` **节点**投影出去（`WITH DISTINCT country, a, b`），第 2、3 段用 `(b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)` 与输入的同一个节点做身份连接。
 - 索引 `PERSON(countryName)` 只公开 Person 和国家**名称**，Country 是隐藏顶点；第 2、3 段中 `country` 属于输入绑定（$H$），于是 $A\\cup(H\\cap V_I)\\subseteq I$ 不成立；第 1 段把隐藏顶点投影出去，$(K)$ 不成立。''',
-        '''- 先做 BI10 的类型推导。
+        '''- BI10 的类型推导已部署。
 - 再用声明约束 `Country.name` 唯一：路径终点是 Country 且名称等于 `country.name`，当且仅当它就是输入的 `country` 节点（需同时确认输入节点是 Country）。把身份连接改写为 `b.countryName = country.name`，Country 不再作为接口顶点，接口条件成立。
 - 第 1 段：保留 `MATCH (country:Country {name: $country})`（唯一名称上的索引查找），把 `a` 的地点路径换成 `a.countryName = $country`。''',
         [0, 1, 2]),
@@ -143,20 +143,25 @@ def render(status, out):
               '- BI2：6 个单测（等价瞬间同一字面量；其他窗口不改写；命名时区、月份单位不折叠）。',
               '- BI14：真实 Neo4j 上 30 个随机夹具 × 2 条查询，60/60 结果多重集一致（含双向、平行 KNOWS；无 KNOWS 时走 EXISTS 回退分支），事务全部回滚。'
               '[结果](validation/neo4j-bi14-carrier-existence-20261118.json)',
+              '- BI10：SF1 实例上原查询与改写结果逐行一致 3/3 组参数（100/44/11 行；耗时 13.7s→0.09s、4.1s→0.07s、3.7s→0.07s，'
+              '只读，`countryName` 已物化且 0 缺失、0 过期）。[结果](validation/neo4j-bi10-sf1-20261118.json)；'
+              '另有单测：去掉任一类前提（类型域、至多一条、至少一条）都拒绝改写。',
               '- BI17：真实 Neo4j 上 20 个随机夹具 × delta∈{0,4,24}，60/60 一致（40 组非空，含零长度路径与同一棵回复树）。'
               '[结果](validation/neo4j-bi17-path-carrier-20261118.json)。BI17 不经 NeuG 绑定校验：NeuG 规划器对这个含 11 条关系的单个 MATCH 在 24 GB 上限下仍内存耗尽'
               '（README 7.7，上游问题），证明中记为 `neug_bind: skipped`，只做了转换和 schema 检查。', '',
               '## 声明约束', '',
               '用户 2026-11-18 同意。写在 `middleware/profiles/ldbc-snb-neo4j.yaml` 的 `constraints:`，是个别改写步骤的前提（不是定理本身的前提），'
-              '用到的写入 `Result.premises`。`middleware/tests/constraint_checks.py` 在 SF1 实例（`bolt://127.0.0.1:7693`，只读）上 8/8 条 0 违反'
+              '用到的写入 `Result.premises`。`middleware/tests/constraint_checks.py` 在 SF1 实例（`bolt://127.0.0.1:7693`，只读）上 10/10 条 0 违反'
               '（[结果](validation/neo4j-constraint-checks-sf1-20261118.json)）。', '',
               '| 约束 | 已用于 | 计划用于 |', '| --- | --- | --- |',
               '| `(:Message)-[:REPLY_OF]->` 至多一条 | BI17 | BI4 |',
               '| `-[:CONTAINER_OF]->(:Post)` 至多一条 | BI17 | BI4 |',
-              '| `(:Person)-[:IS_LOCATED_IN]->` 至多一条 | | BI10、BI11 |',
-              '| `(:City)-[:IS_PART_OF]->` 至多一条 | | BI10、BI11 |',
-              '| `(:Person)-[:IS_LOCATED_IN]->(:City)` | | BI10、BI11 |',
-              '| `(:City)-[:IS_PART_OF]->(:Country)` | | BI10、BI11 |',
+              '| `(:Person)-[:IS_LOCATED_IN]->` 至多一条 | BI10（投影载体函数依赖） | BI11 |',
+              '| `(:City)-[:IS_PART_OF]->` 至多一条 | BI10 | BI11 |',
+              '| `(:Person)-[:IS_LOCATED_IN]->` 至少一条 | BI10（投影载体全覆盖：缺失分组不会读到默认值 `\'\'`） | BI11 |',
+              '| `(:City)-[:IS_PART_OF]->` 至少一条 | BI10 | BI11 |',
+              '| `(:Person)-[:IS_LOCATED_IN]->(:City)` | BI10（去掉冗余 City 类型谓词） | BI11 |',
+              '| `(:City)-[:IS_PART_OF]->(:Country)` | BI10（去掉冗余 Country 类型谓词） | BI11 |',
               '| `Tag.name` 唯一 | | BI8（BI16） |',
               '| `Country.name` 唯一 | | BI11 |', '',
               '## 未改写的查询（按计划修复顺序）', '']
@@ -179,7 +184,7 @@ def render(status, out):
                           block(source, 'cypher'), block(internal, 'cypher')]
             lines += ['**修复计划**', '', plan, '']
     lines += ['## 已改写的查询（本轮新增）', '']
-    for name in ('bi2', 'bi14', 'bi17'):
+    for name in ('bi2', 'bi10', 'bi14', 'bi17'):
         c = cases[name]
         lines += [f"### {name} → `{c['query']}`", '',
                   f"- 路径：`{c['route']}`；读取：{', '.join(f'`{i}`' for i in c['indexes'])}"
@@ -199,7 +204,7 @@ def render(status, out):
               '| 声明约束与检查语句 | `cico/constraints.py`、`tests/constraint_checks.py` | 改写步骤的前提，`Result.premises` |',
               '| 变长关系唯一性的根路径证明 | `cico/neo4j.py`（`_root_path`、`_uniqueness_implied`、`contradiction`） | Neo4j 关系同构与内部同态等价的前提 |',
               '| 关系载体替换变长路径（回退阶段） | `cico/path_carriers.py` | $(L)$：至多一条路径 ⇒ $|G_k|=1$；同一子句的载体唯一性由过滤推出矛盾 |',
-              '| （待部署）声明约束重试：类型谓词推导、投影载体函数依赖检查 | `cico/neo4j.py`、`cico/middleware.py` | $(M_F)$；投影载体 $|G_k|\\le 1$ |', '']
+              '| 声明约束重试：类型谓词推导（含 `collect`/`UNWIND` 传递）、投影载体“恰好一个见证”检查 | `cico/neo4j.py`（`_implied_typed_labels`）、`cico/middleware.py`（`_relaxed`、`_projection_premises`） | $(M_F)$；投影载体 $|G_k|=1$ |', '']
     Path(out).write_text('\n'.join(lines))
 
 

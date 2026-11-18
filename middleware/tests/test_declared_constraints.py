@@ -24,10 +24,11 @@ MATCH (m1)-[:HAS_TAG]->(t:Tag)
 
 
 def profile(constraints=True):
-    if constraints:
+    """constraints: True (as declared), False (none) or a predicate keeping some."""
+    if constraints is True:
         return neo4j_profile()
     mapping = load_mapping(ROOT / 'profiles/ldbc-snb-neo4j.yaml')
-    mapping['constraints'] = []
+    mapping['constraints'] = [c for c in mapping['constraints'] if constraints and constraints(c)]
     handle = tempfile.NamedTemporaryFile('w', suffix='.yaml', delete=False)
     yaml.safe_dump(mapping, handle)
     handle.close()
@@ -46,7 +47,7 @@ class ConstraintTests(unittest.TestCase):
     def test_every_declared_constraint_has_a_violation_count(self):
         with IndexMiddleware(ROOT / 'schemas/ldbc-bi.yaml', profile=neo4j_profile()) as mw:
             checks = mw.constraint_checks()
-        self.assertEqual(len(checks), 8)
+        self.assertEqual(len(checks), 10)
         for check in checks:
             self.assertIn('AS violations', check['cypher'])
         self.assertIn('MATCH (n:`Message`)-[r:`REPLY_OF`]->()', checks[0]['cypher'])
@@ -105,6 +106,53 @@ class PathCarrierTests(unittest.TestCase):
             # (The frontend already refuses that statement for the paths themselves.)
             with self.assertRaises(Unsupported):
                 substitute(mw, TWO_PATHS.format(where=''))
+
+
+COUNTRY_FILL = '''FILL PERSON(countryName) FROM (
+MATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)
+RETURN person.id, country.name)'''
+LOCATED = '''MATCH (p:Person) WITH collect(p) AS people
+UNWIND people AS person
+MATCH (person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(:Country {name: $country}),
+      (person)<-[:HAS_CREATOR]-(message:Message)
+RETURN person.id, count(DISTINCT message) AS n'''
+
+
+class ImpliedLabelTests(unittest.TestCase):
+    def run_with(self, constraints, query=LOCATED):
+        mw = IndexMiddleware(ROOT / 'schemas/ldbc-bi.yaml', profile=profile(constraints))
+        self.addCleanup(mw.close)
+        mw.apply_ddl("ALTER TABLE PERSON ADD IF NOT EXISTS countryName STRING DEFAULT ''", input_dialect='neug')
+        mw.register_index([COUNTRY_FILL], input_dialect='neug')
+        return mw.execute(query, parameters={'country': 'China'})
+
+    def test_types_implied_and_carrier_functional_and_total(self):
+        r = self.run_with(True)
+        self.assertTrue(r.rewritten, r.to_dict())
+        self.assertIn('person.countryName = $country', r.cypher)
+        self.assertTrue(r.route.startswith('declared_constraints:'))
+        for premise in ('endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)',
+                        'endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)',
+                        'at_most_one: (:Person)-[:IS_LOCATED_IN]->', 'at_least_one: (:Person)-[:IS_LOCATED_IN]->',
+                        'at_most_one: (:City)-[:IS_PART_OF]->', 'at_least_one: (:City)-[:IS_PART_OF]->'):
+            self.assertIn(premise, r.premises)
+
+    def test_each_missing_premise_refuses(self):
+        for kind in ('endpoint_labels', 'at_most_one', 'at_least_one'):
+            with self.subTest(kind):
+                r = self.run_with(lambda c, kind=kind: c['kind'] != kind)
+                self.assertFalse(r.rewritten, r.to_dict())
+
+    def test_unlabelled_source_implies_nothing(self):
+        query = LOCATED.replace('MATCH (p:Person) WITH collect(p) AS people\nUNWIND people AS person\n', '')
+        r = self.run_with(True, query)
+        self.assertFalse(r.rewritten, r.to_dict())
+
+    def test_typed_labels_never_follow_from_tables(self):
+        c = neo4j_profile().frontend.constraints
+        self.assertIsNone(c.at_most_one_out('IS_PART_OF', {'PLACE'}))          # a PLACE need not be a City
+        self.assertIsNotNone(c.at_most_one_out('IS_PART_OF', {'PLACE'}, {'City'}))
+        self.assertIsNotNone(c.at_most_one_out('REPLY_OF', {'COMMENT'}))        # Comment rows are Messages
 
 
 if __name__ == '__main__':

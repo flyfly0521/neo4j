@@ -18,12 +18,14 @@ Profile syntax (Neo4j names), e.g.
 Kinds
   at_most_one      every `from` node has at most one outgoing `rel`
                    (or: every `to` node has at most one incoming `rel`)
+  at_least_one     every `from` node has at least one outgoing `rel`
+                   (or: every `to` node has at least one incoming `rel`)
   endpoint_labels  every `rel` leaving a `from` node ends at a `to` node
   unique_property  no two `label` nodes share a non-null `property` value
 """
 from dataclasses import dataclass
 
-KINDS = {'at_most_one', 'endpoint_labels', 'unique_property'}
+KINDS = {'at_most_one', 'at_least_one', 'endpoint_labels', 'unique_property'}
 
 
 @dataclass(frozen=True)
@@ -36,9 +38,9 @@ class Constraint:
     prop: str = ''
 
     def describe(self):
-        if self.kind == 'at_most_one':
-            return (f'at_most_one: (:{self.src})-[:{self.rel}]->' if self.src
-                    else f'at_most_one: -[:{self.rel}]->(:{self.dst})')
+        if self.kind in ('at_most_one', 'at_least_one'):
+            return (f'{self.kind}: (:{self.src})-[:{self.rel}]->' if self.src
+                    else f'{self.kind}: -[:{self.rel}]->(:{self.dst})')
         if self.kind == 'endpoint_labels':
             return f'endpoint_labels: (:{self.src})-[:{self.rel}]->(:{self.dst})'
         return f'unique_property: {self.label}.{self.prop}'
@@ -51,6 +53,12 @@ class Constraint:
         if self.kind == 'at_most_one':
             return (f'MATCH ()-[r:`{self.rel}`]->(n:`{self.dst}`) WITH n, count(r) AS c '
                     f'WHERE c > 1 RETURN count(n) AS violations')
+        if self.kind == 'at_least_one' and self.src:
+            return (f'MATCH (n:`{self.src}`) WHERE NOT EXISTS {{ (n)-[:`{self.rel}`]->() }} '
+                    f'RETURN count(n) AS violations')
+        if self.kind == 'at_least_one':
+            return (f'MATCH (n:`{self.dst}`) WHERE NOT EXISTS {{ ()-[:`{self.rel}`]->(n) }} '
+                    f'RETURN count(n) AS violations')
         if self.kind == 'endpoint_labels':
             return (f'MATCH (:`{self.src}`)-[r:`{self.rel}`]->(x) WHERE NOT x:`{self.dst}` '
                     f'RETURN count(r) AS violations')
@@ -59,7 +67,7 @@ class Constraint:
 
 
 class Constraints:
-    def __init__(self, entries, labels=None):
+    def __init__(self, entries, labels=None, typed=()):
         self.items = []
         for entry in entries or []:
             kind = entry.get('kind')
@@ -67,27 +75,43 @@ class Constraints:
                 raise ValueError(f'unknown constraint kind {kind!r}')
             item = Constraint(kind, entry.get('rel', ''), entry.get('from', ''), entry.get('to', ''),
                               entry.get('label', ''), entry.get('property', ''))
-            if kind == 'at_most_one' and bool(item.src) == bool(item.dst):
-                raise ValueError(f'at_most_one needs exactly one of from/to: {entry}')
+            if kind in ('at_most_one', 'at_least_one') and bool(item.src) == bool(item.dst):
+                raise ValueError(f'{kind} needs exactly one of from/to: {entry}')
             if kind == 'endpoint_labels' and not (item.rel and item.src and item.dst):
                 raise ValueError(f'endpoint_labels needs rel, from and to: {entry}')
             if kind == 'unique_property' and not (item.label and item.prop):
                 raise ValueError(f'unique_property needs label and property: {entry}')
             self.items.append(item)
         self.labels = labels or {}   # Neo4j label -> internal tables (for coverage tests)
+        self.typed = set(typed)      # labels that are a predicate on a table (City on PLACE)
 
-    def _covers(self, label, tables):
-        """Does every node with internal tables `tables` carry `label`?"""
+    def _covers(self, label, tables, known=()):
+        """Does every node with internal tables `tables` (and the labels
+        `known` to hold for it) carry `label`?  A typed label (City) is a
+        predicate on its table, so table membership never implies it; it must
+        be known, i.e. declared on the node or derived from endpoint_labels."""
+        if label in known:
+            return True
+        if label in self.typed:
+            return False
         own = {t.upper() for t in self.labels.get(label, [label])}
         return bool(tables) and {t.upper() for t in tables} <= own
 
-    def at_most_one_out(self, rel, tables):
+    def at_most_one_out(self, rel, tables, known=()):
         return next((c for c in self.items if c.kind == 'at_most_one' and c.rel == rel and c.src
-                     and self._covers(c.src, tables)), None)
+                     and self._covers(c.src, tables, known)), None)
 
-    def at_most_one_in(self, rel, tables):
+    def at_most_one_in(self, rel, tables, known=()):
         return next((c for c in self.items if c.kind == 'at_most_one' and c.rel == rel and c.dst
-                     and self._covers(c.dst, tables)), None)
+                     and self._covers(c.dst, tables, known)), None)
+
+    def at_least_one_out(self, rel, tables, known=()):
+        return next((c for c in self.items if c.kind == 'at_least_one' and c.rel == rel and c.src
+                     and self._covers(c.src, tables, known)), None)
+
+    def at_least_one_in(self, rel, tables, known=()):
+        return next((c for c in self.items if c.kind == 'at_least_one' and c.rel == rel and c.dst
+                     and self._covers(c.dst, tables, known)), None)
 
     def implied_endpoint(self, rel, known):
         """Constraints `(:X)-[:rel]->(:Y)` with X in the known labels of the source."""

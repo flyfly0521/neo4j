@@ -6,10 +6,10 @@
 
 - 索引：实验文档 `NeuG/queries/index/ldbc-bi/<case>/`（提交 `08f1a265`），NeuG DDL/FILL 直接注册；参数文件按 SF1 第 0 组参数渲染（BI13 的 `{}` 按 `run_workload.py` 用 `endDate` 渲染，BI15w 按文件注释的占位顺序渲染）。
 - 查询：`Neo4j/queries/baseline/ldbc-bi/bi-N.cypher` 原文；Neo4j profile 输入、输出。
-- 中间件：提交 `f0c587cf`（`develop`）。每个索引目录单独注册、单独改写一次；只编译，不物化索引、不执行 BI 查询。
+- 中间件：提交 `5f333bd5`（`develop`）。每个索引目录单独注册、单独改写一次；只编译，不物化索引、不执行 BI 查询。
 - 复现：`python3 middleware/tests/neug_fill_bi_status.py --output s.json && python3 middleware/tests/render_bi_status.py s.json`。
 
-## 总览：8/17 改写（上一轮诊断 5/17）
+## 总览：9/17 改写（上一轮诊断 5/17）
 
 | 索引目录 | 查询 | 状态 | 读取的索引 | 路径 / 结论 |
 | --- | --- | --- | --- | --- |
@@ -18,13 +18,13 @@
 | bi5 | bi-5.cypher | ✅ 原有 | `COMMENT(likeCount)`, `COMMENT(replyCount)`, `POST(likeCount)`, `POST(replyCount)` | parts:1,2 |
 | bi6 | bi-6.cypher | ✅ 原有 | `PERSON(likeCount)` | subqueries |
 | bi9 | bi-9.cypher | ✅ 原有 | `ROOT_POST()` | initial |
+| bi10 | bi-10.cypher | ✅ 本轮新增 | `PERSON(countryName)` | declared_constraints:parts:4 |
 | bi13 | bi-13.cypher | ✅ 原有 | `PERSON(bi13MessageCount)` | parts:2；只对该组 $endDate 有效 |
 | bi14 | bi-14.cypher | ✅ 本轮新增 | `KNOWS(bi14_case1_fwd)`, `KNOWS(bi14_case1_rev)`, `KNOWS(bi14_case3_fwd)`, `KNOWS(bi14_case3_rev)` | parts:2,3,4,5 |
 | bi17 | bi-17.cypher | ✅ 本轮新增 | `ROOT_POST()` | path_carriers |
 | bi4 | bi-4.cypher | ❌ | — | 可改写，需新的聚合分解规则 |
 | bi8 | bi-8.cypher | ❌ | — | 可改写，需 `Tag.name` 唯一 + 前端补充 |
-| bi10 | bi-10.cypher | ❌ | — | 可改写，下一步修复（声明约束重试阶段） |
-| bi11 | bi-11.cypher | ❌ | — | 可改写，依赖 BI10 的重试阶段 + `Country.name` 唯一 |
+| bi11 | bi-11.cypher | ❌ | — | 可改写，下一步修复：重试阶段已就绪，还需 `Country.name` 唯一处理节点身份 |
 | bi15 | bi-15.cypher | ❌ | — | 不建议 |
 | bi15w | bi-15.cypher | ❌ | — | 不建议（同 BI15） |
 | bi16 | bi-16.cypher | ❌ | — | 理论上可改写，收益低，暂缓 |
@@ -35,146 +35,29 @@
 
 - BI2：6 个单测（等价瞬间同一字面量；其他窗口不改写；命名时区、月份单位不折叠）。
 - BI14：真实 Neo4j 上 30 个随机夹具 × 2 条查询，60/60 结果多重集一致（含双向、平行 KNOWS；无 KNOWS 时走 EXISTS 回退分支），事务全部回滚。[结果](validation/neo4j-bi14-carrier-existence-20261118.json)
+- BI10：SF1 实例上原查询与改写结果逐行一致 3/3 组参数（100/44/11 行；耗时 13.7s→0.09s、4.1s→0.07s、3.7s→0.07s，只读，`countryName` 已物化且 0 缺失、0 过期）。[结果](validation/neo4j-bi10-sf1-20261118.json)；另有单测：去掉任一类前提（类型域、至多一条、至少一条）都拒绝改写。
 - BI17：真实 Neo4j 上 20 个随机夹具 × delta∈{0,4,24}，60/60 一致（40 组非空，含零长度路径与同一棵回复树）。[结果](validation/neo4j-bi17-path-carrier-20261118.json)。BI17 不经 NeuG 绑定校验：NeuG 规划器对这个含 11 条关系的单个 MATCH 在 24 GB 上限下仍内存耗尽（README 7.7，上游问题），证明中记为 `neug_bind: skipped`，只做了转换和 schema 检查。
 
 ## 声明约束
 
-用户 2026-11-18 同意。写在 `middleware/profiles/ldbc-snb-neo4j.yaml` 的 `constraints:`，是个别改写步骤的前提（不是定理本身的前提），用到的写入 `Result.premises`。`middleware/tests/constraint_checks.py` 在 SF1 实例（`bolt://127.0.0.1:7693`，只读）上 8/8 条 0 违反（[结果](validation/neo4j-constraint-checks-sf1-20261118.json)）。
+用户 2026-11-18 同意。写在 `middleware/profiles/ldbc-snb-neo4j.yaml` 的 `constraints:`，是个别改写步骤的前提（不是定理本身的前提），用到的写入 `Result.premises`。`middleware/tests/constraint_checks.py` 在 SF1 实例（`bolt://127.0.0.1:7693`，只读）上 10/10 条 0 违反（[结果](validation/neo4j-constraint-checks-sf1-20261118.json)）。
 
 | 约束 | 已用于 | 计划用于 |
 | --- | --- | --- |
 | `(:Message)-[:REPLY_OF]->` 至多一条 | BI17 | BI4 |
 | `-[:CONTAINER_OF]->(:Post)` 至多一条 | BI17 | BI4 |
-| `(:Person)-[:IS_LOCATED_IN]->` 至多一条 | | BI10、BI11 |
-| `(:City)-[:IS_PART_OF]->` 至多一条 | | BI10、BI11 |
-| `(:Person)-[:IS_LOCATED_IN]->(:City)` | | BI10、BI11 |
-| `(:City)-[:IS_PART_OF]->(:Country)` | | BI10、BI11 |
+| `(:Person)-[:IS_LOCATED_IN]->` 至多一条 | BI10（投影载体函数依赖） | BI11 |
+| `(:City)-[:IS_PART_OF]->` 至多一条 | BI10 | BI11 |
+| `(:Person)-[:IS_LOCATED_IN]->` 至少一条 | BI10（投影载体全覆盖：缺失分组不会读到默认值 `''`） | BI11 |
+| `(:City)-[:IS_PART_OF]->` 至少一条 | BI10 | BI11 |
+| `(:Person)-[:IS_LOCATED_IN]->(:City)` | BI10（去掉冗余 City 类型谓词） | BI11 |
+| `(:City)-[:IS_PART_OF]->(:Country)` | BI10（去掉冗余 Country 类型谓词） | BI11 |
 | `Tag.name` 唯一 | | BI8（BI16） |
 | `Country.name` 唯一 | | BI11 |
 
 ## 未改写的查询（按计划修复顺序）
 
-### bi10 → `bi-10.cypher`：可改写，下一步修复（声明约束重试阶段）
-
-- 中间件返回：`rewritten=False`，`reason=no_index_selected`
-- 注册的索引：`PERSON(countryName)`
-
-**注册的 FILL（NeuG 方言，参数已渲染）**
-
-```cypher
-FILL PERSON(countryName) FROM (
-MATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)
-RETURN person.id, country.name)
-```
-
-**原始 Neo4j 查询**
-
-```cypher
-// Q10. Experts in social circle
-// Requires the Neo4j APOC library
-/*
-:params {
-    personId: 30786325588624,
-    country: 'China',
-    tagClass: 'MusicalArtist',
-    minPathDistance: 3,
-    maxPathDistance: 4
-}
-*/
-MATCH (startPerson:Person {id: $personId})
-CALL apoc.path.subgraphNodes(startPerson, {
-	relationshipFilter: "KNOWS",
-    minLevel: 1,
-    maxLevel: $minPathDistance-1
-})
-YIELD node
-WITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance
-CALL apoc.path.subgraphNodes(startPerson, {
-	relationshipFilter: "KNOWS",
-    minLevel: 1,
-    maxLevel: $maxPathDistance
-})
-YIELD node
-WITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance
-// compute the difference of sets: nodesCloserThanMaxPathDistance - nodesCloserThanMinPathDistance
-WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons
-UNWIND expertCandidatePersons AS expertCandidatePerson
-MATCH
-  (expertCandidatePerson)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(:Country {name: $country}),
-  (expertCandidatePerson)<-[:HAS_CREATOR]-(message:Message)-[:HAS_TAG]->(:Tag)-[:HAS_TYPE]->
-  (:TagClass {name: $tagClass})
-MATCH
-  (message)-[:HAS_TAG]->(tag:Tag)
-RETURN
-  expertCandidatePerson.id,
-  tag.name,
-  count(DISTINCT message) AS messageCount
-ORDER BY
-  messageCount DESC,
-  tag.name ASC,
-  expertCandidatePerson.id ASC
-LIMIT 100
-```
-
-**中间件返回的 detail**
-
-```
-part 1: frontend_unsupported CALL procedure: no internal equivalent | part 4: no_index_selected
-```
-
-**卡点**
-
-- 第 1 段（`MATCH (startPerson) CALL apoc.path.subgraphNodes ...`）是 APOC 过程，转换报 `CALL procedure: no internal equivalent`，按设计原样保留；第 2、3 段同理。
-- 第 4 段（`UNWIND expertCandidatePersons ... RETURN`）可转换并绑定（APOC 输出类型由 profile 过程契约推出为 `PERSON[]`），但 RewriterV4 返回 `no_index_selected`。
-- 不匹配的原因是 **$(M_F)$**：查询写 `(:City)`、`(:Country {name: $country})`，转换后是 `(:PLACE {type: 'City'})`、`(:PLACE {name: $country, type: 'Country'})`；FILL 源 `(country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)` 没有这两个类型谓词。查询过滤比索引过滤多出 `type` 条件，而这两个条件引用的是索引的隐藏顶点（City、Country），无法作为残余过滤 $h$ 补做（$(M_A)$(ii)）。
-
-第 4 段原文与转换后的内部 Cypher（用于与 FILL 源对照；该段单独转换、未加输入桩，实际探针中输入变量带标签，关系表会按端点裁剪）：
-
-```cypher
-UNWIND expertCandidatePersons AS expertCandidatePerson
-MATCH
-  (expertCandidatePerson)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(:Country {name: $country}),
-  (expertCandidatePerson)<-[:HAS_CREATOR]-(message:Message)-[:HAS_TAG]->(:Tag)-[:HAS_TYPE]->
-  (:TagClass {name: $tagClass})
-MATCH
-  (message)-[:HAS_TAG]->(tag:Tag)
-RETURN
-  expertCandidatePerson.id,
-  tag.name,
-  count(DISTINCT message) AS messageCount
-ORDER BY
-  messageCount DESC,
-  tag.name ASC,
-  expertCandidatePerson.id ASC
-LIMIT 100
-```
-
-```cypher
-UNWIND expertCandidatePersons AS expertCandidatePerson
-MATCH
-  (expertCandidatePerson)-[:ISLOCATEDIN|ORGANISATION_ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(:PLACE {name: $country, type: 'Country'}),
-  (expertCandidatePerson)<-[:HASCREATOR]-(message:COMMENT:POST)-[:HASTAG]->(:TAG)-[:HASTYPE]->
-  (:TAGCLASS {name: $tagClass})
-MATCH
-  (message)-[:HASTAG]->(tag:TAG)
-RETURN
-  expertCandidatePerson.id,
-  tag.name,
-  count(DISTINCT message) AS messageCount
-ORDER BY
-  messageCount DESC,
-  tag.name ASC,
-  expertCandidatePerson.id ASC
-LIMIT 100
-```
-
-**修复计划**
-
-- 声明约束 `(:Person)-[:IS_LOCATED_IN]->(:City)`、`(:City)-[:IS_PART_OF]->(:Country)` 使这两个类型谓词在每个匹配上恒真，去掉后查询过滤 = 索引过滤，$(M_F)$ 成立。
-- `countryName` 是非聚合的投影载体，定理只覆盖可加聚合；需 `(:Person)-[:IS_LOCATED_IN]->` 至多一条、`(:City)-[:IS_PART_OF]->` 至多一条，保证每个 Person 至多一个见证（$|G_k|\le 1$），存的值有定义，行重数不变。
-- 实现：常规改写失败后的“声明约束重试”阶段（不改变 BI3 等已有输出形状，README 3.13）；重试结果读取投影载体时检查上述函数依赖，否则拒绝。代码已写好待部署（`p10`），见文末。
-
-### bi11 → `bi-11.cypher`：可改写，依赖 BI10 的重试阶段 + `Country.name` 唯一
+### bi11 → `bi-11.cypher`：可改写，下一步修复：重试阶段已就绪，还需 `Country.name` 唯一处理节点身份
 
 - 中间件返回：`rewritten=False`，`reason=no_index_selected`
 - 注册的索引：`PERSON(countryName)`
@@ -224,8 +107,8 @@ part 1: no_index_selected | part 2: no_index_selected | part 3: no_index_selecte
 
 **卡点**
 
-- 四段都能转换并绑定，均 `no_index_selected`。
-- 除 BI10 的类型谓词问题外，第 1 段把 `country` **节点**投影出去（`WITH DISTINCT country, a, b`），第 2、3 段用 `(b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)` 与输入的同一个节点做身份连接。
+- 四段都能转换并绑定，均 `no_index_selected`（声明约束重试阶段也不匹配）。
+- 类型谓词问题已由 BI10 的重试阶段解决；剩下的是：第 1 段把 `country` **节点**投影出去（`WITH DISTINCT country, a, b`），第 2、3 段用 `(b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)` 与输入的同一个节点做身份连接。
 - 索引 `PERSON(countryName)` 只公开 Person 和国家**名称**，Country 是隐藏顶点；第 2、3 段中 `country` 属于输入绑定（$H$），于是 $A\cup(H\cap V_I)\subseteq I$ 不成立；第 1 段把隐藏顶点投影出去，$(K)$ 不成立。
 
 第 1 段原文与转换后的内部 Cypher（用于与 FILL 源对照；该段单独转换、未加输入桩，实际探针中输入变量带标签，关系表会按端点裁剪）：
@@ -278,7 +161,7 @@ WITH DISTINCT a, b, c
 
 **修复计划**
 
-- 先做 BI10 的类型推导。
+- BI10 的类型推导已部署。
 - 再用声明约束 `Country.name` 唯一：路径终点是 Country 且名称等于 `country.name`，当且仅当它就是输入的 `country` 节点（需同时确认输入节点是 Country）。把身份连接改写为 `b.countryName = country.name`，Country 不再作为接口顶点，接口条件成立。
 - 第 1 段：保留 `MATCH (country:Country {name: $country})`（唯一名称上的索引查找），把 `a` 的地点路径换成 `a.countryName = $country`。
 
@@ -996,6 +879,90 @@ LIMIT 100
 
 </details>
 
+### bi10 → `bi-10.cypher`
+
+- 路径：`declared_constraints:parts:4`；读取：`PERSON(countryName)`
+- 前提（声明约束）：`at_least_one: (:City)-[:IS_PART_OF]->`, `at_least_one: (:Person)-[:IS_LOCATED_IN]->`, `at_most_one: (:City)-[:IS_PART_OF]->`, `at_most_one: (:Person)-[:IS_LOCATED_IN]->`, `endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)`, `endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)`
+- 证明记录：constraint_implied_labels
+
+<details><summary>FILL、原始查询与改写输出</summary>
+
+```cypher
+FILL PERSON(countryName) FROM (
+MATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)
+RETURN person.id, country.name)
+```
+
+原始查询：
+
+```cypher
+// Q10. Experts in social circle
+// Requires the Neo4j APOC library
+/*
+:params {
+    personId: 30786325588624,
+    country: 'China',
+    tagClass: 'MusicalArtist',
+    minPathDistance: 3,
+    maxPathDistance: 4
+}
+*/
+MATCH (startPerson:Person {id: $personId})
+CALL apoc.path.subgraphNodes(startPerson, {
+	relationshipFilter: "KNOWS",
+    minLevel: 1,
+    maxLevel: $minPathDistance-1
+})
+YIELD node
+WITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance
+CALL apoc.path.subgraphNodes(startPerson, {
+	relationshipFilter: "KNOWS",
+    minLevel: 1,
+    maxLevel: $maxPathDistance
+})
+YIELD node
+WITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance
+// compute the difference of sets: nodesCloserThanMaxPathDistance - nodesCloserThanMinPathDistance
+WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons
+UNWIND expertCandidatePersons AS expertCandidatePerson
+MATCH
+  (expertCandidatePerson)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(:Country {name: $country}),
+  (expertCandidatePerson)<-[:HAS_CREATOR]-(message:Message)-[:HAS_TAG]->(:Tag)-[:HAS_TYPE]->
+  (:TagClass {name: $tagClass})
+MATCH
+  (message)-[:HAS_TAG]->(tag:Tag)
+RETURN
+  expertCandidatePerson.id,
+  tag.name,
+  count(DISTINCT message) AS messageCount
+ORDER BY
+  messageCount DESC,
+  tag.name ASC,
+  expertCandidatePerson.id ASC
+LIMIT 100
+```
+
+改写输出：
+
+```cypher
+MATCH (startPerson:Person {id: $personId})
+CALL apoc.path.subgraphNodes(startPerson, {
+	relationshipFilter: "KNOWS",
+    minLevel: 1,
+    maxLevel: $minPathDistance-1
+})
+YIELD node
+WITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {
+	relationshipFilter: "KNOWS",
+    minLevel: 1,
+    maxLevel: $maxPathDistance
+})
+YIELD node
+WITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100
+```
+
+</details>
+
 ### bi14 → `bi-14.cypher`
 
 - 路径：`parts:2,3,4,5`；读取：`KNOWS(bi14_case1_fwd)`, `KNOWS(bi14_case1_rev)`, `KNOWS(bi14_case3_fwd)`, `KNOWS(bi14_case3_rev)`
@@ -1218,4 +1185,4 @@ LIMIT 10
 | 声明约束与检查语句 | `cico/constraints.py`、`tests/constraint_checks.py` | 改写步骤的前提，`Result.premises` |
 | 变长关系唯一性的根路径证明 | `cico/neo4j.py`（`_root_path`、`_uniqueness_implied`、`contradiction`） | Neo4j 关系同构与内部同态等价的前提 |
 | 关系载体替换变长路径（回退阶段） | `cico/path_carriers.py` | $(L)$：至多一条路径 ⇒ $|G_k|=1$；同一子句的载体唯一性由过滤推出矛盾 |
-| （待部署）声明约束重试：类型谓词推导、投影载体函数依赖检查 | `cico/neo4j.py`、`cico/middleware.py` | $(M_F)$；投影载体 $|G_k|\le 1$ |
+| 声明约束重试：类型谓词推导（含 `collect`/`UNWIND` 传递）、投影载体“恰好一个见证”检查 | `cico/neo4j.py`（`_implied_typed_labels`）、`cico/middleware.py`（`_relaxed`、`_projection_premises`） | $(M_F)$；投影载体 $|G_k|=1$ |

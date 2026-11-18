@@ -33,6 +33,11 @@ CLAUSE_END = {'WHERE', 'WITH', 'RETURN', 'UNWIND', 'ORDER', 'SET', 'DELETE', 'DE
               'LIMIT', 'SKIP', 'CALL', 'OPTIONAL', 'MATCH', 'REMOVE', 'FOREACH', 'MERGE', 'CREATE'}
 
 
+def closing_index(tokens, opening):
+    from .syntax import closing
+    return closing(tokens, opening)
+
+
 def load_mapping(path):
     with open(path) as handle:
         mapping = yaml.safe_load(handle)
@@ -97,7 +102,8 @@ class Neo4jFrontend:
         self.acyclic = set(mapping['acyclic_rel_types'])
         from .constraints import Constraints
         typed = {k: [v['table']] for k, v in mapping['typed_labels'].items()}
-        self.constraints = Constraints(mapping['constraints'], {**mapping['labels'], **typed})
+        self.constraints = Constraints(mapping['constraints'], {**mapping['labels'], **typed},
+                                       typed=mapping['typed_labels'].keys())
         self.relax = False      # apply constraint-justified simplifications (retry stage)
         self.premises = set()   # constraints the last translations relied on
         self.prop_names = {t.upper(): dict(m) for t, m in mapping['properties'].items()}
@@ -121,6 +127,8 @@ class Neo4jFrontend:
         tokens = self._count_relationships(tokens)
         tokens = self._drop_hints(tokens)
         tokens = self._shortest_paths(tokens)
+        if self.relax:
+            tokens = self._implied_typed_labels(tokens)
         self.var_tables = self._collect_var_tables(tokens)
         from .normalize import entity_id_comparisons, rewrite_coalesce, split_chained_comparisons
         tokens = split_chained_comparisons(rewrite_coalesce(tokens))
@@ -430,6 +438,119 @@ class Neo4jFrontend:
             unequal = self._where_unequal(tokens, pattern_end + 1, where_end) if where else set()
             clauses.append((start, word, pattern_end, where, where_end, rels, unequal, part))
         return clauses
+
+    # ------------------------------------- implied typed labels (relax stage)
+    def _implied_typed_labels(self, tokens):
+        """Replace a typed label (City) by its base label (Place) where
+        declared endpoint_labels constraints imply it for every match, e.g.
+        (p:Person)-[:IS_LOCATED_IN]->(:City) under (:Person)-[:IS_LOCATED_IN]->(:City).
+
+        Types propagate along fixed-length, single-type, directed
+        relationships from labels written in the statement (a variable's
+        labels from all of its occurrences); the dropped label is then a
+        predicate true on every match, so the pattern matches the same rows
+        on every database satisfying the constraints.  Used only by the
+        relax stage, after the ordinary attempt left the statement unchanged."""
+        if not self.constraints.items:
+            return tokens
+        def node_start(close):
+            depth, k = 0, close
+            while k >= 0:
+                depth += tokens[k].text == ')'
+                depth -= tokens[k].text == '('
+                if depth == 0:
+                    return k
+                k -= 1
+            return None
+        declared = {}
+        for i, t in enumerate(tokens):
+            if t.text == '(':
+                var, labels = self._peek_node(tokens, i)
+                if var and labels:
+                    declared.setdefault(var, set()).update(labels)
+        # Labels flow through `collect(x) AS L` (elements are x's values) and
+        # `UNWIND L AS v` (v ranges over L's elements); only for names bound
+        # once in the statement, so no other scope can reuse them.
+        bound = {}
+        for k in range(1, len(tokens)):
+            if tokens[k - 1].upper == 'AS' and tokens[k].kind in ('ident', 'quoted'):
+                bound[_ident(tokens[k])] = bound.get(_ident(tokens[k]), 0) + 1
+        elements = {}
+        for k in range(len(tokens) - 5):
+            w = [t.text for t in tokens[k:k + 6]]
+            if tokens[k].kind == 'ident' and tokens[k].upper == 'COLLECT' and w[1] == '(' and w[3] == ')' \
+                    and tokens[k + 4].upper == 'AS' and tokens[k + 2].kind in ('ident', 'quoted'):
+                x, target = _ident(tokens[k + 2]), _ident(tokens[k + 5])
+                if bound.get(target) == 1 and declared.get(x):
+                    elements[target] = set(declared[x])
+        for k in range(len(tokens) - 3):
+            if tokens[k].kind == 'ident' and tokens[k].upper == 'UNWIND' and tokens[k + 2].upper == 'AS' \
+                    and tokens[k + 1].kind in ('ident', 'quoted') and tokens[k + 3].kind in ('ident', 'quoted'):
+                source, var = _ident(tokens[k + 1]), _ident(tokens[k + 3])
+                if bound.get(var) == 1 and source in elements:
+                    declared.setdefault(var, set()).update(elements[source])
+        occurrences, edges = {}, []
+        for i in range(1, len(tokens)):
+            if tokens[i].text != '[' or tokens[i - 1].text not in ('-', '<-'):
+                continue
+            try:
+                close = closing_index(tokens, i)
+            except Unsupported:
+                continue
+            inner = tokens[i + 1:close]
+            if any(t.text == '*' for t in inner):
+                continue
+            types = [_ident(t) for k, t in enumerate(inner) if k and inner[k - 1].text in (':', '|')
+                     and t.kind in ('ident', 'quoted')]
+            left = node_start(i - 2) if i >= 2 and tokens[i - 2].text == ')' else None
+            right = close + 2 if close + 2 < len(tokens) and tokens[close + 2].text == '(' else None
+            if left is None or right is None or len(types) != 1:
+                continue
+            keys = []
+            for at in (left, right):
+                var, labels = self._peek_node(tokens, at)
+                key = var or ('@', at)
+                occurrences[at] = (key, labels)
+                keys.append(key)
+            into_right = tokens[close + 1].text == '->' and tokens[i - 1].text == '-'
+            into_left = tokens[i - 1].text == '<-' and tokens[close + 1].text == '-'
+            if into_right:
+                edges.append((keys[0], types[0], keys[1]))
+            elif into_left:
+                edges.append((keys[1], types[0], keys[0]))
+        known = {}
+        for at, (key, labels) in occurrences.items():
+            known.setdefault(key, set()).update(labels)
+            if isinstance(key, str):
+                known[key].update(declared.get(key, ()))
+        implied, used = {}, {}
+        changed = True
+        while changed:
+            changed = False
+            for src, rel, dst in edges:
+                for c in self.constraints.implied_endpoint(rel, known.get(src, set()) | implied.get(src, set())):
+                    if c.dst not in implied.setdefault(dst, set()):
+                        implied[dst].add(c.dst)
+                        used[(dst, c.dst)] = c
+                        changed = True
+        out = list(tokens)
+        for at, (key, labels) in sorted(occurrences.items(), reverse=True):
+            for label in labels:
+                if label not in self.typed or label not in implied.get(key, ()):
+                    continue
+                table = self.typed[label]['table'].upper()
+                base = next((name for name, tables in self.labels.items()
+                             if [t.upper() for t in tables] == [table]), None)
+                if base is None:
+                    continue
+                for k in range(at + 1, len(out)):
+                    if out[k].text == ')':
+                        break
+                    if out[k].kind in ('ident', 'quoted') and _ident(out[k]) == label and out[k - 1].text == ':':
+                        out[k] = Tok(out[k].kind, _q(base), out[k].ws)
+                        break
+                self.premises.update(c.describe() for c in used.values())
+        return out
 
     # ------------------------------------------- root paths (declared constraints)
     def _root_path(self, rel):

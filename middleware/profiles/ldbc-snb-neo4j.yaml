@@ -43,6 +43,8 @@ constraints:            # LDBC SNB data model; premises of individual rewrite st
   - {kind: at_most_one, rel: CONTAINER_OF, to: Post}        # a post lies in at most one forum
   - {kind: at_most_one, rel: IS_LOCATED_IN, from: Person}   # a person lives in at most one place
   - {kind: at_most_one, rel: IS_PART_OF, from: City}        # a city lies in at most one country
+  - {kind: at_least_one, rel: IS_LOCATED_IN, from: Person}  # every person lives somewhere
+  - {kind: at_least_one, rel: IS_PART_OF, from: City}       # every city lies in a country
   - {kind: endpoint_labels, rel: IS_LOCATED_IN, from: Person, to: City}
   - {kind: endpoint_labels, rel: IS_PART_OF, from: City, to: Country}
   - {kind: unique_property, label: Tag, property: name}

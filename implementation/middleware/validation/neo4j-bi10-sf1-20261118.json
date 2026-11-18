@@ -1,0 +1,87 @@
+{
+ "uri": "bolt://127.0.0.1:7693",
+ "read_only": true,
+ "cases": [
+  {
+   "sample": 0,
+   "parameters": {
+    "country": "United_Kingdom",
+    "tagClass": "BaseballPlayer",
+    "personId": "10995116284483",
+    "minPathDistance": "3",
+    "maxPathDistance": "4"
+   },
+   "rewritten": true,
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)"
+   ],
+   "route": "declared_constraints:parts:4",
+   "rows": 100,
+   "equal": true,
+   "seconds": [
+    13.68,
+    0.09
+   ]
+  },
+  {
+   "sample": 1,
+   "parameters": {
+    "country": "Venezuela",
+    "tagClass": "AmericanFootballPlayer",
+    "personId": "6597069770438",
+    "minPathDistance": "3",
+    "maxPathDistance": "4"
+   },
+   "rewritten": true,
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)"
+   ],
+   "route": "declared_constraints:declared_constraints:parts:4",
+   "rows": 44,
+   "equal": true,
+   "seconds": [
+    4.08,
+    0.07
+   ]
+  },
+  {
+   "sample": 2,
+   "parameters": {
+    "country": "Sri_Lanka",
+    "tagClass": "SoccerManager",
+    "personId": "4398046514714",
+    "minPathDistance": "3",
+    "maxPathDistance": "4"
+   },
+   "rewritten": true,
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)"
+   ],
+   "route": "declared_constraints:declared_constraints:declared_constraints:parts:4",
+   "rows": 11,
+   "equal": true,
+   "seconds": [
+    3.7,
+    0.07
+   ]
+  }
+ ],
+ "persons_without_countryName": 0,
+ "persons_with_stale_countryName": 0,
+ "all_equal": true
+}

@@ -1,6 +1,6 @@
 {
  "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
- "middleware_commit": "f0c587cfb7d04b1d2182c5f77bab614edcc7be5f",
+ "middleware_commit": "5f333bd590d529a6f67f62c682779eb9367d8b78",
  "sample": 0,
  "indexes_built": false,
  "workload_queries_executed": false,
@@ -29,15 +29,36 @@
      "detail": ""
     }
    ],
-   "rewritten": false,
-   "reason": "no_index_selected",
-   "indexes": [],
-   "route": "",
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "PERSON(countryName)"
+   ],
+   "route": "declared_constraints:parts:4",
    "specialized": [],
-   "proofs": [],
-   "premises": [],
-   "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent | part 4: no_index_selected",
-   "output": "",
+   "proofs": [
+    {
+     "rule": "constraint_implied_labels",
+     "indexes": [
+      "PERSON(countryName)"
+     ],
+     "checks": [
+      "typed_labels_implied_by_endpoint_labels",
+      "round_trip_verified",
+      "projection_carriers_functional"
+     ]
+    }
+   ],
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)"
+   ],
+   "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+   "output": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
    "engine_restarts": 0,
    "seconds": 0.1,
    "indexes_registered": [
@@ -82,7 +103,7 @@
    "detail": "part 1: no_index_selected | part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
    "output": "",
    "engine_restarts": 0,
-   "seconds": 0.1,
+   "seconds": 0.2,
    "indexes_registered": [
     "PERSON(countryName)"
    ],
@@ -482,7 +503,7 @@
    "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
    "output": "",
    "engine_restarts": 0,
-   "seconds": 0.1,
+   "seconds": 0.2,
    "indexes_registered": [
     "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
     "KNOWS(bi14_case1_rev,bi15_post_rev)",
@@ -635,7 +656,7 @@
    "detail": "CALL: no declared opaque type prefix",
    "output": "",
    "engine_restarts": 0,
-   "seconds": 0.1,
+   "seconds": 0.2,
    "indexes_registered": [
     "PERSON(bi16MessageCountA)",
     "PERSON(bi16MessageCountB)"
@@ -722,8 +743,8 @@
    ],
    "detail": "relation carrier substituted for variable-length paths",
    "output": "MATCH\n  (tag:Tag {name: $tag}),\n  (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:ROOT_POST]->(post1:Post)<-[:CONTAINER_OF]-(forum1:Forum),\n  (message1)-[:HAS_TAG]->(tag),\n\n\n  (forum1)<-[:HAS_MEMBER]->(person2:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:HAS_TAG]->(tag),\n  (forum1)<-[:HAS_MEMBER]->(person3:Person)<-[:HAS_CREATOR]-(message2:Message),\n  (comment)-[:REPLY_OF]->(message2)-[:ROOT_POST]->(post2:Post)<-[:CONTAINER_OF]-(forum2:Forum)\n\n\n\nMATCH (comment)-[:HAS_TAG]->(tag)\nMATCH (message2)-[:HAS_TAG]->(tag)\nWHERE forum1 <> forum2\n  AND message2.creationDate > message1.creationDate + duration({hours: $delta})\n  AND NOT (forum2)-[:HAS_MEMBER]->(person1)\nRETURN person1.id, count(DISTINCT message2) AS messageCount\nORDER BY messageCount DESC, person1.id ASC\nLIMIT 10",
-   "engine_restarts": 3,
-   "seconds": 21.3,
+   "engine_restarts": 4,
+   "seconds": 29.1,
    "indexes_registered": [
     "ROOT_POST()"
    ],
@@ -807,7 +828,7 @@
    "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
    "output": "",
    "engine_restarts": 0,
-   "seconds": 0.1,
+   "seconds": 0.2,
    "indexes_registered": [
     "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
     "KNOWS(bi14_case1_rev,bi15_post_rev)",
@@ -874,7 +895,7 @@
    "detail": "valid only for the given values of $date",
    "output": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
    "engine_restarts": 0,
-   "seconds": 0.1,
+   "seconds": 0.2,
    "indexes_registered": [
     "TAG(bi2Window1MessageCount)",
     "TAG(bi2Window2MessageCount)"

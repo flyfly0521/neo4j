@@ -7,49 +7,61 @@
    "constraint": "at_most_one: (:Message)-[:REPLY_OF]->",
    "cypher": "MATCH (n:`Message`)-[r:`REPLY_OF`]->() WITH n, count(r) AS c WHERE c > 1 RETURN count(n) AS violations",
    "violations": 0,
-   "seconds": 0.82
+   "seconds": 0.54
   },
   {
    "constraint": "at_most_one: -[:CONTAINER_OF]->(:Post)",
    "cypher": "MATCH ()-[r:`CONTAINER_OF`]->(n:`Post`) WITH n, count(r) AS c WHERE c > 1 RETURN count(n) AS violations",
    "violations": 0,
-   "seconds": 5.1
+   "seconds": 0.47
   },
   {
    "constraint": "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
    "cypher": "MATCH (n:`Person`)-[r:`IS_LOCATED_IN`]->() WITH n, count(r) AS c WHERE c > 1 RETURN count(n) AS violations",
    "violations": 0,
-   "seconds": 3.55
+   "seconds": 0.01
   },
   {
    "constraint": "at_most_one: (:City)-[:IS_PART_OF]->",
    "cypher": "MATCH (n:`City`)-[r:`IS_PART_OF`]->() WITH n, count(r) AS c WHERE c > 1 RETURN count(n) AS violations",
    "violations": 0,
-   "seconds": 0.05
+   "seconds": 0.0
+  },
+  {
+   "constraint": "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+   "cypher": "MATCH (n:`Person`) WHERE NOT EXISTS { (n)-[:`IS_LOCATED_IN`]->() } RETURN count(n) AS violations",
+   "violations": 0,
+   "seconds": 0.07
+  },
+  {
+   "constraint": "at_least_one: (:City)-[:IS_PART_OF]->",
+   "cypher": "MATCH (n:`City`) WHERE NOT EXISTS { (n)-[:`IS_PART_OF`]->() } RETURN count(n) AS violations",
+   "violations": 0,
+   "seconds": 0.02
   },
   {
    "constraint": "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
    "cypher": "MATCH (:`Person`)-[r:`IS_LOCATED_IN`]->(x) WHERE NOT x:`City` RETURN count(r) AS violations",
    "violations": 0,
-   "seconds": 0.02
+   "seconds": 0.01
   },
   {
    "constraint": "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
    "cypher": "MATCH (:`City`)-[r:`IS_PART_OF`]->(x) WHERE NOT x:`Country` RETURN count(r) AS violations",
    "violations": 0,
-   "seconds": 0.02
+   "seconds": 0.0
   },
   {
    "constraint": "unique_property: Tag.name",
    "cypher": "MATCH (n:`Tag`) WHERE n.`name` IS NOT NULL WITH n.`name` AS v, count(n) AS c WHERE c > 1 RETURN count(v) AS violations",
    "violations": 0,
-   "seconds": 0.12
+   "seconds": 0.01
   },
   {
    "constraint": "unique_property: Country.name",
    "cypher": "MATCH (n:`Country`) WHERE n.`name` IS NOT NULL WITH n.`name` AS v, count(n) AS c WHERE c > 1 RETURN count(v) AS violations",
    "violations": 0,
-   "seconds": 0.02
+   "seconds": 0.0
   }
  ]
 }

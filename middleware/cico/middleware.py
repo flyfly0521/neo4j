@@ -465,10 +465,114 @@ class IndexMiddleware:
         if not result.rewritten and getattr(self.frontend, 'name', '') == 'neo4j':
             if not self.engine.alive():
                 self._restart_engine()     # the ordinary attempt may have hit the memory cap
+            result = self._relaxed(cypher, parameters, parameter_types) or result
+        if not result.rewritten and getattr(self.frontend, 'name', '') == 'neo4j':
+            if not self.engine.alive():
+                self._restart_engine()
             result = self._path_carrier_fallback(cypher, parameters, parameter_types) or result
         if result.rewritten and getattr(self.frontend, 'premises', None):
             result.premises = sorted(set(result.premises) | self.frontend.premises)
         return result
+
+    def _relaxed(self, cypher, parameters, parameter_types):
+        """Retry with constraint-implied simplifications in the frontend
+        (typed labels implied by endpoint_labels).  A result that reads a
+        non-aggregate projection carrier is accepted only when the declared
+        constraints make the carried value a function of its key."""
+        constraints = getattr(self.frontend, 'constraints', None)
+        if constraints is None or not constraints.items:
+            return None
+        self.frontend.relax = True
+        try:
+            result = self._rewrite_once(cypher, parameters, parameter_types)
+        finally:
+            self.frontend.relax = False
+        if not result.rewritten:
+            return None
+        premises = set()
+        for index_id in result.indexes:
+            fd = self._projection_premises(index_id)
+            if fd is None:
+                return None
+            premises |= fd
+        result.premises = sorted(set(result.premises) | premises)
+        result.route = 'declared_constraints:' + (result.route or '')
+        result.proofs = list(result.proofs) + [dict(
+            rule='constraint_implied_labels', indexes=result.indexes,
+            checks=['typed_labels_implied_by_endpoint_labels', 'round_trip_verified' if self.verify
+                    else 'verification_disabled', 'projection_carriers_functional'])]
+        return result
+
+    def _projection_premises(self, index_id):
+        """Constraints proving that a non-aggregate node-property FILL has
+        exactly one witness per key node: at most one (theory.md |G_k| <= 1,
+        so the stored value is defined and row multiplicities are kept) and
+        at least one (every key is in Read, so the column's DDL default never
+        stands for a missing group, e.g. countryName = '' matching $country =
+        ''); set() for an aggregate or relation FILL (the theorem applies
+        directly), None if unproven."""
+        constraints, d = self.frontend.constraints, self.profile.dialect
+        used = set()
+        for fill in self.fills.get(index_id) or []:
+            m = re.match(r'^\s*FILL\s+(\w+)\s*\(([^)]*)\)\s*FROM\s*\((.*)\)\s*;?\s*$',
+                         re.sub(r'/\*.*?\*/', ' ', fill, flags=re.S), re.S | re.I)
+            if not m or not m.group(2).strip():
+                continue                        # relation FILL
+            try:
+                ir = self.engine.bind(m.group(3), {})['ir']
+            except EngineError:
+                return None
+            parts = ir['single_queries'][0]['parts']
+            expressions = (parts[-1].get('projection') or {}).get('expressions') or []
+            if any(e.get('k') == 'AGGREGATE_FUNCTION' for e in expressions) or len(parts) != 1:
+                continue                        # aggregate FILL
+            reading = parts[0].get('reading') or []
+            if len(reading) != 1 or reading[0].get('optional') or not expressions:
+                return None
+            graphs = reading[0].get('graphs') or []
+            nodes = {n['uid']: {t.upper() for t in n.get('tables') or []} for g in graphs for n in g.get('nodes') or []}
+            rels = [r for g in graphs for r in g.get('rels') or []]
+            if any(r.get('recursive') or r.get('direction') != 'SINGLE' for r in rels):
+                return None
+            key = expressions[0].get('owner') or expressions[0].get('entity')
+            if key not in nodes:
+                return None
+            base = lambda tables: {name for name, ts in self.frontend.labels.items()
+                                   if tables and tables <= {t.upper() for t in ts}}
+            known = {key: base(nodes[key])}
+            remaining = list(rels)
+            while remaining:
+                step = None
+                for r in remaining:
+                    names = {d.rel_names.get(d.rel_group.get(t, t).upper(), t) for t in r.get('tables') or []}
+                    if len(names) != 1:
+                        return None
+                    name = names.pop()
+                    if r['src'] in known and r['dst'] not in known:
+                        c = constraints.at_most_one_out(name, nodes[r['src']], known[r['src']])
+                        total = constraints.at_least_one_out(name, nodes[r['src']], known[r['src']])
+                        if c and total:
+                            used.add(total)
+                            implied = {x.dst for x in constraints.implied_endpoint(name, known[r['src']])}
+                            used.update(x for x in constraints.implied_endpoint(name, known[r['src']]))
+                            step = (r, r['dst'], base(nodes[r['dst']]) | implied, c)
+                            break
+                    if r['dst'] in known and r['src'] not in known:
+                        c = constraints.at_most_one_in(name, nodes[r['dst']], known[r['dst']])
+                        total = constraints.at_least_one_in(name, nodes[r['dst']], known[r['dst']])
+                        if c and total:
+                            used.add(total)
+                            step = (r, r['src'], base(nodes[r['src']]), c)
+                            break
+                if step is None:
+                    return None                 # a relationship not proven functional from the key
+                r, node, labels, c = step
+                known[node] = labels
+                used.add(c)
+                remaining.remove(r)
+            if set(nodes) - set(known):
+                return None
+        return {c.describe() for c in used}
 
     def _path_carrier_fallback(self, cypher, parameters, parameter_types):
         from .path_carriers import substitute
@@ -527,7 +631,7 @@ class IndexMiddleware:
         if parameter_types is None:
             parameter_types = infer_parameter_types(parameters)
         parameter_types = self.frontend.parameter_types(parameter_types)
-        key = (cypher, json.dumps(parameter_types, sort_keys=True))
+        key = (cypher, json.dumps(parameter_types, sort_keys=True), bool(getattr(self.frontend, 'relax', False)))
         result = self._cached(key, lambda: self._rewrite_query(cypher, parameter_types))
         retry = result.reason == 'no_index_selected' or result.reason.startswith('engine_error') \
             or 'needs literal' in (result.detail or '')
