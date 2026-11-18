@@ -1,0 +1,685 @@
+[
+ {
+  "workload": "ldbc-ic",
+  "system": "neo4j",
+  "index": [],
+  "queries": [
+   {
+    "query": "interactive-complex-1",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-1.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q1. Transitive friends with certain name\n/*\n:param [{ personId, firstName }] => { RETURN\n  4398046511333 AS personId,\n  \"Jose\" AS firstName\n}\n*/\nMATCH (p:Person {id: $personId}), (friend:Person {firstName: $firstName})\n       WHERE NOT p=friend\n       WITH p, friend\n       MATCH path = shortestPath((p)-[:KNOWS*1..3]-(friend))\n       WITH min(length(path)) AS distance, friend\nORDER BY\n    distance ASC,\n    friend.lastName ASC,\n    toInteger(friend.id) ASC\nLIMIT 20\n\nMATCH (friend)-[:IS_LOCATED_IN]->(friendCity:City)\nOPTIONAL MATCH (friend)-[studyAt:STUDY_AT]->(uni:University)-[:IS_LOCATED_IN]->(uniCity:City)\nWITH friend, collect(\n    CASE uni.name\n        WHEN null THEN null\n        ELSE [uni.name, studyAt.classYear, uniCity.name]\n    END ) AS unis, friendCity, distance\n\nOPTIONAL MATCH (friend)-[workAt:WORK_AT]->(company:Company)-[:IS_LOCATED_IN]->(companyCountry:Country)\nWITH friend, collect(\n    CASE company.name\n        WHEN null THEN null\n        ELSE [company.name, workAt.workFrom, companyCountry.name]\n    END ) AS companies, unis, friendCity, distance\n\nRETURN\n    friend.id AS friendId,\n    friend.lastName AS friendLastName,\n    distance AS distanceFromPerson,\n    friend.birthday AS friendBirthday,\n    friend.creationDate AS friendCreationDate,\n    friend.gender AS friendGender,\n    friend.browserUsed AS friendBrowserUsed,\n    friend.locationIP AS friendLocationIp,\n    friend.email AS friendEmails,\n    friend.speaks AS friendLanguages,\n    friendCity.name AS friendCityName,\n    unis AS friendUniversities,\n    companies AS friendCompanies\nORDER BY\n    distanceFromPerson ASC,\n    friendLastName ASC,\n    toInteger(friendId) ASC\nLIMIT 20\n",
+    "original": "// Q1. Transitive friends with certain name\n/*\n:param [{ personId, firstName }] => { RETURN\n  4398046511333 AS personId,\n  \"Jose\" AS firstName\n}\n*/\nMATCH (p:Person {id: $personId}), (friend:Person {firstName: $firstName})\n       WHERE NOT p=friend\n       WITH p, friend\n       MATCH path = shortestPath((p)-[:KNOWS*1..3]-(friend))\n       WITH min(length(path)) AS distance, friend\nORDER BY\n    distance ASC,\n    friend.lastName ASC,\n    toInteger(friend.id) ASC\nLIMIT 20\n\nMATCH (friend)-[:IS_LOCATED_IN]->(friendCity:City)\nOPTIONAL MATCH (friend)-[studyAt:STUDY_AT]->(uni:University)-[:IS_LOCATED_IN]->(uniCity:City)\nWITH friend, collect(\n    CASE uni.name\n        WHEN null THEN null\n        ELSE [uni.name, studyAt.classYear, uniCity.name]\n    END ) AS unis, friendCity, distance\n\nOPTIONAL MATCH (friend)-[workAt:WORK_AT]->(company:Company)-[:IS_LOCATED_IN]->(companyCountry:Country)\nWITH friend, collect(\n    CASE company.name\n        WHEN null THEN null\n        ELSE [company.name, workAt.workFrom, companyCountry.name]\n    END ) AS companies, unis, friendCity, distance\n\nRETURN\n    friend.id AS friendId,\n    friend.lastName AS friendLastName,\n    distance AS distanceFromPerson,\n    friend.birthday AS friendBirthday,\n    friend.creationDate AS friendCreationDate,\n    friend.gender AS friendGender,\n    friend.browserUsed AS friendBrowserUsed,\n    friend.locationIP AS friendLocationIp,\n    friend.email AS friendEmails,\n    friend.speaks AS friendLanguages,\n    friendCity.name AS friendCityName,\n    unis AS friendUniversities,\n    companies AS friendCompanies\nORDER BY\n    distanceFromPerson ASC,\n    friendLastName ASC,\n    toInteger(friendId) ASC\nLIMIT 20\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "part 1: no_index_selected | part 2: no_index_selected | part 3: no_index_selected statement changed without reading an index | part 4: part_input_unavailable input of this QueryPart cannot be stubbed: input column unis of type STRUCT( STRING,  INT32,  STRING)[]",
+    "indexes": [],
+    "columns": [
+     [
+      "p",
+      "NODE(LABELS(PERSON,))"
+     ],
+     [
+      "friend",
+      "NODE(LABELS(PERSON,))"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-10",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-10.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q10. Friend recommendation\n/*\n:param [{ personId, month }] => { RETURN\n  4398046511333 AS personId,\n  5 AS month\n}\n*/\nMATCH (person:Person {id: $personId})-[:KNOWS*2..2]-(friend),\n       (friend)-[:IS_LOCATED_IN]->(city:City)\nWHERE NOT friend=person AND\n      NOT (friend)-[:KNOWS]-(person)\nWITH person, city, friend, datetime({epochMillis: friend.birthday}) as birthday\nWHERE  (birthday.month=$month AND birthday.day>=21) OR\n        (birthday.month=($month%12)+1 AND birthday.day<22)\nWITH DISTINCT friend, city, person\nOPTIONAL MATCH (friend)<-[:HAS_CREATOR]-(post:Post)\nWITH friend, city, collect(post) AS posts, person\nWITH friend,\n     city,\n     size(posts) AS postCount,\n     size([p IN posts WHERE (p)-[:HAS_TAG]->()<-[:HAS_INTEREST]-(person)]) AS commonPostCount\nRETURN friend.id AS personId,\n       friend.firstName AS personFirstName,\n       friend.lastName AS personLastName,\n       commonPostCount - (postCount - commonPostCount) AS commonInterestScore,\n       friend.gender AS personGender,\n       city.name AS personCityName\nORDER BY commonInterestScore DESC, personId ASC\nLIMIT 10\n",
+    "original": "// Q10. Friend recommendation\n/*\n:param [{ personId, month }] => { RETURN\n  4398046511333 AS personId,\n  5 AS month\n}\n*/\nMATCH (person:Person {id: $personId})-[:KNOWS*2..2]-(friend),\n       (friend)-[:IS_LOCATED_IN]->(city:City)\nWHERE NOT friend=person AND\n      NOT (friend)-[:KNOWS]-(person)\nWITH person, city, friend, datetime({epochMillis: friend.birthday}) as birthday\nWHERE  (birthday.month=$month AND birthday.day>=21) OR\n        (birthday.month=($month%12)+1 AND birthday.day<22)\nWITH DISTINCT friend, city, person\nOPTIONAL MATCH (friend)<-[:HAS_CREATOR]-(post:Post)\nWITH friend, city, collect(post) AS posts, person\nWITH friend,\n     city,\n     size(posts) AS postCount,\n     size([p IN posts WHERE (p)-[:HAS_TAG]->()<-[:HAS_INTEREST]-(person)]) AS commonPostCount\nRETURN friend.id AS personId,\n       friend.firstName AS personFirstName,\n       friend.lastName AS personLastName,\n       commonPostCount - (postCount - commonPostCount) AS commonInterestScore,\n       friend.gender AS personGender,\n       city.name AS personCityName\nORDER BY commonInterestScore DESC, personId ASC\nLIMIT 10\n",
+    "rewritten": false,
+    "reason": "frontend_unsupported",
+    "detail": "part 1: frontend_unsupported datetime({...}) from a map: no internal equivalent | part 3: part_input_unavailable an earlier QueryPart is not convertible: no declared opaque type prefix",
+    "indexes": [],
+    "columns": [],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-11",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-11.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q11. Job referral\n/*\n:param [{ personId, countryName, workFromYear }] => { RETURN\n  10995116277918 AS personId,\n  \"Hungary\" AS countryName,\n  2011 AS workFromYear\n}\n*/\nMATCH (person:Person {id: $personId })-[:KNOWS*1..2]-(friend:Person)\nWHERE not(person=friend)\nWITH DISTINCT friend\nMATCH (friend)-[workAt:WORK_AT]->(company:Company)-[:IS_LOCATED_IN]->(:Country {name: $countryName })\nWHERE workAt.workFrom < $workFromYear\nRETURN\n        friend.id AS personId,\n        friend.firstName AS personFirstName,\n        friend.lastName AS personLastName,\n        company.name AS organizationName,\n        workAt.workFrom AS organizationWorkFromYear\nORDER BY\n        organizationWorkFromYear ASC,\n        toInteger(personId) ASC,\n        organizationName DESC\nLIMIT 10\n",
+    "original": "// Q11. Job referral\n/*\n:param [{ personId, countryName, workFromYear }] => { RETURN\n  10995116277918 AS personId,\n  \"Hungary\" AS countryName,\n  2011 AS workFromYear\n}\n*/\nMATCH (person:Person {id: $personId })-[:KNOWS*1..2]-(friend:Person)\nWHERE not(person=friend)\nWITH DISTINCT friend\nMATCH (friend)-[workAt:WORK_AT]->(company:Company)-[:IS_LOCATED_IN]->(:Country {name: $countryName })\nWHERE workAt.workFrom < $workFromYear\nRETURN\n        friend.id AS personId,\n        friend.firstName AS personFirstName,\n        friend.lastName AS personLastName,\n        company.name AS organizationName,\n        workAt.workFrom AS organizationWorkFromYear\nORDER BY\n        organizationWorkFromYear ASC,\n        toInteger(personId) ASC,\n        organizationName DESC\nLIMIT 10\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "part 1: no_index_selected | part 2: no_index_selected",
+    "indexes": [],
+    "columns": [
+     [
+      "friend",
+      "NODE(LABELS(PERSON,))"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-12",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-12.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q12. Expert search\n/*\n:param [{ personId, tagClassName }] => { RETURN\n  10995116278009 AS personId,\n  \"Monarch\" AS tagClassName\n}\n*/\nMATCH (tag:Tag)-[:HAS_TYPE|IS_SUBCLASS_OF*0..]->(baseTagClass:TagClass)\nWHERE tag.name = $tagClassName OR baseTagClass.name = $tagClassName\nWITH collect(tag.id) as tags\nMATCH (:Person {id: $personId })-[:KNOWS]-(friend:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:REPLY_OF]->(:Post)-[:HAS_TAG]->(tag:Tag)\nWHERE tag.id in tags\nRETURN\n    friend.id AS personId,\n    friend.firstName AS personFirstName,\n    friend.lastName AS personLastName,\n    collect(DISTINCT tag.name) AS tagNames,\n    count(DISTINCT comment) AS replyCount\nORDER BY\n    replyCount DESC,\n    toInteger(personId) ASC\nLIMIT 20\n",
+    "original": "// Q12. Expert search\n/*\n:param [{ personId, tagClassName }] => { RETURN\n  10995116278009 AS personId,\n  \"Monarch\" AS tagClassName\n}\n*/\nMATCH (tag:Tag)-[:HAS_TYPE|IS_SUBCLASS_OF*0..]->(baseTagClass:TagClass)\nWHERE tag.name = $tagClassName OR baseTagClass.name = $tagClassName\nWITH collect(tag.id) as tags\nMATCH (:Person {id: $personId })-[:KNOWS]-(friend:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:REPLY_OF]->(:Post)-[:HAS_TAG]->(tag:Tag)\nWHERE tag.id in tags\nRETURN\n    friend.id AS personId,\n    friend.firstName AS personFirstName,\n    friend.lastName AS personLastName,\n    collect(DISTINCT tag.name) AS tagNames,\n    count(DISTINCT comment) AS replyCount\nORDER BY\n    replyCount DESC,\n    toInteger(personId) ASC\nLIMIT 20\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "part 1: no_index_selected | part 2: no_index_selected",
+    "indexes": [],
+    "columns": [
+     [
+      "tags",
+      "INT64[]"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-13",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-13.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q13. Single shortest path\n/*\n:param [{ person1Id, person2Id }] => { RETURN\n  8796093022390 AS person1Id,\n  8796093022357 AS person2Id\n}\n*/\nMATCH\n    (person1:Person {id: $person1Id}),\n    (person2:Person {id: $person2Id}),\n    path = shortestPath((person1)-[:KNOWS*]-(person2))\nRETURN\n    CASE path IS NULL\n        WHEN true THEN -1\n        ELSE length(path)\n    END AS shortestPathLength\n",
+    "original": "// Q13. Single shortest path\n/*\n:param [{ person1Id, person2Id }] => { RETURN\n  8796093022390 AS person1Id,\n  8796093022357 AS person2Id\n}\n*/\nMATCH\n    (person1:Person {id: $person1Id}),\n    (person2:Person {id: $person2Id}),\n    path = shortestPath((person1)-[:KNOWS*]-(person2))\nRETURN\n    CASE path IS NULL\n        WHEN true THEN -1\n        ELSE length(path)\n    END AS shortestPathLength\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "",
+    "indexes": [],
+    "columns": [
+     [
+      "shortestPathLength",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-14",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-14.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q14. Trusted connection paths\n/*\n:param [{ person1Id, person2Id }] => { RETURN\n  8796093022357 AS person1Id,\n  8796093022390 AS person2Id\n}\n*/\nMATCH path = allShortestPaths((person1:Person { id: $person1Id })-[:KNOWS*0..]-(person2:Person { id: $person2Id }))\nWITH collect(path) as paths\nUNWIND paths as path\nWITH path, relationships(path) as rels_in_path\nWITH\n    [n in nodes(path) | n.id ] as personIdsInPath,\n    [r in rels_in_path |\n        reduce(w=0.0, v in [\n            (a:Person)<-[:HAS_CREATOR]-(:Comment)-[:REPLY_OF]->(:Post)-[:HAS_CREATOR]->(b:Person)\n            WHERE\n                (a.id = startNode(r).id and b.id=endNode(r).id) OR (a.id=endNode(r).id and b.id=startNode(r).id)\n            | 1.0] | w+v)\n    ] as weight1,\n    [r in rels_in_path |\n        reduce(w=0.0,v in [\n        (a:Person)<-[:HAS_CREATOR]-(:Comment)-[:REPLY_OF]->(:Comment)-[:HAS_CREATOR]->(b:Person)\n        WHERE\n                (a.id = startNode(r).id and b.id=endNode(r).id) OR (a.id=endNode(r).id and b.id=startNode(r).id)\n        | 0.5] | w+v)\n    ] as weight2\nWITH\n    personIdsInPath,\n    reduce(w=0.0,v in weight1| w+v) as w1,\n    reduce(w=0.0,v in weight2| w+v) as w2\nRETURN\n    personIdsInPath,\n    (w1+w2) as pathWeight\nORDER BY pathWeight desc\n",
+    "original": "// Q14. Trusted connection paths\n/*\n:param [{ person1Id, person2Id }] => { RETURN\n  8796093022357 AS person1Id,\n  8796093022390 AS person2Id\n}\n*/\nMATCH path = allShortestPaths((person1:Person { id: $person1Id })-[:KNOWS*0..]-(person2:Person { id: $person2Id }))\nWITH collect(path) as paths\nUNWIND paths as path\nWITH path, relationships(path) as rels_in_path\nWITH\n    [n in nodes(path) | n.id ] as personIdsInPath,\n    [r in rels_in_path |\n        reduce(w=0.0, v in [\n            (a:Person)<-[:HAS_CREATOR]-(:Comment)-[:REPLY_OF]->(:Post)-[:HAS_CREATOR]->(b:Person)\n            WHERE\n                (a.id = startNode(r).id and b.id=endNode(r).id) OR (a.id=endNode(r).id and b.id=startNode(r).id)\n            | 1.0] | w+v)\n    ] as weight1,\n    [r in rels_in_path |\n        reduce(w=0.0,v in [\n        (a:Person)<-[:HAS_CREATOR]-(:Comment)-[:REPLY_OF]->(:Comment)-[:HAS_CREATOR]->(b:Person)\n        WHERE\n                (a.id = startNode(r).id and b.id=endNode(r).id) OR (a.id=endNode(r).id and b.id=startNode(r).id)\n        | 0.5] | w+v)\n    ] as weight2\nWITH\n    personIdsInPath,\n    reduce(w=0.0,v in weight1| w+v) as w1,\n    reduce(w=0.0,v in weight2| w+v) as w2\nRETURN\n    personIdsInPath,\n    (w1+w2) as pathWeight\nORDER BY pathWeight desc\n",
+    "rewritten": false,
+    "reason": "frontend_unsupported",
+    "detail": "part 1: frontend_unsupported shortest path with lower bound 0",
+    "indexes": [],
+    "columns": [],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-2",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-2.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q2. Recent messages by your friends\n/*\n:param [{ personId, maxDate }] => { RETURN\n  10995116278009 AS personId,\n  1287230400000 AS maxDate\n}\n*/\nMATCH (:Person {id: $personId })-[:KNOWS]-(friend:Person)<-[:HAS_CREATOR]-(message:Message)\n    WHERE message.creationDate <= $maxDate\n    RETURN\n        friend.id AS personId,\n        friend.firstName AS personFirstName,\n        friend.lastName AS personLastName,\n        message.id AS postOrCommentId,\n        coalesce(message.content,message.imageFile) AS postOrCommentContent,\n        message.creationDate AS postOrCommentCreationDate\n    ORDER BY\n        postOrCommentCreationDate DESC,\n        toInteger(postOrCommentId) ASC\n    LIMIT 20\n",
+    "original": "// Q2. Recent messages by your friends\n/*\n:param [{ personId, maxDate }] => { RETURN\n  10995116278009 AS personId,\n  1287230400000 AS maxDate\n}\n*/\nMATCH (:Person {id: $personId })-[:KNOWS]-(friend:Person)<-[:HAS_CREATOR]-(message:Message)\n    WHERE message.creationDate <= $maxDate\n    RETURN\n        friend.id AS personId,\n        friend.firstName AS personFirstName,\n        friend.lastName AS personLastName,\n        message.id AS postOrCommentId,\n        coalesce(message.content,message.imageFile) AS postOrCommentContent,\n        message.creationDate AS postOrCommentCreationDate\n    ORDER BY\n        postOrCommentCreationDate DESC,\n        toInteger(postOrCommentId) ASC\n    LIMIT 20\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "",
+    "indexes": [],
+    "columns": [
+     [
+      "personId",
+      "INT64"
+     ],
+     [
+      "personFirstName",
+      "STRING"
+     ],
+     [
+      "personLastName",
+      "STRING"
+     ],
+     [
+      "postOrCommentId",
+      "INT64"
+     ],
+     [
+      "postOrCommentContent",
+      "STRING"
+     ],
+     [
+      "postOrCommentCreationDate",
+      "TIMESTAMP"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-3",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-3.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q3. Friends and friends of friends that have been to given countries\n/*\n:param [{ personId, countryXName, countryYName, startDate, endDate }] => { RETURN\n  6597069766734 AS personId,\n  \"Angola\" AS countryXName,\n  \"Colombia\" AS countryYName,\n  1275393600000 AS startDate,\n  1277812800000 AS endDate\n}\n*/\n// 新的写法\n/*\nMATCH (countryX:Country {name: $countryXName }),\n      (countryY:Country {name: $countryYName }),\n      (person:Person {id: $personId })\nWITH person, countryX, countryY\nLIMIT 1\nMATCH (person)-[:KNOWS*1..2]-(friend)-[:IS_LOCATED_IN]->(city:City)-[:IS_PART_OF]->(country:Country)\nWHERE NOT person=friend AND NOT country IN [countryX, countryY]\nWITH DISTINCT friend, countryX, countryY\nMATCH (friend)<-[:HAS_CREATOR]-(message),\n      (message)-[:IS_LOCATED_IN]->(country)\nWHERE $endDate > message.creationDate >= $startDate AND\n      country IN [countryX, countryY]\nWITH friend,\n     CASE WHEN country=countryX THEN 1 ELSE 0 END AS messageX,\n     CASE WHEN country=countryY THEN 1 ELSE 0 END AS messageY\nWITH friend, sum(messageX) AS xCount, sum(messageY) AS yCount\nWHERE xCount>0 AND yCount>0\nRETURN friend.id AS friendId,\n       friend.firstName AS friendFirstName,\n       friend.lastName AS friendLastName,\n       xCount,\n       yCount,\n       xCount + yCount AS xyCount\nORDER BY xyCount DESC, friendId ASC\nLIMIT 20\n\n*/\n\nMATCH (countryX:Country {name: $countryXName }),\n      (countryY:Country {name: $countryYName }),\n      (person:Person {id: $personId })\nWITH person, countryX, countryY\nLIMIT 1\nMATCH (city:City)-[:IS_PART_OF]->(country:Country)\nWHERE country IN [countryX, countryY]\nWITH person, countryX, countryY, collect(city) AS cities\nMATCH (person)-[:KNOWS*1..2]-(friend)-[:IS_LOCATED_IN]->(city)\nWHERE NOT person=friend AND NOT city IN cities\nWITH DISTINCT friend, countryX, countryY\nMATCH (friend)<-[:HAS_CREATOR]-(message),\n      (message)-[:IS_LOCATED_IN]->(country)\nWHERE $endDate > message.creationDate >= $startDate AND\n      country IN [countryX, countryY]\nWITH friend,\n     CASE WHEN country=countryX THEN 1 ELSE 0 END AS messageX,\n     CASE WHEN country=countryY THEN 1 ELSE 0 END AS messageY\nWITH friend, sum(messageX) AS xCount, sum(messageY) AS yCount\nWHERE xCount>0 AND yCount>0\nRETURN friend.id AS friendId,\n       friend.firstName AS friendFirstName,\n       friend.lastName AS friendLastName,\n       xCount,\n       yCount,\n       xCount + yCount AS xyCount\nORDER BY xyCount DESC, friendId ASC\nLIMIT 20",
+    "original": "// Q3. Friends and friends of friends that have been to given countries\n/*\n:param [{ personId, countryXName, countryYName, startDate, endDate }] => { RETURN\n  6597069766734 AS personId,\n  \"Angola\" AS countryXName,\n  \"Colombia\" AS countryYName,\n  1275393600000 AS startDate,\n  1277812800000 AS endDate\n}\n*/\n// 新的写法\n/*\nMATCH (countryX:Country {name: $countryXName }),\n      (countryY:Country {name: $countryYName }),\n      (person:Person {id: $personId })\nWITH person, countryX, countryY\nLIMIT 1\nMATCH (person)-[:KNOWS*1..2]-(friend)-[:IS_LOCATED_IN]->(city:City)-[:IS_PART_OF]->(country:Country)\nWHERE NOT person=friend AND NOT country IN [countryX, countryY]\nWITH DISTINCT friend, countryX, countryY\nMATCH (friend)<-[:HAS_CREATOR]-(message),\n      (message)-[:IS_LOCATED_IN]->(country)\nWHERE $endDate > message.creationDate >= $startDate AND\n      country IN [countryX, countryY]\nWITH friend,\n     CASE WHEN country=countryX THEN 1 ELSE 0 END AS messageX,\n     CASE WHEN country=countryY THEN 1 ELSE 0 END AS messageY\nWITH friend, sum(messageX) AS xCount, sum(messageY) AS yCount\nWHERE xCount>0 AND yCount>0\nRETURN friend.id AS friendId,\n       friend.firstName AS friendFirstName,\n       friend.lastName AS friendLastName,\n       xCount,\n       yCount,\n       xCount + yCount AS xyCount\nORDER BY xyCount DESC, friendId ASC\nLIMIT 20\n\n*/\n\nMATCH (countryX:Country {name: $countryXName }),\n      (countryY:Country {name: $countryYName }),\n      (person:Person {id: $personId })\nWITH person, countryX, countryY\nLIMIT 1\nMATCH (city:City)-[:IS_PART_OF]->(country:Country)\nWHERE country IN [countryX, countryY]\nWITH person, countryX, countryY, collect(city) AS cities\nMATCH (person)-[:KNOWS*1..2]-(friend)-[:IS_LOCATED_IN]->(city)\nWHERE NOT person=friend AND NOT city IN cities\nWITH DISTINCT friend, countryX, countryY\nMATCH (friend)<-[:HAS_CREATOR]-(message),\n      (message)-[:IS_LOCATED_IN]->(country)\nWHERE $endDate > message.creationDate >= $startDate AND\n      country IN [countryX, countryY]\nWITH friend,\n     CASE WHEN country=countryX THEN 1 ELSE 0 END AS messageX,\n     CASE WHEN country=countryY THEN 1 ELSE 0 END AS messageY\nWITH friend, sum(messageX) AS xCount, sum(messageY) AS yCount\nWHERE xCount>0 AND yCount>0\nRETURN friend.id AS friendId,\n       friend.firstName AS friendFirstName,\n       friend.lastName AS friendLastName,\n       xCount,\n       yCount,\n       xCount + yCount AS xyCount\nORDER BY xyCount DESC, friendId ASC\nLIMIT 20",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "part 1: no_index_selected | part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+    "indexes": [],
+    "columns": [
+     [
+      "person",
+      "NODE(LABELS(PERSON,))"
+     ],
+     [
+      "countryX",
+      "NODE(LABELS(PLACE,))"
+     ],
+     [
+      "countryY",
+      "NODE(LABELS(PLACE,))"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-4",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-4.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q4. New topics\n/*\n:param [{ personId, startDate, endDate }] => { RETURN\n  4398046511333 AS personId,\n  1275350400000 AS startDate,\n  1277856000000 AS endDate\n}\n*/\nMATCH (person:Person {id: $personId })-[:KNOWS]-(friend:Person),\n      (friend)<-[:HAS_CREATOR]-(post:Post)-[:HAS_TAG]->(tag)\nWITH DISTINCT tag, post\nWITH tag,\n     CASE\n       WHEN $startDate <= post.creationDate < $endDate THEN 1\n       ELSE 0\n     END AS valid,\n     CASE\n       WHEN post.creationDate < $startDate THEN 1\n       ELSE 0\n     END AS inValid\nWITH tag, sum(valid) AS postCount, sum(inValid) AS inValidPostCount\nWHERE postCount>0 AND inValidPostCount=0\nRETURN tag.name AS tagName, postCount\nORDER BY postCount DESC, tagName ASC\nLIMIT 10\n",
+    "original": "// Q4. New topics\n/*\n:param [{ personId, startDate, endDate }] => { RETURN\n  4398046511333 AS personId,\n  1275350400000 AS startDate,\n  1277856000000 AS endDate\n}\n*/\nMATCH (person:Person {id: $personId })-[:KNOWS]-(friend:Person),\n      (friend)<-[:HAS_CREATOR]-(post:Post)-[:HAS_TAG]->(tag)\nWITH DISTINCT tag, post\nWITH tag,\n     CASE\n       WHEN $startDate <= post.creationDate < $endDate THEN 1\n       ELSE 0\n     END AS valid,\n     CASE\n       WHEN post.creationDate < $startDate THEN 1\n       ELSE 0\n     END AS inValid\nWITH tag, sum(valid) AS postCount, sum(inValid) AS inValidPostCount\nWHERE postCount>0 AND inValidPostCount=0\nRETURN tag.name AS tagName, postCount\nORDER BY postCount DESC, tagName ASC\nLIMIT 10\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "part 1: no_index_selected",
+    "indexes": [],
+    "columns": [
+     [
+      "tag",
+      "NODE(LABELS(TAG,))"
+     ],
+     [
+      "post",
+      "NODE(LABELS(POST,))"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-5",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-5.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q5. New groups\n/*\n:param [{ personId, minDate }] => { RETURN\n  6597069766734 AS personId,\n  1288612800000 AS minDate\n}\n*/\nMATCH (person:Person { id: $personId })-[:KNOWS*1..2]-(friend)\nWHERE\n    NOT person=friend\nWITH DISTINCT friend\nMATCH (friend)<-[membership:HAS_MEMBER]-(forum)\nWHERE\n    membership.joinDate > $minDate\nWITH\n    forum,\n    collect(friend) AS friends\nOPTIONAL MATCH (friend)<-[:HAS_CREATOR]-(post)<-[:CONTAINER_OF]-(forum)\nWHERE\n    friend IN friends\nWITH\n    forum,\n    count(post) AS postCount\nRETURN\n    forum.title AS forumName,\n    postCount\nORDER BY\n    postCount DESC,\n    forum.id ASC\nLIMIT 20\n",
+    "original": "// Q5. New groups\n/*\n:param [{ personId, minDate }] => { RETURN\n  6597069766734 AS personId,\n  1288612800000 AS minDate\n}\n*/\nMATCH (person:Person { id: $personId })-[:KNOWS*1..2]-(friend)\nWHERE\n    NOT person=friend\nWITH DISTINCT friend\nMATCH (friend)<-[membership:HAS_MEMBER]-(forum)\nWHERE\n    membership.joinDate > $minDate\nWITH\n    forum,\n    collect(friend) AS friends\nOPTIONAL MATCH (friend)<-[:HAS_CREATOR]-(post)<-[:CONTAINER_OF]-(forum)\nWHERE\n    friend IN friends\nWITH\n    forum,\n    count(post) AS postCount\nRETURN\n    forum.title AS forumName,\n    postCount\nORDER BY\n    postCount DESC,\n    forum.id ASC\nLIMIT 20\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "part 1: no_index_selected | part 2: no_index_selected | part 3: frontend_unsupported NeuG: Not supported: OPTIONAL MATCH predicate requires unsupported mixed outer/inner correlation: LIST_CONTAINS(friends,friend) at /mnt/sdb1/feiyang/IncGQ/src/compiler/planner/plan/plan_subquery.cpp:3",
+    "indexes": [],
+    "columns": [
+     [
+      "friend",
+      "NODE(LABELS(PERSON,))"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-6",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-6.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q6. Tag co-occurrence\n/*\n:param [{ personId, tagName }] => { RETURN\n  4398046511333 AS personId,\n  \"Carl_Gustaf_Emil_Mannerheim\" AS tagName\n}\n*/\nMATCH (knownTag:Tag { name: $tagName })\nWITH knownTag.id as knownTagId\n\nMATCH (person:Person { id: $personId })-[:KNOWS*1..2]-(friend)\nWHERE NOT person=friend\nWITH\n    knownTagId,\n    collect(distinct friend) as friends\nUNWIND friends as f\n    MATCH (f)<-[:HAS_CREATOR]-(post:Post),\n          (post)-[:HAS_TAG]->(t:Tag{id: knownTagId}),\n          (post)-[:HAS_TAG]->(tag:Tag)\n    WHERE NOT t = tag\n    WITH\n        tag.name as tagName,\n        count(post) as postCount\nRETURN\n    tagName,\n    postCount\nORDER BY\n    postCount DESC,\n    tagName ASC\nLIMIT 10\n",
+    "original": "// Q6. Tag co-occurrence\n/*\n:param [{ personId, tagName }] => { RETURN\n  4398046511333 AS personId,\n  \"Carl_Gustaf_Emil_Mannerheim\" AS tagName\n}\n*/\nMATCH (knownTag:Tag { name: $tagName })\nWITH knownTag.id as knownTagId\n\nMATCH (person:Person { id: $personId })-[:KNOWS*1..2]-(friend)\nWHERE NOT person=friend\nWITH\n    knownTagId,\n    collect(distinct friend) as friends\nUNWIND friends as f\n    MATCH (f)<-[:HAS_CREATOR]-(post:Post),\n          (post)-[:HAS_TAG]->(t:Tag{id: knownTagId}),\n          (post)-[:HAS_TAG]->(tag:Tag)\n    WHERE NOT t = tag\n    WITH\n        tag.name as tagName,\n        count(post) as postCount\nRETURN\n    tagName,\n    postCount\nORDER BY\n    postCount DESC,\n    tagName ASC\nLIMIT 10\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "part 1: no_index_selected | part 2: no_index_selected | part 3: no_index_selected",
+    "indexes": [],
+    "columns": [
+     [
+      "knownTagId",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-7",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-7.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q7. Recent likers\n/*\n:param personId: 4398046511268\n*/\nMATCH (person:Person {id: $personId})<-[:HAS_CREATOR]-(message:Message)<-[like:LIKES]-(liker:Person)\n    WITH liker, message, like.creationDate AS likeTime, person\n    ORDER BY likeTime DESC, toInteger(message.id) ASC\n    WITH liker, head(collect({msg: message, likeTime: likeTime})) AS latestLike, person\nRETURN\n    liker.id AS personId,\n    liker.firstName AS personFirstName,\n    liker.lastName AS personLastName,\n    latestLike.likeTime AS likeCreationDate,\n    latestLike.msg.id AS commentOrPostId,\n    coalesce(latestLike.msg.content, latestLike.msg.imageFile) AS commentOrPostContent,\n    toInteger(floor(toFloat(latestLike.likeTime - latestLike.msg.creationDate)/1000.0)/60.0) AS minutesLatency,\n    not((liker)-[:KNOWS]-(person)) AS isNew\nORDER BY\n    likeCreationDate DESC,\n    toInteger(personId) ASC\nLIMIT 20\n",
+    "original": "// Q7. Recent likers\n/*\n:param personId: 4398046511268\n*/\nMATCH (person:Person {id: $personId})<-[:HAS_CREATOR]-(message:Message)<-[like:LIKES]-(liker:Person)\n    WITH liker, message, like.creationDate AS likeTime, person\n    ORDER BY likeTime DESC, toInteger(message.id) ASC\n    WITH liker, head(collect({msg: message, likeTime: likeTime})) AS latestLike, person\nRETURN\n    liker.id AS personId,\n    liker.firstName AS personFirstName,\n    liker.lastName AS personLastName,\n    latestLike.likeTime AS likeCreationDate,\n    latestLike.msg.id AS commentOrPostId,\n    coalesce(latestLike.msg.content, latestLike.msg.imageFile) AS commentOrPostContent,\n    toInteger(floor(toFloat(latestLike.likeTime - latestLike.msg.creationDate)/1000.0)/60.0) AS minutesLatency,\n    not((liker)-[:KNOWS]-(person)) AS isNew\nORDER BY\n    likeCreationDate DESC,\n    toInteger(personId) ASC\nLIMIT 20\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "part 1: no_index_selected",
+    "indexes": [],
+    "columns": [
+     [
+      "liker",
+      "NODE(LABELS(PERSON,))"
+     ],
+     [
+      "message",
+      "NODE(LABELS(COMMENT,POST,))"
+     ],
+     [
+      "likeTime",
+      "TIMESTAMP"
+     ],
+     [
+      "person",
+      "NODE(LABELS(PERSON,))"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-8",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-8.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q8. Recent replies\n/*\n:param personId: 143\n*/\nMATCH (start:Person {id: $personId})<-[:HAS_CREATOR]-(:Message)<-[:REPLY_OF]-(comment:Comment)-[:HAS_CREATOR]->(person:Person)\nRETURN\n    person.id AS personId,\n    person.firstName AS personFirstName,\n    person.lastName AS personLastName,\n    comment.creationDate AS commentCreationDate,\n    comment.id AS commentId,\n    comment.content AS commentContent\nORDER BY\n    commentCreationDate DESC,\n    commentId ASC\nLIMIT 20\n",
+    "original": "// Q8. Recent replies\n/*\n:param personId: 143\n*/\nMATCH (start:Person {id: $personId})<-[:HAS_CREATOR]-(:Message)<-[:REPLY_OF]-(comment:Comment)-[:HAS_CREATOR]->(person:Person)\nRETURN\n    person.id AS personId,\n    person.firstName AS personFirstName,\n    person.lastName AS personLastName,\n    comment.creationDate AS commentCreationDate,\n    comment.id AS commentId,\n    comment.content AS commentContent\nORDER BY\n    commentCreationDate DESC,\n    commentId ASC\nLIMIT 20\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "",
+    "indexes": [],
+    "columns": [
+     [
+      "personId",
+      "INT64"
+     ],
+     [
+      "personFirstName",
+      "STRING"
+     ],
+     [
+      "personLastName",
+      "STRING"
+     ],
+     [
+      "commentCreationDate",
+      "TIMESTAMP"
+     ],
+     [
+      "commentId",
+      "INT64"
+     ],
+     [
+      "commentContent",
+      "STRING"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "interactive-complex-9",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-ic/interactive-complex-9.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "// Q9. Recent messages by friends or friends of friends\n/*\n:param [{ personId, maxDate }] => { RETURN\n  4398046511268 AS personId,\n  1289908800000 AS maxDate\n}\n*/\nMATCH (root:Person {id: $personId })-[:KNOWS*1..2]-(friend:Person)\nWHERE NOT friend = root\nWITH collect(distinct friend) as friends\nUNWIND friends as friend\n    MATCH (friend)<-[:HAS_CREATOR]-(message:Message)\n    WHERE message.creationDate < $maxDate\nRETURN\n    friend.id AS personId,\n    friend.firstName AS personFirstName,\n    friend.lastName AS personLastName,\n    message.id AS commentOrPostId,\n    coalesce(message.content,message.imageFile) AS commentOrPostContent,\n    message.creationDate AS commentOrPostCreationDate\nORDER BY\n    commentOrPostCreationDate DESC,\n    message.id ASC\nLIMIT 20\n",
+    "original": "// Q9. Recent messages by friends or friends of friends\n/*\n:param [{ personId, maxDate }] => { RETURN\n  4398046511268 AS personId,\n  1289908800000 AS maxDate\n}\n*/\nMATCH (root:Person {id: $personId })-[:KNOWS*1..2]-(friend:Person)\nWHERE NOT friend = root\nWITH collect(distinct friend) as friends\nUNWIND friends as friend\n    MATCH (friend)<-[:HAS_CREATOR]-(message:Message)\n    WHERE message.creationDate < $maxDate\nRETURN\n    friend.id AS personId,\n    friend.firstName AS personFirstName,\n    friend.lastName AS personLastName,\n    message.id AS commentOrPostId,\n    coalesce(message.content,message.imageFile) AS commentOrPostContent,\n    message.creationDate AS commentOrPostCreationDate\nORDER BY\n    commentOrPostCreationDate DESC,\n    message.id ASC\nLIMIT 20\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "part 1: no_index_selected | part 2: no_index_selected",
+    "indexes": [],
+    "columns": [
+     [
+      "friends",
+      "NODE(LABELS(PERSON,))[]"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   }
+  ]
+ },
+ {
+  "workload": "lsqb",
+  "system": "neo4j",
+  "index": [],
+  "queries": [
+   {
+    "query": "q1",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/q1.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "MATCH (cico_n1:City)-[cico_r5:IS_PART_OF]->(cico_n2:Country) MATCH (cico_n3:Person)-[cico_r6:IS_LOCATED_IN]->(cico_n1) MATCH (cico_n4:Forum)-[cico_r7:HAS_MEMBER]->(cico_n3) RETURN CASE WHEN (sum(cico_n4.lsqb_q1_path_count) IS NULL) THEN 0 ELSE sum(cico_n4.lsqb_q1_path_count) END AS `count`",
+    "original": "MATCH (:Country)<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(:Person)<-[:HAS_MEMBER]-(:Forum)-[:CONTAINER_OF]->(:Post)<-[:REPLY_OF]-(:Comment)-[:HAS_TAG]->(:Tag)-[:HAS_TYPE]->(:TagClass)\nRETURN count(*) AS count\n",
+    "rewritten": true,
+    "reason": "rewritten",
+    "detail": "",
+    "indexes": [
+     "Forum(lsqb_q1_path_count)"
+    ],
+    "columns": [
+     [
+      "count",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "initial",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "q2",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/q2.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "MATCH\n  (person1:Person)-[:KNOWS]-(person2:Person),\n  (person1)<-[:HAS_CREATOR]-(comment:Comment)-[:REPLY_OF]->(post:Post)-[:HAS_CREATOR]->(person2)\nRETURN count(*) AS count\n",
+    "original": "MATCH\n  (person1:Person)-[:KNOWS]-(person2:Person),\n  (person1)<-[:HAS_CREATOR]-(comment:Comment)-[:REPLY_OF]->(post:Post)-[:HAS_CREATOR]->(person2)\nRETURN count(*) AS count\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "",
+    "indexes": [],
+    "columns": [
+     [
+      "count",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "q3",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/q3.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "MATCH (person1:Person)-[:KNOWS]-(person2:Person)-[:KNOWS]-(person3:Person)\nWHERE person1.id < person2.id\n  AND person2.id < person3.id\n  AND (person3)-[:KNOWS]-(person1)\nMATCH (person1)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country:Country)\nMATCH (person2)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nMATCH (person3)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nRETURN count(*) * 6 AS count\n",
+    "original": "MATCH (person1:Person)-[:KNOWS]-(person2:Person)-[:KNOWS]-(person3:Person)\nWHERE person1.id < person2.id\n  AND person2.id < person3.id\n  AND (person3)-[:KNOWS]-(person1)\nMATCH (person1)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country:Country)\nMATCH (person2)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nMATCH (person3)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nRETURN count(*) * 6 AS count\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "",
+    "indexes": [],
+    "columns": [
+     [
+      "count",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "q4",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/q4.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "MATCH (message:Message)-[cico_r2:HAS_TAG]->(cico_n1:Tag) MATCH (message)-[cico_r3:HAS_CREATOR]->(creator:Person) RETURN sum(message.q4_msg_cnt) AS `count`",
+    "original": "MATCH (:Tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(creator:Person),\n  (message)<-[:LIKES]-(liker:Person),\n  (message)<-[:REPLY_OF]-(comment:Comment)\nRETURN count(*) AS count\n",
+    "rewritten": true,
+    "reason": "rewritten",
+    "detail": "",
+    "indexes": [
+     "Comment(q4_msg_cnt)",
+     "Post(q4_msg_cnt)"
+    ],
+    "columns": [
+     [
+      "count",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "initial",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "q5",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/q5.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "MATCH (tag1:Tag)<-[:HAS_TAG]-(message:Message)<-[:REPLY_OF]-(comment:Comment)-[:HAS_TAG]->(tag2:Tag)\nWHERE tag1 <> tag2\nRETURN count(*) AS count\n",
+    "original": "MATCH (tag1:Tag)<-[:HAS_TAG]-(message:Message)<-[:REPLY_OF]-(comment:Comment)-[:HAS_TAG]->(tag2:Tag)\nWHERE tag1 <> tag2\nRETURN count(*) AS count\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "",
+    "indexes": [],
+    "columns": [
+     [
+      "count",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "q6",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/q6.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "MATCH (person1:Person)-[:KNOWS]-(person2:Person)-[:KNOWS]-(person3:Person)-[:HAS_INTEREST]->(tag:Tag)\nWHERE person1 <> person3\nRETURN count(*) AS count\n",
+    "original": "MATCH (person1:Person)-[:KNOWS]-(person2:Person)-[:KNOWS]-(person3:Person)-[:HAS_INTEREST]->(tag:Tag)\nWHERE person1 <> person3\nRETURN count(*) AS count\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "",
+    "indexes": [],
+    "columns": [
+     [
+      "count",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "q7",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/q7.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "MATCH (:Tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(creator:Person)\nOPTIONAL MATCH (message)<-[:LIKES]-(liker:Person)\nOPTIONAL MATCH (message)<-[:REPLY_OF]-(comment:Comment)\nRETURN count(*) AS count\n",
+    "original": "MATCH (:Tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(creator:Person)\nOPTIONAL MATCH (message)<-[:LIKES]-(liker:Person)\nOPTIONAL MATCH (message)<-[:REPLY_OF]-(comment:Comment)\nRETURN count(*) AS count\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "",
+    "indexes": [],
+    "columns": [
+     [
+      "count",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "q8",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/q8.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "MATCH (tag1:Tag)-[q8_tag_pair_index:q8_tag_pair_index]->(tag2:Tag) WHERE (tag1 <> tag2) RETURN sum(CASE WHEN (q8_tag_pair_index.pathCount IS NULL) THEN 0 ELSE q8_tag_pair_index.pathCount END) AS `count`",
+    "original": "MATCH (tag1:Tag)<-[:HAS_TAG]-(message:Message)<-[:REPLY_OF]-(comment:Comment)-[:HAS_TAG]->(tag2:Tag)\nWHERE NOT (comment)-[:HAS_TAG]->(tag1)\n  AND tag1 <> tag2\nRETURN count(*) AS count\n",
+    "rewritten": true,
+    "reason": "rewritten",
+    "detail": "",
+    "indexes": [
+     "q8_tag_pair_index()"
+    ],
+    "columns": [
+     [
+      "count",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "initial",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "q9",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/q9.cypher",
+    "kind": "query",
+    "ok": true,
+    "cypher": "MATCH (person1:Person)-[:KNOWS]-(person2:Person)-[:KNOWS]-(person3:Person)-[:HAS_INTEREST]->(tag:Tag)\nWHERE NOT (person1)-[:KNOWS]-(person3)\n  AND person1 <> person3\nRETURN count(*) AS count\n",
+    "original": "MATCH (person1:Person)-[:KNOWS]-(person2:Person)-[:KNOWS]-(person3:Person)-[:HAS_INTEREST]->(tag:Tag)\nWHERE NOT (person1)-[:KNOWS]-(person3)\n  AND person1 <> person3\nRETURN count(*) AS count\n",
+    "rewritten": false,
+    "reason": "no_index_selected",
+    "detail": "",
+    "indexes": [],
+    "columns": [
+     [
+      "count",
+      "INT64"
+     ]
+    ],
+    "index_id": "",
+    "entries": [],
+    "inferred_ddl": [],
+    "schema_changed": false,
+    "route": "",
+    "specialized": [],
+    "parts": [],
+    "proofs": []
+   },
+   {
+    "query": "schema",
+    "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/lsqb/schema.cypher",
+    "reason": "write_query",
+    "rewritten": false
+   }
+  ]
+ }
+]

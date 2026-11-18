@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+/engine/build/
+/engine/bin/
+/.venv/
+
+/runtime/

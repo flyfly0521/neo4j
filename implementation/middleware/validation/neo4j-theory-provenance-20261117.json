@@ -1,0 +1,57 @@
+{
+  "theory_documents": [
+    {
+      "id": "f1c848e8-ef47-4eef-8e49-faacf5950a2c",
+      "revision": 768,
+      "url": "https://wiki.pdy.app:8443/doc/querypart-binding-index-TZdc4RPfD1"
+    },
+    {
+      "id": "5bc285dd-f22f-42fd-8880-34b69231ac3b",
+      "revision": 47,
+      "url": "https://wiki.pdy.app:8443/doc/querypart-lean-6hQ7o2SiWN"
+    }
+  ],
+  "lean_run": false,
+  "proofs_are_lean_certificates": false,
+  "workload_queries_executed": false,
+  "unit_tests": {
+    "command": "python3 -m unittest discover -s middleware/tests -v",
+    "passed": 65,
+    "total": 65
+  },
+  "small_graph": {
+    "total": 13,
+    "equal": 13,
+    "before_rewritten": 1,
+    "rewritten": 13,
+    "transaction_rolled_back": true
+  },
+  "bi": {
+    "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
+    "total_queries": 15,
+    "total_samples": 150,
+    "all_samples_rewritten": 8,
+    "rewritten_samples": 80,
+    "explain_ok": 80,
+    "invalid_rewrites": 0
+  },
+  "implementation_sha256": {
+    "middleware/cico/syntax.py": "ae33fc490af30501b1fd2706716ffed3b3707ad720f0e0bf4320acdcb9b70c1e",
+    "middleware/cico/binding_values.py": "12b7f7b9ec3f1504b0dc5a7b1ac68d3708669919ff41051efb05386283b2d6ad",
+    "middleware/cico/scalar_subqueries.py": "a3435c89ed30731b20611ae44b051d1207b5e54b6f42fc8e581cc54f0ad49bea",
+    "middleware/cico/queryparts.py": "cbcc693285c9eb22acf4df8d613b6bab50ee8a4b5e94ca24f4356d94fb5939e6",
+    "middleware/cico/subqueries.py": "95e3dbac0e9d5a95eedcd1df8a3349fb8c64d93bb204ac15f424636fab582421",
+    "middleware/cico/middleware.py": "e03712b5fea0677be08d2a465ac09dc394cb7d068f6f96e5fa8c23a2e870c42e",
+    "middleware/tests/test_theory_rewrites.py": "79a77423c5da91a7e8d5e64be090716f66c129639353a405efb1be7ee5ce33cb",
+    "middleware/tests/theory_rewrite_acceptance.py": "04cbfcacd3471611f07283a87423a1254fdeb42558e839a4f3bfa985262c3eb9",
+    "middleware/tests/neo4j_bi_rewrite_matrix.py": "be02a87351d5042334c3661ae0cd70a0eae87722f44fd59519e78984ff03e48d"
+  },
+  "engine": {
+    "path": "/mnt/sdb1/feiyang/neo4j/middleware/engine/build/incgq_rewrite_engine_patched",
+    "sha256": "f8894dc30c4c42f3fdc6eb74b65c66f3de3f1ad61bfbc5e184f5f9266a8ac76e"
+  },
+  "library": {
+    "path": "/mnt/sdb1/feiyang/IncGQ/build/src/libneug.so",
+    "sha256": "ed711473113487644d201f446bbdb90b1662e7805faa0757ad9f34dd021accd4"
+  }
+}

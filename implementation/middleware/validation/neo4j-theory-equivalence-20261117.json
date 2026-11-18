@@ -1,0 +1,767 @@
+{
+  "uri": "bolt://127.0.0.1:7693",
+  "workload_queries_executed": false,
+  "fixture": "isolated unique labels, parallel edges, zero-count and null anchors",
+  "transaction_rolled_back": true,
+  "results": [
+    {
+      "case": "size",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "",
+      "cypher": "MATCH(p:ProofPerson_ebd4e74e6c) RETURN p.id AS who, (CASE WHEN p IS NULL THEN 0 ELSE CASE WHEN (p.places IS NULL) THEN 0 ELSE p.places END END) AS n",
+      "proofs": [
+        {
+          "rule": "correlated_graph_count",
+          "anchors": [
+            "p"
+          ],
+          "indexes": [
+            "ProofPerson_ebd4e74e6c(places)"
+          ],
+          "checks": [
+            "all_correlated_inputs_bound",
+            "round_trip_verified",
+            "input_binding_unchanged",
+            "no_remaining_graph_reads",
+            "singleton_aggregate",
+            "no_hidden_references",
+            "null_anchor_zero"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 1
+        },
+        {
+          "who": 1,
+          "n": 3
+        }
+      ],
+      "result": [
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 1
+        },
+        {
+          "who": 1,
+          "n": 3
+        }
+      ]
+    },
+    {
+      "case": "count",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "",
+      "cypher": "MATCH(p:ProofPerson_ebd4e74e6c) RETURN p.id AS who, (CASE WHEN p IS NULL THEN 0 ELSE CASE WHEN (p.places IS NULL) THEN 0 ELSE p.places END END) AS n",
+      "proofs": [
+        {
+          "rule": "correlated_graph_count",
+          "anchors": [
+            "p"
+          ],
+          "indexes": [
+            "ProofPerson_ebd4e74e6c(places)"
+          ],
+          "checks": [
+            "all_correlated_inputs_bound",
+            "round_trip_verified",
+            "input_binding_unchanged",
+            "no_remaining_graph_reads",
+            "singleton_aggregate",
+            "no_hidden_references",
+            "null_anchor_zero"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 1
+        },
+        {
+          "who": 1,
+          "n": 3
+        }
+      ],
+      "result": [
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 1
+        },
+        {
+          "who": 1,
+          "n": 3
+        }
+      ]
+    },
+    {
+      "case": "exists",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "",
+      "cypher": "MATCH(p:ProofPerson_ebd4e74e6c) RETURN p.id AS who, ((CASE WHEN p IS NULL THEN 0 ELSE CASE WHEN (p.places IS NULL) THEN 0 ELSE p.places END END) > 0) AS yes",
+      "proofs": [
+        {
+          "rule": "correlated_graph_count",
+          "anchors": [
+            "p"
+          ],
+          "indexes": [
+            "ProofPerson_ebd4e74e6c(places)"
+          ],
+          "checks": [
+            "all_correlated_inputs_bound",
+            "round_trip_verified",
+            "input_binding_unchanged",
+            "no_remaining_graph_reads",
+            "singleton_aggregate",
+            "no_hidden_references",
+            "null_anchor_zero"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "who": 2,
+          "yes": false
+        },
+        {
+          "who": 3,
+          "yes": true
+        },
+        {
+          "who": 1,
+          "yes": true
+        }
+      ],
+      "result": [
+        {
+          "who": 2,
+          "yes": false
+        },
+        {
+          "who": 3,
+          "yes": true
+        },
+        {
+          "who": 1,
+          "yes": true
+        }
+      ]
+    },
+    {
+      "case": "outer_sum",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "",
+      "cypher": "MATCH(p:ProofPerson_ebd4e74e6c) RETURN sum( (CASE WHEN p IS NULL THEN 0 ELSE CASE WHEN (p.places IS NULL) THEN 0 ELSE p.places END END)) AS total",
+      "proofs": [
+        {
+          "rule": "correlated_graph_count",
+          "anchors": [
+            "p"
+          ],
+          "indexes": [
+            "ProofPerson_ebd4e74e6c(places)"
+          ],
+          "checks": [
+            "all_correlated_inputs_bound",
+            "round_trip_verified",
+            "input_binding_unchanged",
+            "no_remaining_graph_reads",
+            "singleton_aggregate",
+            "no_hidden_references",
+            "null_anchor_zero"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "total": 4
+        }
+      ],
+      "result": [
+        {
+          "total": 4
+        }
+      ]
+    },
+    {
+      "case": "duplicates",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "",
+      "cypher": "UNWIND [1,1] AS duplicate MATCH(p:ProofPerson_ebd4e74e6c) RETURN duplicate,p.id AS who, (CASE WHEN p IS NULL THEN 0 ELSE CASE WHEN (p.places IS NULL) THEN 0 ELSE p.places END END) AS n",
+      "proofs": [
+        {
+          "rule": "correlated_graph_count",
+          "anchors": [
+            "p"
+          ],
+          "indexes": [
+            "ProofPerson_ebd4e74e6c(places)"
+          ],
+          "checks": [
+            "all_correlated_inputs_bound",
+            "round_trip_verified",
+            "input_binding_unchanged",
+            "no_remaining_graph_reads",
+            "singleton_aggregate",
+            "no_hidden_references",
+            "null_anchor_zero"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "duplicate": 1,
+          "who": 2,
+          "n": 0
+        },
+        {
+          "duplicate": 1,
+          "who": 3,
+          "n": 1
+        },
+        {
+          "duplicate": 1,
+          "who": 1,
+          "n": 3
+        },
+        {
+          "duplicate": 1,
+          "who": 2,
+          "n": 0
+        },
+        {
+          "duplicate": 1,
+          "who": 3,
+          "n": 1
+        },
+        {
+          "duplicate": 1,
+          "who": 1,
+          "n": 3
+        }
+      ],
+      "result": [
+        {
+          "duplicate": 1,
+          "who": 2,
+          "n": 0
+        },
+        {
+          "duplicate": 1,
+          "who": 3,
+          "n": 1
+        },
+        {
+          "duplicate": 1,
+          "who": 1,
+          "n": 3
+        },
+        {
+          "duplicate": 1,
+          "who": 2,
+          "n": 0
+        },
+        {
+          "duplicate": 1,
+          "who": 3,
+          "n": 1
+        },
+        {
+          "duplicate": 1,
+          "who": 1,
+          "n": 3
+        }
+      ]
+    },
+    {
+      "case": "null_anchor",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "",
+      "cypher": "MATCH(c:ProofCity_ebd4e74e6c {id:15}) OPTIONAL MATCH(c)<-[:PROOF_LINK_ebd4e74e6c]-(p:ProofPerson_ebd4e74e6c)\n            WHERE p.id=-999 RETURN p.id AS who, (CASE WHEN p IS NULL THEN 0 ELSE CASE WHEN (p.places IS NULL) THEN 0 ELSE p.places END END) AS n",
+      "proofs": [
+        {
+          "rule": "correlated_graph_count",
+          "anchors": [
+            "p"
+          ],
+          "indexes": [
+            "ProofPerson_ebd4e74e6c(places)"
+          ],
+          "checks": [
+            "all_correlated_inputs_bound",
+            "round_trip_verified",
+            "input_binding_unchanged",
+            "no_remaining_graph_reads",
+            "singleton_aggregate",
+            "no_hidden_references",
+            "null_anchor_zero"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "who": null,
+          "n": 0
+        }
+      ],
+      "result": [
+        {
+          "who": null,
+          "n": 0
+        }
+      ]
+    },
+    {
+      "case": "list_concat",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(ProofPerson_ebd4e74e6c,))[],NODE(LABELS(ProofPerson_ebd4e74e6c,))[]). Supported inputs are\n(INT128,INT128) ->",
+      "cypher": "MATCH(p:ProofPerson_ebd4e74e6c) WITH collect(p) AS xs MATCH(q:ProofPerson_ebd4e74e6c)\n            WITH xs,xs + collect(q) AS combined UNWIND combined AS p\n            RETURN p.id AS who, (CASE WHEN p IS NULL THEN 0 ELSE CASE WHEN (p.places IS NULL) THEN 0 ELSE p.places END END) AS n",
+      "proofs": [
+        {
+          "rule": "correlated_graph_count",
+          "anchors": [
+            "p"
+          ],
+          "indexes": [
+            "ProofPerson_ebd4e74e6c(places)"
+          ],
+          "checks": [
+            "all_correlated_inputs_bound",
+            "round_trip_verified",
+            "input_binding_unchanged",
+            "no_remaining_graph_reads",
+            "singleton_aggregate",
+            "no_hidden_references",
+            "null_anchor_zero"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 1
+        },
+        {
+          "who": 1,
+          "n": 3
+        },
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 1
+        },
+        {
+          "who": 1,
+          "n": 3
+        }
+      ],
+      "result": [
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 1
+        },
+        {
+          "who": 1,
+          "n": 3
+        },
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 1
+        },
+        {
+          "who": 1,
+          "n": 3
+        }
+      ]
+    },
+    {
+      "case": "independent_probe_parameters",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": true,
+      "detail": "part 1: no_index_selected",
+      "cypher": "MATCH(p:ProofPerson_ebd4e74e6c) WITH p,p.id AS k RETURN p.id AS who, sum(CASE WHEN (k = $cico_in_k) THEN CASE WHEN (p.places IS NULL) THEN 0 ELSE p.places END ELSE 0 END) AS n",
+      "proofs": [],
+      "equal": true,
+      "baseline": [
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 0
+        },
+        {
+          "who": 1,
+          "n": 3
+        }
+      ],
+      "result": [
+        {
+          "who": 2,
+          "n": 0
+        },
+        {
+          "who": 3,
+          "n": 0
+        },
+        {
+          "who": 1,
+          "n": 3
+        }
+      ]
+    },
+    {
+      "case": "finite_duplicates_and_null",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "",
+      "cypher": "UNWIND [{x:10},{x:20},{x:10},{x:null}] AS record WITH record.x AS threshold\n        CALL { WITH threshold WITH threshold WHERE (((threshold IS NULL AND (10) IS NULL) OR (threshold IS NOT NULL AND (10) IS NOT NULL AND valueType(threshold) = valueType((10)) AND toString(threshold) = toString((10))))) CALL { WITH threshold MATCH (p:ProofPerson_ebd4e74e6c) WHERE (p.smallPlaces <> 0) RETURN p.id AS who, sum(CASE WHEN (p.smallPlaces IS NULL) THEN 0 ELSE p.smallPlaces END) AS n } RETURN who, n UNION ALL WITH threshold WITH threshold WHERE (((threshold IS NULL AND (20) IS NULL) OR (threshold IS NOT NULL AND (20) IS NOT NULL AND valueType(threshold) = valueType((20)) AND toString(threshold) = toString((20))))) AND NOT ((((threshold IS NULL AND (10) IS NULL) OR (threshold IS NOT NULL AND (10) IS NOT NULL AND valueType(threshold) = valueType((10)) AND toString(threshold) = toString((10)))))) CALL { WITH threshold MATCH(p:ProofPerson_ebd4e74e6c)-[:PROOF_LINK_ebd4e74e6c]->(c:ProofCity_ebd4e74e6c)\n            WHERE c.id<threshold RETURN p.id AS who,count(c) AS n } RETURN who, n UNION ALL WITH threshold WITH threshold WHERE (((threshold IS NULL AND (null) IS NULL) OR (threshold IS NOT NULL AND (null) IS NOT NULL AND valueType(threshold) = valueType((null)) AND toString(threshold) = toString((null))))) AND NOT ((((threshold IS NULL AND (10) IS NULL) OR (threshold IS NOT NULL AND (10) IS NOT NULL AND valueType(threshold) = valueType((10)) AND toString(threshold) = toString((10))))) OR (((threshold IS NULL AND (20) IS NULL) OR (threshold IS NOT NULL AND (20) IS NOT NULL AND valueType(threshold) = valueType((20)) AND toString(threshold) = toString((20)))))) CALL { WITH threshold MATCH(p:ProofPerson_ebd4e74e6c)-[:PROOF_LINK_ebd4e74e6c]->(c:ProofCity_ebd4e74e6c)\n            WHERE c.id<threshold RETURN p.id AS who,count(c) AS n } RETURN who, n }\n        RETURN threshold,who,n",
+      "proofs": [
+        {
+          "rule": "finite_call_inputs",
+          "imports": [
+            "threshold"
+          ],
+          "cases": 3,
+          "checks": [
+            "correlated_record_fields",
+            "closed_scalar_origins",
+            "null_safe_exclusive_guards",
+            "typed_scalar_identity_guards",
+            "outer_row_multiplicity_preserved",
+            "inactive_aggregate_branch_suppressed",
+            "output_names_unchanged"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        },
+        {
+          "threshold": 20,
+          "who": 1,
+          "n": 3
+        },
+        {
+          "threshold": 20,
+          "who": 3,
+          "n": 1
+        },
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        }
+      ],
+      "result": [
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        },
+        {
+          "threshold": 20,
+          "who": 1,
+          "n": 3
+        },
+        {
+          "threshold": 20,
+          "who": 3,
+          "n": 1
+        },
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        }
+      ]
+    },
+    {
+      "case": "overlapping_parameter_cases",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "valid only for the given values of $two",
+      "cypher": "UNWIND [{x:$one},{x:$two}] AS record WITH record.x AS threshold\n        CALL { WITH threshold WITH threshold WHERE (((threshold IS NULL AND ($one) IS NULL) OR (threshold IS NOT NULL AND ($one) IS NOT NULL AND valueType(threshold) = valueType(($one)) AND toString(threshold) = toString(($one))))) CALL { WITH threshold MATCH(p:ProofPerson_ebd4e74e6c)-[:PROOF_LINK_ebd4e74e6c]->(c:ProofCity_ebd4e74e6c)\n            WHERE c.id<threshold RETURN p.id AS who,count(c) AS n } RETURN who, n UNION ALL WITH threshold WITH threshold WHERE (((threshold IS NULL AND ($two) IS NULL) OR (threshold IS NOT NULL AND ($two) IS NOT NULL AND valueType(threshold) = valueType(($two)) AND toString(threshold) = toString(($two))))) AND NOT ((((threshold IS NULL AND ($one) IS NULL) OR (threshold IS NOT NULL AND ($one) IS NOT NULL AND valueType(threshold) = valueType(($one)) AND toString(threshold) = toString(($one)))))) CALL { WITH threshold MATCH (p:ProofPerson_ebd4e74e6c) WHERE (p.smallPlaces <> 0) RETURN p.id AS who, sum(CASE WHEN (p.smallPlaces IS NULL) THEN 0 ELSE p.smallPlaces END) AS n } RETURN who, n }\n        RETURN threshold,who,n",
+      "proofs": [
+        {
+          "rule": "finite_call_inputs",
+          "imports": [
+            "threshold"
+          ],
+          "cases": 2,
+          "checks": [
+            "correlated_record_fields",
+            "closed_scalar_origins",
+            "null_safe_exclusive_guards",
+            "typed_scalar_identity_guards",
+            "outer_row_multiplicity_preserved",
+            "inactive_aggregate_branch_suppressed",
+            "output_names_unchanged"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        },
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        }
+      ],
+      "result": [
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        },
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        }
+      ]
+    },
+    {
+      "case": "different_parameter_cases",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "valid only for the given values of $one",
+      "cypher": "UNWIND [{x:$one},{x:$two}] AS record WITH record.x AS threshold\n        CALL { WITH threshold WITH threshold WHERE (((threshold IS NULL AND ($one) IS NULL) OR (threshold IS NOT NULL AND ($one) IS NOT NULL AND valueType(threshold) = valueType(($one)) AND toString(threshold) = toString(($one))))) CALL { WITH threshold MATCH (p:ProofPerson_ebd4e74e6c) WHERE (p.smallPlaces <> 0) RETURN p.id AS who, sum(CASE WHEN (p.smallPlaces IS NULL) THEN 0 ELSE p.smallPlaces END) AS n } RETURN who, n UNION ALL WITH threshold WITH threshold WHERE (((threshold IS NULL AND ($two) IS NULL) OR (threshold IS NOT NULL AND ($two) IS NOT NULL AND valueType(threshold) = valueType(($two)) AND toString(threshold) = toString(($two))))) AND NOT ((((threshold IS NULL AND ($one) IS NULL) OR (threshold IS NOT NULL AND ($one) IS NOT NULL AND valueType(threshold) = valueType(($one)) AND toString(threshold) = toString(($one)))))) CALL { WITH threshold MATCH(p:ProofPerson_ebd4e74e6c)-[:PROOF_LINK_ebd4e74e6c]->(c:ProofCity_ebd4e74e6c)\n            WHERE c.id<threshold RETURN p.id AS who,count(c) AS n } RETURN who, n }\n        RETURN threshold,who,n",
+      "proofs": [
+        {
+          "rule": "finite_call_inputs",
+          "imports": [
+            "threshold"
+          ],
+          "cases": 2,
+          "checks": [
+            "correlated_record_fields",
+            "closed_scalar_origins",
+            "null_safe_exclusive_guards",
+            "typed_scalar_identity_guards",
+            "outer_row_multiplicity_preserved",
+            "inactive_aggregate_branch_suppressed",
+            "output_names_unchanged"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        },
+        {
+          "threshold": 20,
+          "who": 1,
+          "n": 3
+        },
+        {
+          "threshold": 20,
+          "who": 3,
+          "n": 1
+        }
+      ],
+      "result": [
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2
+        },
+        {
+          "threshold": 20,
+          "who": 1,
+          "n": 3
+        },
+        {
+          "threshold": 20,
+          "who": 3,
+          "n": 1
+        }
+      ]
+    },
+    {
+      "case": "equal_numbers_different_types",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "",
+      "cypher": "UNWIND [{x:10},{x:10.0}] AS record WITH record.x AS threshold\n        CALL { WITH threshold WITH threshold WHERE (((threshold IS NULL AND (10) IS NULL) OR (threshold IS NOT NULL AND (10) IS NOT NULL AND valueType(threshold) = valueType((10)) AND toString(threshold) = toString((10))))) CALL { WITH threshold MATCH (p:ProofPerson_ebd4e74e6c) WHERE (p.smallPlaces <> 0) RETURN p.id AS who, sum(CASE WHEN (p.smallPlaces IS NULL) THEN 0 ELSE p.smallPlaces END) AS n, '10' AS label } RETURN who, n, label UNION ALL WITH threshold WITH threshold WHERE (((threshold IS NULL AND (10.0) IS NULL) OR (threshold IS NOT NULL AND (10.0) IS NOT NULL AND valueType(threshold) = valueType((10.0)) AND toString(threshold) = toString((10.0))))) AND NOT ((((threshold IS NULL AND (10) IS NULL) OR (threshold IS NOT NULL AND (10) IS NOT NULL AND valueType(threshold) = valueType((10)) AND toString(threshold) = toString((10)))))) CALL { WITH threshold MATCH(p:ProofPerson_ebd4e74e6c)-[:PROOF_LINK_ebd4e74e6c]->(c:ProofCity_ebd4e74e6c)\n            WHERE c.id<threshold\n            RETURN p.id AS who,count(c) AS n,toString(threshold) AS label } RETURN who, n, label }\n        RETURN threshold,who,n,label",
+      "proofs": [
+        {
+          "rule": "finite_call_inputs",
+          "imports": [
+            "threshold"
+          ],
+          "cases": 2,
+          "checks": [
+            "correlated_record_fields",
+            "closed_scalar_origins",
+            "null_safe_exclusive_guards",
+            "typed_scalar_identity_guards",
+            "outer_row_multiplicity_preserved",
+            "inactive_aggregate_branch_suppressed",
+            "output_names_unchanged"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2,
+          "label": "10"
+        },
+        {
+          "threshold": 10.0,
+          "who": 1,
+          "n": 2,
+          "label": "10.0"
+        }
+      ],
+      "result": [
+        {
+          "threshold": 10,
+          "who": 1,
+          "n": 2,
+          "label": "10"
+        },
+        {
+          "threshold": 10.0,
+          "who": 1,
+          "n": 2,
+          "label": "10.0"
+        }
+      ]
+    },
+    {
+      "case": "inactive_global_aggregate",
+      "rewritten": true,
+      "reason": "rewritten",
+      "before_rewritten": false,
+      "detail": "",
+      "cypher": "UNWIND [{x:10},{x:0},{x:null}] AS record WITH record.x AS threshold\n        CALL { WITH threshold WITH threshold WHERE (((threshold IS NULL AND (10) IS NULL) OR (threshold IS NOT NULL AND (10) IS NOT NULL AND valueType(threshold) = valueType((10)) AND toString(threshold) = toString((10))))) CALL { WITH threshold MATCH (p:ProofPerson_ebd4e74e6c) WHERE (p.smallPlaces <> 0) RETURN sum(CASE WHEN (p.smallPlaces IS NULL) THEN 0 ELSE p.smallPlaces END) AS n } RETURN n UNION ALL WITH threshold WITH threshold WHERE (((threshold IS NULL AND (0) IS NULL) OR (threshold IS NOT NULL AND (0) IS NOT NULL AND valueType(threshold) = valueType((0)) AND toString(threshold) = toString((0))))) AND NOT ((((threshold IS NULL AND (10) IS NULL) OR (threshold IS NOT NULL AND (10) IS NOT NULL AND valueType(threshold) = valueType((10)) AND toString(threshold) = toString((10)))))) CALL { WITH threshold MATCH(p:ProofPerson_ebd4e74e6c)-[:PROOF_LINK_ebd4e74e6c]->(c:ProofCity_ebd4e74e6c)\n            WHERE c.id<threshold RETURN count(c) AS n } RETURN n UNION ALL WITH threshold WITH threshold WHERE (((threshold IS NULL AND (null) IS NULL) OR (threshold IS NOT NULL AND (null) IS NOT NULL AND valueType(threshold) = valueType((null)) AND toString(threshold) = toString((null))))) AND NOT ((((threshold IS NULL AND (10) IS NULL) OR (threshold IS NOT NULL AND (10) IS NOT NULL AND valueType(threshold) = valueType((10)) AND toString(threshold) = toString((10))))) OR (((threshold IS NULL AND (0) IS NULL) OR (threshold IS NOT NULL AND (0) IS NOT NULL AND valueType(threshold) = valueType((0)) AND toString(threshold) = toString((0)))))) CALL { WITH threshold MATCH(p:ProofPerson_ebd4e74e6c)-[:PROOF_LINK_ebd4e74e6c]->(c:ProofCity_ebd4e74e6c)\n            WHERE c.id<threshold RETURN count(c) AS n } RETURN n } RETURN threshold,n",
+      "proofs": [
+        {
+          "rule": "finite_call_inputs",
+          "imports": [
+            "threshold"
+          ],
+          "cases": 3,
+          "checks": [
+            "correlated_record_fields",
+            "closed_scalar_origins",
+            "null_safe_exclusive_guards",
+            "typed_scalar_identity_guards",
+            "outer_row_multiplicity_preserved",
+            "inactive_aggregate_branch_suppressed",
+            "output_names_unchanged"
+          ]
+        }
+      ],
+      "equal": true,
+      "baseline": [
+        {
+          "threshold": 10,
+          "n": 2
+        },
+        {
+          "threshold": 0,
+          "n": 0
+        },
+        {
+          "threshold": null,
+          "n": 0
+        }
+      ],
+      "result": [
+        {
+          "threshold": 10,
+          "n": 2
+        },
+        {
+          "threshold": 0,
+          "n": 0
+        },
+        {
+          "threshold": null,
+          "n": 0
+        }
+      ]
+    }
+  ],
+  "all_equal": true,
+  "before_rewritten": 1,
+  "rewritten": 13
+}

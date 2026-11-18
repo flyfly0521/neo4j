@@ -1,0 +1,16 @@
+# Neo4j FinBench <-> middleware internal schema (NeuG/Kuzu FinBench layout).
+# Matches IncGQ-experiment-docs/Neo4j/scripts/import/import_finbench.py:
+#   relationship types are the lower-case verbs, internally one table per
+#   endpoint pair (PersonOwnAccount, CompanyOwnAccount, ...).
+labels: {}
+typed_labels: {}
+rel_types:
+  own: [PersonOwnAccount, CompanyOwnAccount]
+  apply: [PersonApplyLoan, CompanyApplyLoan]
+  guarantee: [PersonGuaranteePerson, CompanyGuaranteeCompany]
+  invest: [PersonInvestCompany, CompanyInvestCompany]
+  transfer: [AccountTransferAccount]
+  withdraw: [AccountWithdrawAccount]
+  repay: [AccountRepayLoan]
+  deposit: [LoanDepositAccount]
+  signIn: [MediumSignInAccount]

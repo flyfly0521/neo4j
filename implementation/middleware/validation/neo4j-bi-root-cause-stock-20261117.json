@@ -1,0 +1,3410 @@
+{
+  "docs_path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs",
+  "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
+  "docs_branch": "jcloud-exp",
+  "sample": 0,
+  "workload_queries_executed": false,
+  "physical_indexes_built": false,
+  "controls_are_production_fixes": false,
+  "sources": [
+    {
+      "path": "/mnt/sdb1/feiyang/neo4j/middleware/schemas/ldbc-bi.yaml",
+      "sha256": "74777dc87205d58e4cb6a45284ee9db281ebc1825d840825da5563054001bb24"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-2.cypher",
+      "sha256": "79ea3a72107ff5505081ad4a8cdf7c357e3b0ce35e6fe3c29de598a18443fa61"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi2/parameter.cypher",
+      "sha256": "30552472904dc052587bd7250afa140d426163bb9c08dd63a42010e6f5342896"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi2/parameter.cypher",
+      "sha256": "44f9393d0588adc670ca54433bda23ec8df6da2444e06bcd625e3845285530c5"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/baseline/ldbc-bi/bi2/query.cypher",
+      "sha256": "6c9d39a5810abbc73142e2da3d1ebee0d1f264ae8466b72114a01e9533e1e382"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-8.cypher",
+      "sha256": "dc4c117b58fbe671ae4d2dbb846d3f5227d652e851ca4b127d8794b9cf10d77b"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi8/parameter.cypher",
+      "sha256": "9eeafbba02a22f220e2b28a54fccc2f09930cdbe88ff66c17ac05a30fcdfbb62"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi8/parameter.cypher",
+      "sha256": "4173cc3f8f1716d1a01b0f51ebfd4e121df9e343e3a94c9d2fb0a17b637448cb"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/baseline/ldbc-bi/bi8/query.cypher",
+      "sha256": "f9fb211aac93c3a4e64494c4c14998e5f0f8dd6744ba6918217b702cb9848566"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-10.cypher",
+      "sha256": "087adda85ccdd32ca6b2a2fcea6d94c3daee7c681209110f1e4f887d97dde6f4"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi10/index.cypher",
+      "sha256": "c37ba81299debddf82af678b86bf83017ab2317fff9eb1e6acd7efee3c3fb7b3"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-16.cypher",
+      "sha256": "5fb867224780a00d4a2e1d9fc7870496389b32da832d2ffaceca764addc843d1"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi16/parameter.cypher",
+      "sha256": "100c103835fac89def698b84fbb5dbb886a8e0ba9b98358a7fa1095865796ef7"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi16/parameter.cypher",
+      "sha256": "af5f60c1b6c29c55ff0b238af04d063ab53ad7cd04de90253eaa36e343ee6f64"
+    },
+    {
+      "path": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/baseline/ldbc-bi/bi16/query.cypher",
+      "sha256": "c269aeef9dfaffae806e73ad90b6ab58f2ac22ba6602cc04e5525d76d636e45a"
+    }
+  ],
+  "stages": [
+    {
+      "number": 2,
+      "parameters": {
+        "date": "2010-06-09 00:00:00",
+        "tagClass": "Single"
+      },
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window1MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window1MessageCount)",
+              "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_a4cbdf772b2599c0_6302299e64ab",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window1MessageCount",
+                "__neug_fill_state_n_rows_a4cbdf772b2599c0"
+              ],
+              "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window1MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window2MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window2MessageCount)",
+              "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_867eedde157fdf76_b7f8ba9e9c2a",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window2MessageCount",
+                "__neug_fill_state_n_rows_867eedde157fdf76"
+              ],
+              "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window2MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "fills": [
+        "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+        "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))"
+      ],
+      "exact_sources": [
+        {
+          "query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        {
+          "query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      ],
+      "whole_query": {
+        "kind": "query",
+        "ok": true,
+        "cypher": "// Q2. Tag evolution\n/*\n:params { date: datetime('2012-06-01'), tagClass: 'MusicalArtist' }\n*/\nMATCH (tag:Tag)-[:HAS_TYPE]->(:TagClass {name: $tagClass})\n// window 1\nOPTIONAL MATCH (message1:Message)-[:HAS_TAG]->(tag)\n  WHERE $date <= message1.creationDate\n    AND message1.creationDate < $date + duration({days: 100})\nWITH tag, count(message1) AS countWindow1\n// window 2\nOPTIONAL MATCH (message2:Message)-[:HAS_TAG]->(tag)\n  WHERE $date + duration({days: 100}) <= message2.creationDate\n    AND message2.creationDate < $date + duration({days: 200})\nWITH\n  tag,\n  countWindow1,\n  count(message2) AS countWindow2\nRETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100\n",
+        "original": "// Q2. Tag evolution\n/*\n:params { date: datetime('2012-06-01'), tagClass: 'MusicalArtist' }\n*/\nMATCH (tag:Tag)-[:HAS_TYPE]->(:TagClass {name: $tagClass})\n// window 1\nOPTIONAL MATCH (message1:Message)-[:HAS_TAG]->(tag)\n  WHERE $date <= message1.creationDate\n    AND message1.creationDate < $date + duration({days: 100})\nWITH tag, count(message1) AS countWindow1\n// window 2\nOPTIONAL MATCH (message2:Message)-[:HAS_TAG]->(tag)\n  WHERE $date + duration({days: 100}) <= message2.creationDate\n    AND message2.creationDate < $date + duration({days: 200})\nWITH\n  tag,\n  countWindow1,\n  count(message2) AS countWindow2\nRETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100\n",
+        "rewritten": false,
+        "reason": "no_index_selected",
+        "detail": "part 1: no_index_selected statement changed without reading an index | part 2: no_index_selected statement changed without reading an index",
+        "indexes": [],
+        "columns": [
+          [
+            "tag",
+            "NODE(LABELS(TAG,))"
+          ],
+          [
+            "countWindow1",
+            "INT64"
+          ]
+        ],
+        "index_id": "",
+        "entries": [],
+        "inferred_ddl": [],
+        "schema_changed": false,
+        "route": "",
+        "specialized": [],
+        "parts": []
+      },
+      "translated_query": "MATCH (tag:TAG)-[:HASTYPE]->(:TAGCLASS {name: 'Single'})\n\nOPTIONAL MATCH (message1:COMMENT:POST)-[:HASTAG]->(tag)\n  WHERE message1.creationDate >= TIMESTAMP('2010-06-09 00:00:00')\n    AND message1.creationDate < TIMESTAMP('2010-06-09 00:00:00') + duration('100 days')\nWITH tag, count(message1) AS countWindow1\n\nOPTIONAL MATCH (message2:COMMENT:POST)-[:HASTAG]->(tag)\n  WHERE message2.creationDate >= TIMESTAMP('2010-06-09 00:00:00') + duration('100 days')\n    AND message2.creationDate < TIMESTAMP('2010-06-09 00:00:00') + duration('200 days')\nWITH\n  tag,\n  countWindow1,\n  count(message2) AS countWindow2\nRETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100"
+    },
+    {
+      "number": 8,
+      "parameters": {
+        "startDate": "2010-06-12 00:00:00",
+        "endDate": "2010-06-22 00:00:00",
+        "tag": "Che_Guevara"
+      },
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "original": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi8MessageCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi8MessageCount)",
+              "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_62d875d5fe49a9c0_1f6cc3448bd3",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi8MessageCount",
+                "__neug_fill_state_n_rows_62d875d5fe49a9c0"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi8MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "fills": [
+        "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))"
+      ],
+      "exact_sources": [
+        {
+          "query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      ],
+      "whole_query": {
+        "kind": "query",
+        "ok": true,
+        "cypher": "// Q8. Central Person for a Tag\n/*\n:params { tag: 'Che_Guevara', startDate: datetime('2011-07-20'), endDate: datetime('2011-07-25') }\n*/\nMATCH (tag:Tag {name: $tag})\n// score\nOPTIONAL MATCH (tag)<-[interest:HAS_INTEREST]-(person:Person)\nWITH tag, collect(person) AS interestedPersons\nOPTIONAL MATCH (tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)\n         WHERE $startDate < message.creationDate\n           AND message.creationDate < $endDate\nWITH tag, interestedPersons, interestedPersons + collect(person) AS persons\nUNWIND persons AS person\nWITH DISTINCT tag, person\nWITH\n  tag,\n  person,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(person) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS score\nOPTIONAL MATCH (person)-[:KNOWS]-(friend)\n// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.\n// This might change in the future with new Cypher versions and GQL.\nWITH\n  person,\n  score,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(friend) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(friend) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS friendScore\nRETURN\n  person.id,\n  score,\n  sum(friendScore) AS friendsScore\nORDER BY\n  score + friendsScore DESC,\n  person.id ASC\nLIMIT 100\n",
+        "original": "// Q8. Central Person for a Tag\n/*\n:params { tag: 'Che_Guevara', startDate: datetime('2011-07-20'), endDate: datetime('2011-07-25') }\n*/\nMATCH (tag:Tag {name: $tag})\n// score\nOPTIONAL MATCH (tag)<-[interest:HAS_INTEREST]-(person:Person)\nWITH tag, collect(person) AS interestedPersons\nOPTIONAL MATCH (tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)\n         WHERE $startDate < message.creationDate\n           AND message.creationDate < $endDate\nWITH tag, interestedPersons, interestedPersons + collect(person) AS persons\nUNWIND persons AS person\nWITH DISTINCT tag, person\nWITH\n  tag,\n  person,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(person) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS score\nOPTIONAL MATCH (person)-[:KNOWS]-(friend)\n// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.\n// This might change in the future with new Cypher versions and GQL.\nWITH\n  person,\n  score,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(friend) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(friend) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS friendScore\nRETURN\n  person.id,\n  score,\n  sum(friendScore) AS friendsScore\nORDER BY\n  score + friendsScore DESC,\n  person.id ASC\nLIMIT 100\n",
+        "rewritten": false,
+        "reason": "no_index_selected",
+        "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: part_input_unavailable an earlier QueryPart is not convertible: function size(): not in the NeuG catalog",
+        "indexes": [],
+        "columns": [
+          [
+            "tag",
+            "NODE(LABELS(TAG,))"
+          ],
+          [
+            "interestedPersons",
+            "NODE(LABELS(PERSON,))[]"
+          ]
+        ],
+        "index_id": "",
+        "entries": [],
+        "inferred_ddl": [],
+        "schema_changed": false,
+        "route": "",
+        "specialized": [],
+        "parts": []
+      },
+      "translation_error": "function size(): not in the NeuG catalog"
+    },
+    {
+      "number": 10,
+      "parameters": {
+        "country": "United_Kingdom",
+        "tagClass": "BaseballPlayer",
+        "personId": 10995116284483,
+        "minPathDistance": 3,
+        "maxPathDistance": 4
+      },
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(countryName) FROM (MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'}) RETURN person.id, country.name)",
+          "original": "FILL PERSON(countryName) FROM (MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'}) RETURN person.id, country.name)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(countryName)",
+          "entries": [
+            {
+              "candidate": "PERSON(countryName)",
+              "name": "fill_PERSON_countryName___neug_fill_state_n_rows_f7c34b44c8d2915b_fbcb3f4e27f3",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "countryName",
+                "__neug_fill_state_n_rows_f7c34b44c8d2915b"
+              ],
+              "source_query": "MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'}) RETURN person.id, country.name"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD countryName STRING"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "fills": [
+        "FILL PERSON(countryName) FROM (MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'}) RETURN person.id, country.name)"
+      ],
+      "exact_sources": [
+        {
+          "query": "MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'}) RETURN person.id, country.name",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(countryName)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_countryName___neug_fill_state_n_rows_f7c34b44c8d2915b_fbcb3f4e27f3"
+          ]
+        }
+      ],
+      "whole_query": {
+        "kind": "query",
+        "ok": true,
+        "cypher": "// Q10. Experts in social circle\n// Requires the Neo4j APOC library\n/*\n:params {\n    personId: 30786325588624,\n    country: 'China',\n    tagClass: 'MusicalArtist',\n    minPathDistance: 3,\n    maxPathDistance: 4\n}\n*/\nMATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance\n// compute the difference of sets: nodesCloserThanMaxPathDistance - nodesCloserThanMinPathDistance\nWITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons\nUNWIND expertCandidatePersons AS expertCandidatePerson\nMATCH\n  (expertCandidatePerson)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(:Country {name: $country}),\n  (expertCandidatePerson)<-[:HAS_CREATOR]-(message:Message)-[:HAS_TAG]->(:Tag)-[:HAS_TYPE]->\n  (:TagClass {name: $tagClass})\nMATCH\n  (message)-[:HAS_TAG]->(tag:Tag)\nRETURN\n  expertCandidatePerson.id,\n  tag.name,\n  count(DISTINCT message) AS messageCount\nORDER BY\n  messageCount DESC,\n  tag.name ASC,\n  expertCandidatePerson.id ASC\nLIMIT 100\n",
+        "original": "// Q10. Experts in social circle\n// Requires the Neo4j APOC library\n/*\n:params {\n    personId: 30786325588624,\n    country: 'China',\n    tagClass: 'MusicalArtist',\n    minPathDistance: 3,\n    maxPathDistance: 4\n}\n*/\nMATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance\n// compute the difference of sets: nodesCloserThanMaxPathDistance - nodesCloserThanMinPathDistance\nWITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons\nUNWIND expertCandidatePersons AS expertCandidatePerson\nMATCH\n  (expertCandidatePerson)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(:Country {name: $country}),\n  (expertCandidatePerson)<-[:HAS_CREATOR]-(message:Message)-[:HAS_TAG]->(:Tag)-[:HAS_TYPE]->\n  (:TagClass {name: $tagClass})\nMATCH\n  (message)-[:HAS_TAG]->(tag:Tag)\nRETURN\n  expertCandidatePerson.id,\n  tag.name,\n  count(DISTINCT message) AS messageCount\nORDER BY\n  messageCount DESC,\n  tag.name ASC,\n  expertCandidatePerson.id ASC\nLIMIT 100\n",
+        "rewritten": false,
+        "reason": "frontend_unsupported",
+        "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent | part 4: part_input_unavailable an earlier QueryPart is not convertible: CALL procedure: no internal equivalent",
+        "indexes": [],
+        "columns": [],
+        "index_id": "",
+        "entries": [],
+        "inferred_ddl": [],
+        "schema_changed": false,
+        "route": "",
+        "specialized": [],
+        "parts": []
+      },
+      "translation_error": "CALL procedure: no internal equivalent",
+      "neo4j_fragment": {
+        "kind": "query",
+        "ok": true,
+        "cypher": "MATCH (person:Person) WHERE (person.countryName = $country) RETURN person.id AS personId, person.countryName AS countryName",
+        "original": "MATCH (person:Person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country:Country) WHERE country.name=$country RETURN person.id AS personId,country.name AS countryName",
+        "rewritten": true,
+        "reason": "rewritten",
+        "detail": "",
+        "indexes": [
+          "PERSON(countryName)"
+        ],
+        "columns": [
+          [
+            "personId",
+            "INT64"
+          ],
+          [
+            "countryName",
+            "STRING"
+          ]
+        ],
+        "index_id": "",
+        "entries": [],
+        "inferred_ddl": [],
+        "schema_changed": false,
+        "route": "initial",
+        "specialized": [],
+        "parts": []
+      }
+    },
+    {
+      "number": 16,
+      "parameters": {
+        "dateA": "2012-07-26 00:00:00",
+        "dateB": "2012-05-08 00:00:00",
+        "maxKnowsLimit": 4,
+        "tagA": "Marc_Gicquel",
+        "tagB": "Romania"
+      },
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountA)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountA)",
+              "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_f56a0986a1113c1a_1f1ac5abbf6d",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountA",
+                "__neug_fill_state_n_rows_f56a0986a1113c1a"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountA INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountB)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountB)",
+              "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3fc385e8873dd096_63cfbcc9e080",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountB",
+                "__neug_fill_state_n_rows_3fc385e8873dd096"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountB INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "fills": [
+        "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+        "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))"
+      ],
+      "exact_sources": [
+        {
+          "query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        {
+          "query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      ],
+      "whole_query": {
+        "kind": "query",
+        "ok": true,
+        "cypher": "// Q16. Fake news detection\n// These parameters return a 'false positive' as the maxKnowsLimit is set too high.\n/*\n:params {\n  tagA: 'Meryl_Streep',\n  dateA: datetime('2012-09-16'),\n  tagB: 'Hank_Williams',\n  dateB: datetime('2012-05-08'),\n  maxKnowsLimit: 4\n}\n*/\nUNWIND [\n    {letter: 'A', tag: $tagA, date: $dateA},\n    {letter: 'B', tag: $tagB, date: $dateB}\n  ] AS param\nWITH param.letter AS paramLetter, param.tag AS paramTagX, param.date AS paramDateX\nCALL {\n  WITH paramTagX, paramDateX\n  MATCH (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:HAS_TAG]->(tag:Tag {name: paramTagX})\n  WHERE date(message1.creationDate) = date(paramDateX)\n  // filter out Persons with more than $maxKnowsLimit friends who created the same kind of Message\n  OPTIONAL MATCH (person1)-[:KNOWS]-(person2:Person)<-[:HAS_CREATOR]-(message2:Message)-[:HAS_TAG]->(tag)\n  WHERE date(message2.creationDate) = date(paramDateX)\n  WITH person1, count(DISTINCT message1) AS cm, count(DISTINCT person2) AS cp2\n  WHERE cp2 <= $maxKnowsLimit\n  // return count\n  RETURN person1, cm\n}\nWITH person1, collect({letter: paramLetter, messageCount: cm}) AS results\nWHERE size(results) = 2\nRETURN\n  person1.id,\n  [r IN results WHERE r.letter = 'A' | r.messageCount][0] AS messageCountA,\n  [r IN results WHERE r.letter = 'B' | r.messageCount][0] AS messageCountB\nORDER BY messageCountA + messageCountB DESC, person1.id ASC\nLIMIT 20\n",
+        "original": "// Q16. Fake news detection\n// These parameters return a 'false positive' as the maxKnowsLimit is set too high.\n/*\n:params {\n  tagA: 'Meryl_Streep',\n  dateA: datetime('2012-09-16'),\n  tagB: 'Hank_Williams',\n  dateB: datetime('2012-05-08'),\n  maxKnowsLimit: 4\n}\n*/\nUNWIND [\n    {letter: 'A', tag: $tagA, date: $dateA},\n    {letter: 'B', tag: $tagB, date: $dateB}\n  ] AS param\nWITH param.letter AS paramLetter, param.tag AS paramTagX, param.date AS paramDateX\nCALL {\n  WITH paramTagX, paramDateX\n  MATCH (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:HAS_TAG]->(tag:Tag {name: paramTagX})\n  WHERE date(message1.creationDate) = date(paramDateX)\n  // filter out Persons with more than $maxKnowsLimit friends who created the same kind of Message\n  OPTIONAL MATCH (person1)-[:KNOWS]-(person2:Person)<-[:HAS_CREATOR]-(message2:Message)-[:HAS_TAG]->(tag)\n  WHERE date(message2.creationDate) = date(paramDateX)\n  WITH person1, count(DISTINCT message1) AS cm, count(DISTINCT person2) AS cp2\n  WHERE cp2 <= $maxKnowsLimit\n  // return count\n  RETURN person1, cm\n}\nWITH person1, collect({letter: paramLetter, messageCount: cm}) AS results\nWHERE size(results) = 2\nRETURN\n  person1.id,\n  [r IN results WHERE r.letter = 'A' | r.messageCount][0] AS messageCountA,\n  [r IN results WHERE r.letter = 'B' | r.messageCount][0] AS messageCountB\nORDER BY messageCountA + messageCountB DESC, person1.id ASC\nLIMIT 20\n",
+        "rewritten": false,
+        "reason": "no_index_selected",
+        "detail": "CALL: map literal or map projection: NeuG has no map/struct literals",
+        "indexes": [],
+        "columns": [],
+        "index_id": "",
+        "entries": [],
+        "inferred_ddl": [],
+        "schema_changed": false,
+        "route": "",
+        "specialized": [],
+        "parts": []
+      },
+      "translation_error": "CALL subquery"
+    }
+  ],
+  "source_controls": [
+    {
+      "fills": [
+        "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+        "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window1MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window1MessageCount)",
+              "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_a4cbdf772b2599c0_6302299e64ab",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window1MessageCount",
+                "__neug_fill_state_n_rows_a4cbdf772b2599c0"
+              ],
+              "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window1MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window2MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window2MessageCount)",
+              "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_867eedde157fdf76_b7f8ba9e9c2a",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window2MessageCount",
+                "__neug_fill_state_n_rows_867eedde157fdf76"
+              ],
+              "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window2MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "TAG(bi2Window1MessageCount)",
+            "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_a4cbdf772b2599c0_6302299e64ab",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window1MessageCount",
+              "__neug_fill_state_n_rows_a4cbdf772b2599c0"
+            ],
+            "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)"
+          },
+          {
+            "candidate": "TAG(bi2Window2MessageCount)",
+            "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_867eedde157fdf76_b7f8ba9e9c2a",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window2MessageCount",
+              "__neug_fill_state_n_rows_867eedde157fdf76"
+            ],
+            "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "source_1": {
+          "query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "number": 2,
+      "keep_optional": true,
+      "fold_timestamp_days": false
+    },
+    {
+      "fills": [
+        "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m))",
+        "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window1MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window1MessageCount)",
+              "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_4bbd962c11daa00f_b92eae11215d",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window1MessageCount",
+                "__neug_fill_state_n_rows_4bbd962c11daa00f"
+              ],
+              "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window1MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window2MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window2MessageCount)",
+              "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_b93b7bc69465b1a6_0adb0788ebb3",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window2MessageCount",
+                "__neug_fill_state_n_rows_b93b7bc69465b1a6"
+              ],
+              "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window2MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "TAG(bi2Window1MessageCount)",
+            "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_4bbd962c11daa00f_b92eae11215d",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window1MessageCount",
+              "__neug_fill_state_n_rows_4bbd962c11daa00f"
+            ],
+            "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m)"
+          },
+          {
+            "candidate": "TAG(bi2Window2MessageCount)",
+            "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_b93b7bc69465b1a6_0adb0788ebb3",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window2MessageCount",
+              "__neug_fill_state_n_rows_b93b7bc69465b1a6"
+            ],
+            "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "source_1": {
+          "query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "number": 2,
+      "keep_optional": true,
+      "fold_timestamp_days": true
+    },
+    {
+      "fills": [
+        "FILL TAG(bi2Window1MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+        "FILL TAG(bi2Window2MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window1MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window1MessageCount)",
+              "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_c7f2cbdf32899b95_81165b4d46bb",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window1MessageCount",
+                "__neug_fill_state_n_rows_c7f2cbdf32899b95"
+              ],
+              "source_query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window1MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window2MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window2MessageCount)",
+              "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_7ace4c1a4d8d7f77_7a0ed1524071",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window2MessageCount",
+                "__neug_fill_state_n_rows_7ace4c1a4d8d7f77"
+              ],
+              "source_query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window2MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "TAG(bi2Window1MessageCount)",
+            "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_c7f2cbdf32899b95_81165b4d46bb",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window1MessageCount",
+              "__neug_fill_state_n_rows_c7f2cbdf32899b95"
+            ],
+            "source_query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)"
+          },
+          {
+            "candidate": "TAG(bi2Window2MessageCount)",
+            "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_7ace4c1a4d8d7f77_7a0ed1524071",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window2MessageCount",
+              "__neug_fill_state_n_rows_7ace4c1a4d8d7f77"
+            ],
+            "source_query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "source_1": {
+          "query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "number": 2,
+      "keep_optional": false,
+      "fold_timestamp_days": false
+    },
+    {
+      "fills": [
+        "FILL TAG(bi2Window1MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m))",
+        "FILL TAG(bi2Window2MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window1MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window1MessageCount)",
+              "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_ec1b743cff9b396d_4d4274e05c11",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window1MessageCount",
+                "__neug_fill_state_n_rows_ec1b743cff9b396d"
+              ],
+              "source_query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window1MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window2MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window2MessageCount)",
+              "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_5e0237ac4d7df53d_788a7dc0afe4",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window2MessageCount",
+                "__neug_fill_state_n_rows_5e0237ac4d7df53d"
+              ],
+              "source_query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window2MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "TAG(bi2Window1MessageCount)",
+            "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_ec1b743cff9b396d_4d4274e05c11",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window1MessageCount",
+              "__neug_fill_state_n_rows_ec1b743cff9b396d"
+            ],
+            "source_query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m)"
+          },
+          {
+            "candidate": "TAG(bi2Window2MessageCount)",
+            "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_5e0237ac4d7df53d_788a7dc0afe4",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window2MessageCount",
+              "__neug_fill_state_n_rows_5e0237ac4d7df53d"
+            ],
+            "source_query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [
+            "TAG(bi2Window1MessageCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_ec1b743cff9b396d_4d4274e05c11"
+          ]
+        },
+        "source_1": {
+          "query": "MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate<TIMESTAMP('2010-12-26 00:00:00') RETURN t.id, count(m)",
+          "baseline_bound": true,
+          "used": [
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_5e0237ac4d7df53d_788a7dc0afe4"
+          ]
+        }
+      },
+      "number": 2,
+      "keep_optional": false,
+      "fold_timestamp_days": true
+    },
+    {
+      "fills": [
+        "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "original": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi8MessageCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi8MessageCount)",
+              "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_62d875d5fe49a9c0_1f6cc3448bd3",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi8MessageCount",
+                "__neug_fill_state_n_rows_62d875d5fe49a9c0"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi8MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi8MessageCount)",
+            "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_62d875d5fe49a9c0_1f6cc3448bd3",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi8MessageCount",
+              "__neug_fill_state_n_rows_62d875d5fe49a9c0"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "number": 8,
+      "keep_optional": true,
+      "fold_timestamp_days": false
+    },
+    {
+      "fills": [
+        "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "original": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi8MessageCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi8MessageCount)",
+              "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_62d875d5fe49a9c0_1f6cc3448bd3",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi8MessageCount",
+                "__neug_fill_state_n_rows_62d875d5fe49a9c0"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi8MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi8MessageCount)",
+            "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_62d875d5fe49a9c0_1f6cc3448bd3",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi8MessageCount",
+              "__neug_fill_state_n_rows_62d875d5fe49a9c0"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "number": 8,
+      "keep_optional": true,
+      "fold_timestamp_days": true
+    },
+    {
+      "fills": [
+        "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "original": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi8MessageCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi8MessageCount)",
+              "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_9754a15210b2fadf_f12d7bd24309",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi8MessageCount",
+                "__neug_fill_state_n_rows_9754a15210b2fadf"
+              ],
+              "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi8MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi8MessageCount)",
+            "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_9754a15210b2fadf_f12d7bd24309",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi8MessageCount",
+              "__neug_fill_state_n_rows_9754a15210b2fadf"
+            ],
+            "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_9754a15210b2fadf_f12d7bd24309"
+          ]
+        }
+      },
+      "number": 8,
+      "keep_optional": false,
+      "fold_timestamp_days": false
+    },
+    {
+      "fills": [
+        "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "original": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi8MessageCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi8MessageCount)",
+              "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_9754a15210b2fadf_f12d7bd24309",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi8MessageCount",
+                "__neug_fill_state_n_rows_9754a15210b2fadf"
+              ],
+              "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi8MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi8MessageCount)",
+            "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_9754a15210b2fadf_f12d7bd24309",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi8MessageCount",
+              "__neug_fill_state_n_rows_9754a15210b2fadf"
+            ],
+            "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_9754a15210b2fadf_f12d7bd24309"
+          ]
+        }
+      },
+      "number": 8,
+      "keep_optional": false,
+      "fold_timestamp_days": true
+    },
+    {
+      "fills": [
+        "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+        "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountA)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountA)",
+              "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_f56a0986a1113c1a_1f1ac5abbf6d",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountA",
+                "__neug_fill_state_n_rows_f56a0986a1113c1a"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountA INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountB)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountB)",
+              "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3fc385e8873dd096_63cfbcc9e080",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountB",
+                "__neug_fill_state_n_rows_3fc385e8873dd096"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountB INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi16MessageCountA)",
+            "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_f56a0986a1113c1a_1f1ac5abbf6d",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountA",
+              "__neug_fill_state_n_rows_f56a0986a1113c1a"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          },
+          {
+            "candidate": "PERSON(bi16MessageCountB)",
+            "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3fc385e8873dd096_63cfbcc9e080",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountB",
+              "__neug_fill_state_n_rows_3fc385e8873dd096"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "source_1": {
+          "query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "number": 16,
+      "keep_optional": true,
+      "fold_timestamp_days": false
+    },
+    {
+      "fills": [
+        "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+        "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountA)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountA)",
+              "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_f56a0986a1113c1a_1f1ac5abbf6d",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountA",
+                "__neug_fill_state_n_rows_f56a0986a1113c1a"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountA INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountB)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountB)",
+              "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3fc385e8873dd096_63cfbcc9e080",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountB",
+                "__neug_fill_state_n_rows_3fc385e8873dd096"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountB INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi16MessageCountA)",
+            "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_f56a0986a1113c1a_1f1ac5abbf6d",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountA",
+              "__neug_fill_state_n_rows_f56a0986a1113c1a"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          },
+          {
+            "candidate": "PERSON(bi16MessageCountB)",
+            "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3fc385e8873dd096_63cfbcc9e080",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountB",
+              "__neug_fill_state_n_rows_3fc385e8873dd096"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "source_1": {
+          "query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "number": 16,
+      "keep_optional": true,
+      "fold_timestamp_days": true
+    },
+    {
+      "fills": [
+        "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+        "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountA)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountA)",
+              "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_bc5faa6ce78edff6_88763fea4e02",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountA",
+                "__neug_fill_state_n_rows_bc5faa6ce78edff6"
+              ],
+              "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountA INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountB)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountB)",
+              "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_7139af389d0a2dee_3379c583612c",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountB",
+                "__neug_fill_state_n_rows_7139af389d0a2dee"
+              ],
+              "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountB INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi16MessageCountA)",
+            "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_bc5faa6ce78edff6_88763fea4e02",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountA",
+              "__neug_fill_state_n_rows_bc5faa6ce78edff6"
+            ],
+            "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          },
+          {
+            "candidate": "PERSON(bi16MessageCountB)",
+            "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_7139af389d0a2dee_3379c583612c",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountB",
+              "__neug_fill_state_n_rows_7139af389d0a2dee"
+            ],
+            "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "source_1": {
+          "query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "number": 16,
+      "keep_optional": false,
+      "fold_timestamp_days": false
+    },
+    {
+      "fills": [
+        "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+        "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountA)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountA)",
+              "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_bc5faa6ce78edff6_88763fea4e02",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountA",
+                "__neug_fill_state_n_rows_bc5faa6ce78edff6"
+              ],
+              "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountA INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountB)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountB)",
+              "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_7139af389d0a2dee_3379c583612c",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountB",
+                "__neug_fill_state_n_rows_7139af389d0a2dee"
+              ],
+              "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountB INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi16MessageCountA)",
+            "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_bc5faa6ce78edff6_88763fea4e02",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountA",
+              "__neug_fill_state_n_rows_bc5faa6ce78edff6"
+            ],
+            "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          },
+          {
+            "candidate": "PERSON(bi16MessageCountB)",
+            "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_7139af389d0a2dee_3379c583612c",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountB",
+              "__neug_fill_state_n_rows_7139af389d0a2dee"
+            ],
+            "source_query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "source_0": {
+          "query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "source_1": {
+          "query": "MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "number": 16,
+      "keep_optional": false,
+      "fold_timestamp_days": true
+    }
+  ],
+  "scalar_controls": [
+    {
+      "fills": [
+        "FILL TAG(probeCount) FROM (MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(probeCount) FROM (MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m))",
+          "original": "FILL TAG(probeCount) FROM (MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(probeCount)",
+          "entries": [
+            {
+              "candidate": "TAG(probeCount)",
+              "name": "fill_TAG_probeCount___neug_fill_state_n_rows_5941b75c1495b1d1_72f5e4b47cb6",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_5941b75c1495b1d1"
+              ],
+              "source_query": "MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "TAG(probeCount)",
+            "name": "fill_TAG_probeCount___neug_fill_state_n_rows_5941b75c1495b1d1_72f5e4b47cb6",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_5941b75c1495b1d1"
+            ],
+            "source_query": "MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m)",
+          "baseline_bound": true,
+          "used": [
+            "TAG(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_TAG_probeCount___neug_fill_state_n_rows_5941b75c1495b1d1_72f5e4b47cb6"
+          ]
+        }
+      },
+      "optional": false,
+      "predicate": "none"
+    },
+    {
+      "fills": [
+        "FILL TAG(probeCount) FROM (MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(probeCount) FROM (MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m))",
+          "original": "FILL TAG(probeCount) FROM (MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(probeCount)",
+          "entries": [
+            {
+              "candidate": "TAG(probeCount)",
+              "name": "fill_TAG_probeCount___neug_fill_state_n_rows_f455f744ee749900_cf0a0bc546b0",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_f455f744ee749900"
+              ],
+              "source_query": "MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "TAG(probeCount)",
+            "name": "fill_TAG_probeCount___neug_fill_state_n_rows_f455f744ee749900_cf0a0bc546b0",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_f455f744ee749900"
+            ],
+            "source_query": "MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)",
+          "baseline_bound": true,
+          "used": [
+            "TAG(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_TAG_probeCount___neug_fill_state_n_rows_f455f744ee749900_cf0a0bc546b0"
+          ]
+        }
+      },
+      "optional": false,
+      "predicate": "timestamp_range"
+    },
+    {
+      "fills": [
+        "FILL TAG(probeCount) FROM (MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(probeCount) FROM (MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m))",
+          "original": "FILL TAG(probeCount) FROM (MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(probeCount)",
+          "entries": [
+            {
+              "candidate": "TAG(probeCount)",
+              "name": "fill_TAG_probeCount___neug_fill_state_n_rows_953f42e4fb9c1376_a05480ef8cd9",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_953f42e4fb9c1376"
+              ],
+              "source_query": "MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "TAG(probeCount)",
+            "name": "fill_TAG_probeCount___neug_fill_state_n_rows_953f42e4fb9c1376_a05480ef8cd9",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_953f42e4fb9c1376"
+            ],
+            "source_query": "MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(t:TAG) MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "optional": false,
+      "predicate": "timestamp_add"
+    },
+    {
+      "fills": [
+        "FILL TAG(probeCount) FROM (MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(probeCount) FROM (MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m))",
+          "original": "FILL TAG(probeCount) FROM (MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(probeCount)",
+          "entries": [
+            {
+              "candidate": "TAG(probeCount)",
+              "name": "fill_TAG_probeCount___neug_fill_state_n_rows_f8feb0fbb77b8569_1dc3b2f1dce4",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_f8feb0fbb77b8569"
+              ],
+              "source_query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "TAG(probeCount)",
+            "name": "fill_TAG_probeCount___neug_fill_state_n_rows_f8feb0fbb77b8569_1dc3b2f1dce4",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_f8feb0fbb77b8569"
+            ],
+            "source_query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) RETURN t.id,count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "optional": true,
+      "predicate": "none"
+    },
+    {
+      "fills": [
+        "FILL TAG(probeCount) FROM (MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(probeCount) FROM (MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m))",
+          "original": "FILL TAG(probeCount) FROM (MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(probeCount)",
+          "entries": [
+            {
+              "candidate": "TAG(probeCount)",
+              "name": "fill_TAG_probeCount___neug_fill_state_n_rows_1c9e5de979bf28ea_2d7033949b2a",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_1c9e5de979bf28ea"
+              ],
+              "source_query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "TAG(probeCount)",
+            "name": "fill_TAG_probeCount___neug_fill_state_n_rows_1c9e5de979bf28ea_2d7033949b2a",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_1c9e5de979bf28ea"
+            ],
+            "source_query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "optional": true,
+      "predicate": "timestamp_range"
+    },
+    {
+      "fills": [
+        "FILL TAG(probeCount) FROM (MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m))"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(probeCount) FROM (MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m))",
+          "original": "FILL TAG(probeCount) FROM (MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(probeCount)",
+          "entries": [
+            {
+              "candidate": "TAG(probeCount)",
+              "name": "fill_TAG_probeCount___neug_fill_state_n_rows_e12d2ecce2e97768_abb62d3b1b48",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_e12d2ecce2e97768"
+              ],
+              "source_query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "TAG(probeCount)",
+            "name": "fill_TAG_probeCount___neug_fill_state_n_rows_e12d2ecce2e97768_abb62d3b1b48",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_e12d2ecce2e97768"
+            ],
+            "source_query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST:COMMENT)-[:HASTAG]->(t) WHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id,count(m)",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "optional": true,
+      "predicate": "timestamp_add"
+    }
+  ],
+  "group_controls": [
+    {
+      "fills": [
+        "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(m) AS cm)"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(m) AS cm)",
+          "original": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(m) AS cm)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(probeCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(probeCount)",
+              "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_a4930f780b43f87a_545bb535e54e",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_a4930f780b43f87a"
+              ],
+              "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(m) AS cm"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(probeCount)",
+            "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_a4930f780b43f87a_545bb535e54e",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_a4930f780b43f87a"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(m) AS cm"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(m) AS cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_a4930f780b43f87a_545bb535e54e"
+          ]
+        },
+        "with_only": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WITH p,count(m) AS cm RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_a4930f780b43f87a_545bb535e54e"
+          ]
+        },
+        "having": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WITH p,count(m) AS cm WHERE cm>0 RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_a4930f780b43f87a_545bb535e54e"
+          ]
+        },
+        "optional": {
+          "query": "MATCH(p:PERSON) OPTIONAL MATCH(p)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(m) AS cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_a4930f780b43f87a_545bb535e54e"
+          ]
+        }
+      },
+      "distinct": false,
+      "predicate": "none"
+    },
+    {
+      "fills": [
+        "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(m) AS cm)"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(m) AS cm)",
+          "original": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(m) AS cm)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(probeCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(probeCount)",
+              "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_6c4718f2c83a20cf_28e390e235d0",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_6c4718f2c83a20cf"
+              ],
+              "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(m) AS cm"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(probeCount)",
+            "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_6c4718f2c83a20cf_28e390e235d0",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_6c4718f2c83a20cf"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(m) AS cm"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(m) AS cm",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "with_only": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) WITH p,count(m) AS cm RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "having": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) WITH p,count(m) AS cm WHERE cm>0 RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "optional": {
+          "query": "MATCH(p:PERSON) OPTIONAL MATCH(p)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(m) AS cm",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "distinct": false,
+      "predicate": "date"
+    },
+    {
+      "fills": [
+        "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(m) AS cm)"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(m) AS cm)",
+          "original": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(m) AS cm)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(probeCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(probeCount)",
+              "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_414204fba02fc89_669488a1730d",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_414204fba02fc89"
+              ],
+              "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(m) AS cm"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(probeCount)",
+            "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_414204fba02fc89_669488a1730d",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_414204fba02fc89"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(m) AS cm"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(m) AS cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_414204fba02fc89_669488a1730d"
+          ]
+        },
+        "with_only": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') WITH p,count(m) AS cm RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_414204fba02fc89_669488a1730d"
+          ]
+        },
+        "having": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') WITH p,count(m) AS cm WHERE cm>0 RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_414204fba02fc89_669488a1730d"
+          ]
+        },
+        "optional": {
+          "query": "MATCH(p:PERSON) OPTIONAL MATCH(p)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(m) AS cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_414204fba02fc89_669488a1730d"
+          ]
+        }
+      },
+      "distinct": false,
+      "predicate": "tag_range"
+    },
+    {
+      "fills": [
+        "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(DISTINCT m) AS cm)"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(DISTINCT m) AS cm)",
+          "original": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(DISTINCT m) AS cm)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(probeCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(probeCount)",
+              "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_f27e247445efb680_194729deb1f4",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_f27e247445efb680"
+              ],
+              "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(DISTINCT m) AS cm"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(probeCount)",
+            "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_f27e247445efb680_194729deb1f4",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_f27e247445efb680"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(DISTINCT m) AS cm"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(DISTINCT m) AS cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_f27e247445efb680_194729deb1f4"
+          ]
+        },
+        "with_only": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WITH p,count(DISTINCT m) AS cm RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_f27e247445efb680_194729deb1f4"
+          ]
+        },
+        "having": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WITH p,count(DISTINCT m) AS cm WHERE cm>0 RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_f27e247445efb680_194729deb1f4"
+          ]
+        },
+        "optional": {
+          "query": "MATCH(p:PERSON) OPTIONAL MATCH(p)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) RETURN p.id,count(DISTINCT m) AS cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_f27e247445efb680_194729deb1f4"
+          ]
+        }
+      },
+      "distinct": true,
+      "predicate": "none"
+    },
+    {
+      "fills": [
+        "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(DISTINCT m) AS cm)"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(DISTINCT m) AS cm)",
+          "original": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(DISTINCT m) AS cm)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(probeCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(probeCount)",
+              "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_86609b1af8f4a31a_a602d287d8bd",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_86609b1af8f4a31a"
+              ],
+              "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(DISTINCT m) AS cm"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(probeCount)",
+            "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_86609b1af8f4a31a_a602d287d8bd",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_86609b1af8f4a31a"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(DISTINCT m) AS cm"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(DISTINCT m) AS cm",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "with_only": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) WITH p,count(DISTINCT m) AS cm RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "having": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) WITH p,count(DISTINCT m) AS cm WHERE cm>0 RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [],
+          "changed": false,
+          "cost_compared": false,
+          "index_entries": []
+        },
+        "optional": {
+          "query": "MATCH(p:PERSON) OPTIONAL MATCH(p)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(DISTINCT m) AS cm",
+          "baseline_bound": true,
+          "used": [],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": []
+        }
+      },
+      "distinct": true,
+      "predicate": "date"
+    },
+    {
+      "fills": [
+        "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m) AS cm)"
+      ],
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m) AS cm)",
+          "original": "FILL PERSON(probeCount) FROM (MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m) AS cm)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(probeCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(probeCount)",
+              "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_2f5387605d052ded_089d07d28b38",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "probeCount",
+                "__neug_fill_state_n_rows_2f5387605d052ded"
+              ],
+              "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m) AS cm"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD probeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(probeCount)",
+            "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_2f5387605d052ded_089d07d28b38",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_2f5387605d052ded"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m) AS cm"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probes": {
+        "exact": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m) AS cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_2f5387605d052ded_089d07d28b38"
+          ]
+        },
+        "with_only": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') WITH p,count(DISTINCT m) AS cm RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_2f5387605d052ded_089d07d28b38"
+          ]
+        },
+        "having": {
+          "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') WITH p,count(DISTINCT m) AS cm WHERE cm>0 RETURN p.id,cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_2f5387605d052ded_089d07d28b38"
+          ]
+        },
+        "optional": {
+          "query": "MATCH(p:PERSON) OPTIONAL MATCH(p)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate>=TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate<TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m) AS cm",
+          "baseline_bound": true,
+          "used": [
+            "PERSON(probeCount)"
+          ],
+          "changed": true,
+          "cost_compared": false,
+          "index_entries": [
+            "fill_PERSON_probeCount___neug_fill_state_n_rows_2f5387605d052ded_089d07d28b38"
+          ]
+        }
+      },
+      "distinct": true,
+      "predicate": "tag_range"
+    }
+  ],
+  "docs_controls": [
+    {
+      "number": 2,
+      "variant": "converted_index",
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window1MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window1MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window1MessageCount)",
+              "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_a4cbdf772b2599c0_6302299e64ab",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window1MessageCount",
+                "__neug_fill_state_n_rows_a4cbdf772b2599c0"
+              ],
+              "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window1MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))",
+          "original": "FILL TAG(bi2Window2MessageCount) FROM (MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window2MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window2MessageCount)",
+              "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_867eedde157fdf76_b7f8ba9e9c2a",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window2MessageCount",
+                "__neug_fill_state_n_rows_867eedde157fdf76"
+              ],
+              "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window2MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 9,
+        "indexes": [
+          {
+            "candidate": "TAG(bi2Window1MessageCount)",
+            "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_a4cbdf772b2599c0_6302299e64ab",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window1MessageCount",
+              "__neug_fill_state_n_rows_a4cbdf772b2599c0"
+            ],
+            "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)"
+          },
+          {
+            "candidate": "TAG(bi2Window2MessageCount)",
+            "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_867eedde157fdf76_b7f8ba9e9c2a",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window2MessageCount",
+              "__neug_fill_state_n_rows_867eedde157fdf76"
+            ],
+            "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probe": {
+        "query": "// NeuG form of the Neo4j BI query; contains no materialized-property reads.\n// Render parameters with NeuG/scripts/benchmark/render_bi_node_indexes.py.\nMATCH (tag:TAG)-[:HASTYPE]->(:TAGCLASS {name:'Single'}) OPTIONAL MATCH (m:POST:COMMENT)-[:HASTAG]->(tag) WHERE m.creationDate >= TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate < TIMESTAMP('2010-09-17 00:00:00') WITH tag,count(m) AS w1 OPTIONAL MATCH (n:POST:COMMENT)-[:HASTAG]->(tag) WHERE n.creationDate >= TIMESTAMP('2010-09-17 00:00:00') AND n.creationDate < TIMESTAMP('2010-12-26 00:00:00') WITH tag,w1,count(n) AS w2 RETURN tag.name,w1,w2,CASE WHEN w1 >= w2 THEN w1-w2 ELSE w2-w1 END AS diff ORDER BY diff DESC,tag.name LIMIT 100;",
+        "baseline_bound": true,
+        "used": [],
+        "changed": true,
+        "cost_compared": false,
+        "index_entries": []
+      }
+    },
+    {
+      "number": 2,
+      "variant": "docs_neug_index",
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window1MessageCount) FROM (\n  MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate < TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)\n)",
+          "original": "FILL TAG(bi2Window1MessageCount) FROM (\n  MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate < TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)\n)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window1MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window1MessageCount)",
+              "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_7fa529aabcc6b5c0_d984de64f52c",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window1MessageCount",
+                "__neug_fill_state_n_rows_7fa529aabcc6b5c0"
+              ],
+              "source_query": "MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate < TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window1MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL TAG(bi2Window2MessageCount) FROM (\n  MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate < TIMESTAMP('2010-12-26 00:00:00') RETURN t.id,count(m)\n)",
+          "original": "FILL TAG(bi2Window2MessageCount) FROM (\n  MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate < TIMESTAMP('2010-12-26 00:00:00') RETURN t.id,count(m)\n)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "TAG(bi2Window2MessageCount)",
+          "entries": [
+            {
+              "candidate": "TAG(bi2Window2MessageCount)",
+              "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_7d511506acbac439_d2f2ce616382",
+              "target_table": "TAG",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi2Window2MessageCount",
+                "__neug_fill_state_n_rows_7d511506acbac439"
+              ],
+              "source_query": "MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate < TIMESTAMP('2010-12-26 00:00:00') RETURN t.id,count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE TAG ADD bi2Window2MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "TAG(bi2Window1MessageCount)",
+            "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_7fa529aabcc6b5c0_d984de64f52c",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window1MessageCount",
+              "__neug_fill_state_n_rows_7fa529aabcc6b5c0"
+            ],
+            "source_query": "MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate < TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)"
+          },
+          {
+            "candidate": "TAG(bi2Window2MessageCount)",
+            "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_7d511506acbac439_d2f2ce616382",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window2MessageCount",
+              "__neug_fill_state_n_rows_7d511506acbac439"
+            ],
+            "source_query": "MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate < TIMESTAMP('2010-12-26 00:00:00') RETURN t.id,count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probe": {
+        "query": "// NeuG form of the Neo4j BI query; contains no materialized-property reads.\n// Render parameters with NeuG/scripts/benchmark/render_bi_node_indexes.py.\nMATCH (tag:TAG)-[:HASTYPE]->(:TAGCLASS {name:'Single'}) OPTIONAL MATCH (m:POST:COMMENT)-[:HASTAG]->(tag) WHERE m.creationDate >= TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate < TIMESTAMP('2010-09-17 00:00:00') WITH tag,count(m) AS w1 OPTIONAL MATCH (n:POST:COMMENT)-[:HASTAG]->(tag) WHERE n.creationDate >= TIMESTAMP('2010-09-17 00:00:00') AND n.creationDate < TIMESTAMP('2010-12-26 00:00:00') WITH tag,w1,count(n) AS w2 RETURN tag.name,w1,w2,CASE WHEN w1 >= w2 THEN w1-w2 ELSE w2-w1 END AS diff ORDER BY diff DESC,tag.name LIMIT 100;",
+        "baseline_bound": true,
+        "used": [
+          "TAG(bi2Window1MessageCount)",
+          "TAG(bi2Window2MessageCount)"
+        ],
+        "changed": true,
+        "cost_compared": false,
+        "index_entries": [
+          "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_7fa529aabcc6b5c0_d984de64f52c",
+          "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_7d511506acbac439_d2f2ce616382"
+        ]
+      }
+    },
+    {
+      "number": 8,
+      "variant": "converted_index",
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "original": "FILL PERSON(bi8MessageCount) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi8MessageCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi8MessageCount)",
+              "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_62d875d5fe49a9c0_1f6cc3448bd3",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi8MessageCount",
+                "__neug_fill_state_n_rows_62d875d5fe49a9c0"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi8MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 6,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi8MessageCount)",
+            "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_62d875d5fe49a9c0_1f6cc3448bd3",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi8MessageCount",
+              "__neug_fill_state_n_rows_62d875d5fe49a9c0"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probe": {
+        "query": "// NeuG form of the Neo4j BI query; contains no materialized-property reads.\n// Render parameters with NeuG/scripts/benchmark/render_bi_node_indexes.py.\n// Uses the LDBC invariant that TAG.name uniquely identifies a tag.\nMATCH(p:PERSON)\n OPTIONAL MATCH(p)-[i:HASINTEREST]->(it:TAG) WHERE it.name='Che_Guevara'\n WITH p,count(i) AS ic\n OPTIONAL MATCH(p)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)\n WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00')\n WITH p,ic,count(m) AS mc\n WITH p,100*ic+mc AS score WHERE score>0\n OPTIONAL MATCH(p)-[k:KNOWS]-(friend:PERSON)\n WITH p,score,friend,count(k) AS multiplicity\n OPTIONAL MATCH(friend)-[fi:HASINTEREST]->(ft:TAG) WHERE ft.name='Che_Guevara'\n WITH p,score,friend,multiplicity,count(fi) AS fic\n OPTIONAL MATCH(friend)<-[:HASCREATOR]-(fm:POST:COMMENT)-[:HASTAG]->(fmt:TAG)\n WHERE fmt.name='Che_Guevara' AND fm.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND fm.creationDate < TIMESTAMP('2010-06-22 00:00:00')\n WITH p,score,friend,multiplicity,fic,count(fm) AS fmc\n WITH p,score,friend,multiplicity,100*fic+fmc AS friendScore\n RETURN p.id,score,sum(multiplicity*friendScore) AS friendsScore\n ORDER BY score+friendsScore DESC,p.id ASC LIMIT 100;",
+        "baseline_bound": true,
+        "used": [],
+        "changed": true,
+        "cost_compared": false,
+        "index_entries": []
+      }
+    },
+    {
+      "number": 8,
+      "variant": "docs_neug_index",
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi8MessageCount) FROM (\n  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)\n  WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00') \n  RETURN p.id,count(m)\n)",
+          "original": "FILL PERSON(bi8MessageCount) FROM (\n  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)\n  WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00') \n  RETURN p.id,count(m)\n)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi8MessageCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi8MessageCount)",
+              "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_55d39805c9a3c413_9d27fabb4039",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi8MessageCount",
+                "__neug_fill_state_n_rows_55d39805c9a3c413"
+              ],
+              "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)\n  WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00') \n  RETURN p.id,count(m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi8MessageCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi8MessageCount)",
+            "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_55d39805c9a3c413_9d27fabb4039",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi8MessageCount",
+              "__neug_fill_state_n_rows_55d39805c9a3c413"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)\n  WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00') \n  RETURN p.id,count(m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probe": {
+        "query": "// NeuG form of the Neo4j BI query; contains no materialized-property reads.\n// Render parameters with NeuG/scripts/benchmark/render_bi_node_indexes.py.\n// Uses the LDBC invariant that TAG.name uniquely identifies a tag.\nMATCH(p:PERSON)\n OPTIONAL MATCH(p)-[i:HASINTEREST]->(it:TAG) WHERE it.name='Che_Guevara'\n WITH p,count(i) AS ic\n OPTIONAL MATCH(p)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)\n WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00')\n WITH p,ic,count(m) AS mc\n WITH p,100*ic+mc AS score WHERE score>0\n OPTIONAL MATCH(p)-[k:KNOWS]-(friend:PERSON)\n WITH p,score,friend,count(k) AS multiplicity\n OPTIONAL MATCH(friend)-[fi:HASINTEREST]->(ft:TAG) WHERE ft.name='Che_Guevara'\n WITH p,score,friend,multiplicity,count(fi) AS fic\n OPTIONAL MATCH(friend)<-[:HASCREATOR]-(fm:POST:COMMENT)-[:HASTAG]->(fmt:TAG)\n WHERE fmt.name='Che_Guevara' AND fm.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND fm.creationDate < TIMESTAMP('2010-06-22 00:00:00')\n WITH p,score,friend,multiplicity,fic,count(fm) AS fmc\n WITH p,score,friend,multiplicity,100*fic+fmc AS friendScore\n RETURN p.id,score,sum(multiplicity*friendScore) AS friendsScore\n ORDER BY score+friendsScore DESC,p.id ASC LIMIT 100;",
+        "baseline_bound": true,
+        "used": [
+          "PERSON(bi8MessageCount)"
+        ],
+        "changed": true,
+        "cost_compared": false,
+        "index_entries": [
+          "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_55d39805c9a3c413_9d27fabb4039",
+          "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_55d39805c9a3c413_9d27fabb4039"
+        ]
+      }
+    },
+    {
+      "number": 16,
+      "variant": "converted_index",
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountA) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountA)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountA)",
+              "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_f56a0986a1113c1a_1f1ac5abbf6d",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountA",
+                "__neug_fill_state_n_rows_f56a0986a1113c1a"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountA INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "original": "FILL PERSON(bi16MessageCountB) FROM (MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m))",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountB)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountB)",
+              "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3fc385e8873dd096_63cfbcc9e080",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountB",
+                "__neug_fill_state_n_rows_3fc385e8873dd096"
+              ],
+              "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountB INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 9,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi16MessageCountA)",
+            "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_f56a0986a1113c1a_1f1ac5abbf6d",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountA",
+              "__neug_fill_state_n_rows_f56a0986a1113c1a"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          },
+          {
+            "candidate": "PERSON(bi16MessageCountB)",
+            "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3fc385e8873dd096_63cfbcc9e080",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountB",
+              "__neug_fill_state_n_rows_3fc385e8873dd096"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probe": {
+        "query": "// NeuG form of the Neo4j BI query; contains no materialized-property reads.\n// Render parameters with NeuG/scripts/benchmark/render_bi_node_indexes.py.\n// Uses the LDBC invariant that TAG.name uniquely identifies a tag.\nMATCH(p:PERSON)\n OPTIONAL MATCH(p)<-[:HASCREATOR]-(ma:POST:COMMENT)-[:HASTAG]->(ta:TAG)\n WHERE ta.name='Marc_Gicquel' AND ma.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND ma.creationDate < TIMESTAMP('2012-07-27 00:00:00')\n WITH p,count(DISTINCT ma) AS cmA WHERE cmA>0\n OPTIONAL MATCH(p)-[:KNOWS]-(fa:PERSON)<-[:HASCREATOR]-(fma:POST:COMMENT)-[:HASTAG]->(fta:TAG)\n WHERE fta.name='Marc_Gicquel' AND fma.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND fma.creationDate < TIMESTAMP('2012-07-27 00:00:00')\n WITH p,cmA,count(DISTINCT fa) AS cpA WHERE cpA <= 4\n OPTIONAL MATCH(p)<-[:HASCREATOR]-(mb:POST:COMMENT)-[:HASTAG]->(tb:TAG)\n WHERE tb.name='Romania' AND mb.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND mb.creationDate < TIMESTAMP('2012-05-09 00:00:00')\n WITH p,cmA,count(DISTINCT mb) AS cmB WHERE cmB>0\n OPTIONAL MATCH(p)-[:KNOWS]-(fb:PERSON)<-[:HASCREATOR]-(fmb:POST:COMMENT)-[:HASTAG]->(ftb:TAG)\n WHERE ftb.name='Romania' AND fmb.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND fmb.creationDate < TIMESTAMP('2012-05-09 00:00:00')\n WITH p,cmA,cmB,count(DISTINCT fb) AS cpB WHERE cpB <= 4\n RETURN p.id,cmA,cmB ORDER BY cmA+cmB DESC,p.id ASC LIMIT 20;",
+        "baseline_bound": true,
+        "used": [],
+        "changed": true,
+        "cost_compared": false,
+        "index_entries": []
+      }
+    },
+    {
+      "number": 16,
+      "variant": "docs_neug_index",
+      "registration": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountA) FROM (\n  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate < TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m)\n)",
+          "original": "FILL PERSON(bi16MessageCountA) FROM (\n  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate < TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m)\n)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountA)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountA)",
+              "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_160faae6ea5b8a5b_f214e5bc5664",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountA",
+                "__neug_fill_state_n_rows_160faae6ea5b8a5b"
+              ],
+              "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate < TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountA INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(bi16MessageCountB) FROM (\n  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Romania' AND m.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND m.creationDate < TIMESTAMP('2012-05-09 00:00:00') RETURN p.id,count(DISTINCT m)\n)",
+          "original": "FILL PERSON(bi16MessageCountB) FROM (\n  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Romania' AND m.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND m.creationDate < TIMESTAMP('2012-05-09 00:00:00') RETURN p.id,count(DISTINCT m)\n)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(bi16MessageCountB)",
+          "entries": [
+            {
+              "candidate": "PERSON(bi16MessageCountB)",
+              "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3ea9ae5139762919_900a594bc3be",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "bi16MessageCountB",
+                "__neug_fill_state_n_rows_3ea9ae5139762919"
+              ],
+              "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Romania' AND m.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND m.creationDate < TIMESTAMP('2012-05-09 00:00:00') RETURN p.id,count(DISTINCT m)"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD bi16MessageCountB INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi16MessageCountA)",
+            "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_160faae6ea5b8a5b_f214e5bc5664",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountA",
+              "__neug_fill_state_n_rows_160faae6ea5b8a5b"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate < TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m)"
+          },
+          {
+            "candidate": "PERSON(bi16MessageCountB)",
+            "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3ea9ae5139762919_900a594bc3be",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountB",
+              "__neug_fill_state_n_rows_3ea9ae5139762919"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Romania' AND m.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND m.creationDate < TIMESTAMP('2012-05-09 00:00:00') RETURN p.id,count(DISTINCT m)"
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "probe": {
+        "query": "// NeuG form of the Neo4j BI query; contains no materialized-property reads.\n// Render parameters with NeuG/scripts/benchmark/render_bi_node_indexes.py.\n// Uses the LDBC invariant that TAG.name uniquely identifies a tag.\nMATCH(p:PERSON)\n OPTIONAL MATCH(p)<-[:HASCREATOR]-(ma:POST:COMMENT)-[:HASTAG]->(ta:TAG)\n WHERE ta.name='Marc_Gicquel' AND ma.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND ma.creationDate < TIMESTAMP('2012-07-27 00:00:00')\n WITH p,count(DISTINCT ma) AS cmA WHERE cmA>0\n OPTIONAL MATCH(p)-[:KNOWS]-(fa:PERSON)<-[:HASCREATOR]-(fma:POST:COMMENT)-[:HASTAG]->(fta:TAG)\n WHERE fta.name='Marc_Gicquel' AND fma.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND fma.creationDate < TIMESTAMP('2012-07-27 00:00:00')\n WITH p,cmA,count(DISTINCT fa) AS cpA WHERE cpA <= 4\n OPTIONAL MATCH(p)<-[:HASCREATOR]-(mb:POST:COMMENT)-[:HASTAG]->(tb:TAG)\n WHERE tb.name='Romania' AND mb.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND mb.creationDate < TIMESTAMP('2012-05-09 00:00:00')\n WITH p,cmA,count(DISTINCT mb) AS cmB WHERE cmB>0\n OPTIONAL MATCH(p)-[:KNOWS]-(fb:PERSON)<-[:HASCREATOR]-(fmb:POST:COMMENT)-[:HASTAG]->(ftb:TAG)\n WHERE ftb.name='Romania' AND fmb.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND fmb.creationDate < TIMESTAMP('2012-05-09 00:00:00')\n WITH p,cmA,cmB,count(DISTINCT fb) AS cpB WHERE cpB <= 4\n RETURN p.id,cmA,cmB ORDER BY cmA+cmB DESC,p.id ASC LIMIT 20;",
+        "baseline_bound": true,
+        "used": [
+          "PERSON(bi16MessageCountA)",
+          "PERSON(bi16MessageCountB)"
+        ],
+        "changed": true,
+        "cost_compared": false,
+        "index_entries": [
+          "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_160faae6ea5b8a5b_f214e5bc5664",
+          "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3ea9ae5139762919_900a594bc3be"
+        ]
+      }
+    }
+  ],
+  "engine": {
+    "path": "/mnt/sdb1/feiyang/neo4j/middleware/engine/build/incgq_rewrite_engine",
+    "sha256": "0b393cbe667ebd84d51380c79dc2cdf2f4d5c7ecde7ffa6007528dfdd4dbf1a6"
+  },
+  "library": {
+    "path": "/mnt/sdb1/feiyang/IncGQ/build/src/libneug.so",
+    "sha256": "ed711473113487644d201f446bbdb90b1662e7805faa0757ad9f34dd021accd4"
+  }
+}

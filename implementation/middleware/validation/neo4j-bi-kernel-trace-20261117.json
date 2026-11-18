@@ -1,0 +1,475 @@
+{
+  "engine": {
+    "path": "/tmp/cico-bi-rootcause/inspect-build/incgq_rewrite_engine_patched",
+    "sha256": "a5a14f860485dcaf7d77be48a82805fe6129d9d8d323978c41b76801d903b92b"
+  },
+  "base_rewriter": {
+    "path": "/mnt/sdb1/feiyang/neo4j/middleware/engine/build/patched/rewriter_v4.cpp",
+    "sha256": "8fccee8bef9d31819c40c5eb9202723ad9bfecd2939fefb2e0d3b08e6bfbbc7d"
+  },
+  "instrumentation_patch": {
+    "path": "/mnt/sdb1/feiyang/neo4j/implementation/middleware/patches/neo4j-bi-diagnostic-engine.patch",
+    "sha256": "3eaaaa135951d9fe2440623b4d06cec2f349fa823dfd7b3d62bcd6426356717a"
+  },
+  "traces": [
+    {
+      "label": "optional",
+      "source": "MATCH(t:TAG) OPTIONAL MATCH(m:POST)-[:HASTAG]->(t) RETURN t.id,count(m)",
+      "query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST)-[:HASTAG]->(t) RETURN t.id,count(m)",
+      "registered": true,
+      "indexes": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "TAG(probeCount)",
+            "name": "fill_TAG_probeCount___neug_fill_state_n_rows_ec2a1ed8860f3115_63d40448d1fc",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_ec2a1ed8860f3115"
+            ],
+            "source_query": "MATCH(t:TAG) OPTIONAL MATCH(m:POST)-[:HASTAG]->(t) RETURN t.id,count(m)",
+            "diagnostics": [
+              "node=t:_0_t",
+              "node=m:_2_m",
+              "aggregate=COUNT:count({})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "used": [],
+      "trace": "CICO_PART clauses=2\nCICO_CLAUSE type=10\nCICO_CANDIDATE fill_TAG_probeCount___neug_fill_state_n_rows_ec2a1ed8860f3115_63d40448d1fc local=1/0 index=2/1\nCICO_SHAPE 0 missingRels=1\nCICO_QUERY_IR t:6, \nCICO_FILL_IR t:6, m:5, edge:0/0:14,15,16, \nCICO_CLAUSE type=10\nCICO_CANDIDATE fill_TAG_probeCount___neug_fill_state_n_rows_ec2a1ed8860f3115_63d40448d1fc local=2/1 index=2/1\nCICO_SHAPE 0 missingRels=1\nCICO_QUERY_IR m:5, t:6, edge:0/0:15, \nCICO_FILL_IR t:6, m:5, edge:0/0:14,15,16, \nCICO_PART clauses=2\nCICO_CLAUSE type=10\nCICO_CANDIDATE fill_TAG_probeCount___neug_fill_state_n_rows_ec2a1ed8860f3115_63d40448d1fc local=1/0 index=2/1\nCICO_SHAPE 0 missingRels=1\nCICO_QUERY_IR t:6, \nCICO_FILL_IR t:6, m:5, edge:0/0:14,15,16, \nCICO_CLAUSE type=10\nCICO_CANDIDATE fill_TAG_probeCount___neug_fill_state_n_rows_ec2a1ed8860f3115_63d40448d1fc local=2/1 index=2/1\nCICO_SHAPE 0 missingRels=1\nCICO_QUERY_IR m:5, t:6, edge:0/0:15, \nCICO_FILL_IR t:6, m:5, edge:0/0:14,15,16, \n"
+    },
+    {
+      "label": "mandatory",
+      "source": "MATCH(t:TAG) MATCH(m:POST)-[:HASTAG]->(t) RETURN t.id,count(m)",
+      "query": "MATCH(t:TAG) MATCH(m:POST)-[:HASTAG]->(t) RETURN t.id,count(m)",
+      "registered": true,
+      "indexes": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "TAG(probeCount)",
+            "name": "fill_TAG_probeCount___neug_fill_state_n_rows_b606150cb1ee2b96_4a5a711a7c64",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_b606150cb1ee2b96"
+            ],
+            "source_query": "MATCH(t:TAG) MATCH(m:POST)-[:HASTAG]->(t) RETURN t.id,count(m)",
+            "diagnostics": [
+              "node=m:_2_m",
+              "node=t:_0_t",
+              "aggregate=COUNT:count({})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=0",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "used": [
+        "TAG(probeCount)"
+      ],
+      "trace": "CICO_PART clauses=1\nCICO_CLAUSE type=10\nCICO_CANDIDATE fill_TAG_probeCount___neug_fill_state_n_rows_b606150cb1ee2b96_4a5a711a7c64 local=2/1 index=2/1\nCICO_SHAPE 1 missingRels=0\nCICO_QUERY_IR m:5, t:6, edge:0/0:15, \nCICO_FILL_IR m:5, t:6, edge:0/0:15, \nCICO_LOCAL_MATCH 1\nCICO_GATE_MATCH 1\nWARNING: Logging before InitGoogleLogging() is written to STDERR\nI20261117 20:41:57.546087 142183 rewriter_trace.cpp:6064] Successfully applied index rewrite with index: fill_TAG_probeCount___neug_fill_state_n_rows_b606150cb1ee2b96_4a5a711a7c64\nCICO_PART clauses=1\nCICO_CLAUSE type=10\nCICO_CANDIDATE fill_TAG_probeCount___neug_fill_state_n_rows_b606150cb1ee2b96_4a5a711a7c64 local=2/1 index=2/1\nCICO_SHAPE 1 missingRels=0\nCICO_QUERY_IR m:5, t:6, edge:0/0:15, \nCICO_FILL_IR m:5, t:6, edge:0/0:15, \nCICO_LOCAL_MATCH 1\nCICO_GATE_MATCH 1\nI20261117 20:41:57.546664 142183 rewriter_trace.cpp:6064] Successfully applied index rewrite with index: fill_TAG_probeCount___neug_fill_state_n_rows_b606150cb1ee2b96_4a5a711a7c64\n"
+    },
+    {
+      "label": "having",
+      "source": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST)-[:HASTAG]->(t:TAG) RETURN p.id,count(m) AS cm",
+      "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST)-[:HASTAG]->(t:TAG) WITH p,count(m) AS cm WHERE cm>0 RETURN p.id,cm",
+      "registered": true,
+      "indexes": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(probeCount)",
+            "name": "fill_PERSON_probeCount___neug_fill_state_n_rows_f07a93eb308601e_16946a85b008",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "probeCount",
+              "__neug_fill_state_n_rows_f07a93eb308601e"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST)-[:HASTAG]->(t:TAG) RETURN p.id,count(m) AS cm",
+            "diagnostics": [
+              "node=p:_0_p",
+              "node=m:_2_m",
+              "node=t:_6_t",
+              "aggregate=COUNT:count({})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=0",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "used": [],
+      "trace": "CICO_PART clauses=1\nCICO_CLAUSE type=10\nCICO_CANDIDATE fill_PERSON_probeCount___neug_fill_state_n_rows_f07a93eb308601e_16946a85b008 local=3/2 index=3/2\nCICO_SHAPE 1 missingRels=0\nCICO_QUERY_IR p:3, m:5, t:6, edge:0/0:10, edge:0/0:15, \nCICO_FILL_IR p:3, m:5, t:6, edge:0/0:10, edge:0/0:15, \nCICO_LOCAL_MATCH 1\nCICO_GATE_MATCH 1\nCICO_REJECT projection_body_predicate_coverage\nCICO_REJECT projection_body_predicate_coverage\n"
+    },
+    {
+      "label": "date",
+      "source": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(m)",
+      "query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST)-[:HASTAG]->(t:TAG) WHERE date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id,count(m)",
+      "registered": false,
+      "indexes": {
+        "rid": 6,
+        "indexes": [],
+        "failed_candidates": [],
+        "ok": true
+      },
+      "used": [],
+      "trace": ""
+    }
+  ],
+  "index_metadata": [
+    {
+      "number": 2,
+      "variant": "converted_index",
+      "used": [],
+      "catalog": {
+        "rid": 9,
+        "indexes": [
+          {
+            "candidate": "TAG(bi2Window1MessageCount)",
+            "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_a4cbdf772b2599c0_6302299e64ab",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window1MessageCount",
+              "__neug_fill_state_n_rows_a4cbdf772b2599c0"
+            ],
+            "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') RETURN t.id, count(m)",
+            "diagnostics": [
+              "@typed-predicate-v1:2:134:BOOL38:2:609:TIMESTAMP6:node:112:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031302d30362d30392030303a30303a3030",
+              "@unsupported-index-predicate",
+              "node=t:_0_t",
+              "node=m:_2_m",
+              "aggregate=COUNT:count({})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          },
+          {
+            "candidate": "TAG(bi2Window2MessageCount)",
+            "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_867eedde157fdf76_b7f8ba9e9c2a",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window2MessageCount",
+              "__neug_fill_state_n_rows_867eedde157fdf76"
+            ],
+            "source_query": "MATCH (t:TAG) OPTIONAL MATCH (m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE m.creationDate>=TIMESTAMP('2010-06-09 00:00:00')+duration('100 days') AND m.creationDate<TIMESTAMP('2010-06-09 00:00:00')+duration('200 days') RETURN t.id, count(m)",
+            "diagnostics": [
+              "@unsupported-index-predicate",
+              "node=t:_0_t",
+              "node=m:_2_m",
+              "aggregate=COUNT:count({})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      }
+    },
+    {
+      "number": 2,
+      "variant": "neug_index",
+      "used": [
+        "TAG(bi2Window2MessageCount)"
+      ],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "TAG(bi2Window1MessageCount)",
+            "name": "fill_TAG_bi2Window1MessageCount___neug_fill_state_n_rows_7fa529aabcc6b5c0_d984de64f52c",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window1MessageCount",
+              "__neug_fill_state_n_rows_7fa529aabcc6b5c0"
+            ],
+            "source_query": "MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-06-09 00:00:00') AND m.creationDate < TIMESTAMP('2010-09-17 00:00:00') RETURN t.id,count(m)",
+            "diagnostics": [
+              "@typed-predicate-v1:2:134:BOOL38:2:609:TIMESTAMP6:node:012:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031302d30362d30392030303a30303a3030",
+              "@typed-predicate-v1:2:144:BOOL38:2:609:TIMESTAMP6:node:012:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031302d30392d31372030303a30303a3030",
+              "node=m:_0_m",
+              "node=t:_2_t",
+              "aggregate=COUNT:count({})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          },
+          {
+            "candidate": "TAG(bi2Window2MessageCount)",
+            "name": "fill_TAG_bi2Window2MessageCount___neug_fill_state_n_rows_7d511506acbac439_d2f2ce616382",
+            "target_table": "TAG",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi2Window2MessageCount",
+              "__neug_fill_state_n_rows_7d511506acbac439"
+            ],
+            "source_query": "MATCH(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE m.creationDate >= TIMESTAMP('2010-09-17 00:00:00') AND m.creationDate < TIMESTAMP('2010-12-26 00:00:00') RETURN t.id,count(m)",
+            "diagnostics": [
+              "@typed-predicate-v1:2:134:BOOL38:2:609:TIMESTAMP6:node:012:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031302d30392d31372030303a30303a3030",
+              "@typed-predicate-v1:2:144:BOOL38:2:609:TIMESTAMP6:node:012:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031302d31322d32362030303a30303a3030",
+              "node=m:_0_m",
+              "node=t:_2_t",
+              "aggregate=COUNT:count({})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      }
+    },
+    {
+      "number": 8,
+      "variant": "converted_index",
+      "used": [],
+      "catalog": {
+        "rid": 6,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi8MessageCount)",
+            "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_62d875d5fe49a9c0_1f6cc3448bd3",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi8MessageCount",
+              "__neug_fill_state_n_rows_62d875d5fe49a9c0"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Che_Guevara' AND m.creationDate>TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate<TIMESTAMP('2010-06-22 00:00:00') RETURN p.id, count(m)",
+            "diagnostics": [
+              "@typed-predicate-v1:2:104:BOOL26:2:606:STRING6:node:24:name69:2:706:STRING54:32140000000000000b000000000000004368655f47756576617261",
+              "@typed-predicate-v1:2:124:BOOL38:2:609:TIMESTAMP6:node:112:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031302d30362d31322030303a30303a3030",
+              "@typed-predicate-v1:2:144:BOOL38:2:609:TIMESTAMP6:node:112:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031302d30362d32322030303a30303a3030",
+              "node=p:_0_p",
+              "node=m:_2_m",
+              "node=t:_6_t",
+              "aggregate=COUNT:count({})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      }
+    },
+    {
+      "number": 8,
+      "variant": "neug_index",
+      "used": [
+        "PERSON(bi8MessageCount)"
+      ],
+      "catalog": {
+        "rid": 5,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi8MessageCount)",
+            "name": "fill_PERSON_bi8MessageCount___neug_fill_state_n_rows_55d39805c9a3c413_9d27fabb4039",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi8MessageCount",
+              "__neug_fill_state_n_rows_55d39805c9a3c413"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)\n  WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00') \n  RETURN p.id,count(m)",
+            "diagnostics": [
+              "@typed-predicate-v1:2:104:BOOL26:2:606:STRING6:node:24:name69:2:706:STRING54:32140000000000000b000000000000004368655f47756576617261",
+              "@typed-predicate-v1:2:124:BOOL38:2:609:TIMESTAMP6:node:112:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031302d30362d31322030303a30303a3030",
+              "@typed-predicate-v1:2:144:BOOL38:2:609:TIMESTAMP6:node:112:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031302d30362d32322030303a30303a3030",
+              "node=p:_0_p",
+              "node=m:_2_m",
+              "node=t:_6_t",
+              "aggregate=COUNT:count({})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      }
+    },
+    {
+      "number": 16,
+      "variant": "converted_index",
+      "used": [],
+      "catalog": {
+        "rid": 9,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi16MessageCountA)",
+            "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_f56a0986a1113c1a_1f1ac5abbf6d",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountA",
+              "__neug_fill_state_n_rows_f56a0986a1113c1a"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Marc_Gicquel' AND date(m.creationDate)=date(TIMESTAMP('2012-07-26 00:00:00')) RETURN p.id, count(DISTINCT m)",
+            "diagnostics": [
+              "@typed-predicate-v1:2:104:BOOL26:2:606:STRING6:node:24:name71:2:706:STRING56:32140000000000000c000000000000004d6172635f4769637175656c",
+              "@unsupported-index-predicate",
+              "node=p:_0_p",
+              "node=m:_2_m",
+              "node=t:_6_t",
+              "aggregate=COUNT:count(DISTINCT {})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          },
+          {
+            "candidate": "PERSON(bi16MessageCountB)",
+            "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3fc385e8873dd096_63cfbcc9e080",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountB",
+              "__neug_fill_state_n_rows_3fc385e8873dd096"
+            ],
+            "source_query": "MATCH (p:PERSON) OPTIONAL MATCH (p:PERSON)<-[:HASCREATOR]-(m:COMMENT:POST)-[:HASTAG]->(t:TAG)\nWHERE t.name='Romania' AND date(m.creationDate)=date(TIMESTAMP('2012-05-08 00:00:00')) RETURN p.id, count(DISTINCT m)",
+            "diagnostics": [
+              "@typed-predicate-v1:2:104:BOOL26:2:606:STRING6:node:24:name61:2:706:STRING46:32140000000000000700000000000000526f6d616e6961",
+              "@unsupported-index-predicate",
+              "node=p:_0_p",
+              "node=m:_2_m",
+              "node=t:_6_t",
+              "aggregate=COUNT:count(DISTINCT {})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      }
+    },
+    {
+      "number": 16,
+      "variant": "neug_index",
+      "used": [],
+      "catalog": {
+        "rid": 8,
+        "indexes": [
+          {
+            "candidate": "PERSON(bi16MessageCountA)",
+            "name": "fill_PERSON_bi16MessageCountA___neug_fill_state_n_rows_160faae6ea5b8a5b_f214e5bc5664",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountA",
+              "__neug_fill_state_n_rows_160faae6ea5b8a5b"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Marc_Gicquel' AND m.creationDate >= TIMESTAMP('2012-07-26 00:00:00') AND m.creationDate < TIMESTAMP('2012-07-27 00:00:00') RETURN p.id,count(DISTINCT m)",
+            "diagnostics": [
+              "@typed-predicate-v1:2:104:BOOL26:2:606:STRING6:node:24:name71:2:706:STRING56:32140000000000000c000000000000004d6172635f4769637175656c",
+              "@typed-predicate-v1:2:134:BOOL38:2:609:TIMESTAMP6:node:112:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031322d30372d32362030303a30303a3030",
+              "@typed-predicate-v1:2:144:BOOL38:2:609:TIMESTAMP6:node:112:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031322d30372d32372030303a30303a3030",
+              "node=p:_0_p",
+              "node=m:_2_m",
+              "node=t:_6_t",
+              "aggregate=COUNT:count(DISTINCT {})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          },
+          {
+            "candidate": "PERSON(bi16MessageCountB)",
+            "name": "fill_PERSON_bi16MessageCountB___neug_fill_state_n_rows_3ea9ae5139762919_900a594bc3be",
+            "target_table": "PERSON",
+            "fill_type": "NODE",
+            "target_columns": [
+              "bi16MessageCountB",
+              "__neug_fill_state_n_rows_3ea9ae5139762919"
+            ],
+            "source_query": "MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG) WHERE t.name='Romania' AND m.creationDate >= TIMESTAMP('2012-05-08 00:00:00') AND m.creationDate < TIMESTAMP('2012-05-09 00:00:00') RETURN p.id,count(DISTINCT m)",
+            "diagnostics": [
+              "@typed-predicate-v1:2:104:BOOL26:2:606:STRING6:node:24:name61:2:706:STRING46:32140000000000000700000000000000526f6d616e6961",
+              "@typed-predicate-v1:2:134:BOOL38:2:609:TIMESTAMP6:node:112:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031322d30352d30382030303a30303a3030",
+              "@typed-predicate-v1:2:144:BOOL38:2:609:TIMESTAMP6:node:112:creationDate139:3:1109:TIMESTAMP9:TIMESTAMP21:(STRING) -> TIMESTAMP85:2:706:STRING70:32140000000000001300000000000000323031322d30352d30392030303a30303a3030",
+              "node=p:_0_p",
+              "node=m:_2_m",
+              "node=t:_6_t",
+              "aggregate=COUNT:count(DISTINCT {})",
+              "aggregate=COUNT:COUNT(*)",
+              "stage=0",
+              "recompute=1",
+              "compat=0",
+              "columnType=1",
+              "columnType=1"
+            ]
+          }
+        ],
+        "failed_candidates": [],
+        "ok": true
+      }
+    }
+  ],
+  "base_engine_cc": {
+    "path": "/mnt/sdb1/feiyang/neo4j/middleware/engine/incgq_rewrite_engine.cc",
+    "sha256": "000be28db965701bc155ff88fb6106fe09331cb235f94d02c37e349a44685a00"
+  }
+}

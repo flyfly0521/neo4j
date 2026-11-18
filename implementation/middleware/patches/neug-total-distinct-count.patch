@@ -1,0 +1,69 @@
+diff --git a/src/compiler/binder/rewriter/complete_key_group_rewriter.cpp b/src/compiler/binder/rewriter/complete_key_group_rewriter.cpp
+--- a/src/compiler/binder/rewriter/complete_key_group_rewriter.cpp
++++ b/src/compiler/binder/rewriter/complete_key_group_rewriter.cpp
+@@ -18,6 +18,7 @@
+ #include "neug/compiler/binder/expression_visitor.h"
+ #include "neug/compiler/binder/query/bound_regular_query.h"
+ #include "neug/compiler/binder/query/reading_clause/bound_match_clause.h"
++#include "neug/compiler/binder/query/reading_clause/bound_unwind_clause.h"
+ #include "neug/compiler/binder/rewriter/endpoint_projection_contract.h"
+ #include "neug/compiler/catalog/catalog.h"
+ #include "neug/compiler/catalog/catalog_entry/fill_index_aux_info.h"
+@@ -416,6 +417,12 @@
+   if (!found) return false;
+   for (uint32_t i = 0; i < part.getNumReadingClause(); ++i) {
+     const auto* clause = part.getReadingClause(i);
++    if (clause->getClauseType() == ClauseType::UNWIND) {
++      const auto& unwind = clause->constCast<BoundUnwindClause>();
++      if (!independent(unwind.getInExpr(), false) ||
++          removed.contains(unwind.getOutExpr()->getUniqueName())) return false;
++      continue;
++    }
+     if (clause->getClauseType() != ClauseType::MATCH) return false;
+     const auto& other = clause->constCast<BoundMatchClause>();
+     const auto* graphs = other.getQueryGraphCollection();
+@@ -567,13 +574,41 @@
+     const auto& single = *source.getSingleQuery(0);
+     if (single.getNumQueryParts() != 1) return false;
+     const auto& sourcePart = *single.getQueryPart(0);
+-    if (sourcePart.hasUpdatingClause() || sourcePart.getNumReadingClause() != 1 ||
++    const bool totalNodeCount = nodeFill && sourcePart.getNumReadingClause() == 2;
++    if (sourcePart.hasUpdatingClause() ||
++        (sourcePart.getNumReadingClause() != 1 && !totalNodeCount) ||
+         !sourcePart.hasProjectionBody() || sourcePart.hasProjectionBodyPredicate())
+       return false;
+-    const auto* clause = sourcePart.getReadingClause(0);
++    if (totalNodeCount) {
++      // MATCH(anchor) OPTIONAL MATCH(witness pattern) is a total per-anchor
++      // DISTINCT count. The padded row contributes zero only for a fresh
++      // witness, never for the outer anchor. Preserve the complete-group proof.
++      const auto* prefix = sourcePart.getReadingClause(0);
++      if (prefix->getClauseType() != ClauseType::MATCH) return false;
++      const auto& scan = prefix->constCast<BoundMatchClause>();
++      const auto* graphs = scan.getQueryGraphCollection();
++      if (scan.getMatchClauseType() != MatchClauseType::MATCH || scan.hasHint() ||
++          scan.hasPredicate() || graphs->getNumQueryGraphs() != 1) return false;
++      const auto* graph = graphs->getQueryGraph(0);
++      const auto values = sourcePart.getProjectionBody()->getProjectionExpressions();
++      if (graph->getNumQueryNodes() != 1 || graph->getNumQueryRels() != 0 || values.empty() ||
++          identity(values[0]) != graph->getQueryNode(0)->getUniqueName()) return false;
++      const auto labels = graph->getQueryNode(0)->getEntries();
++      if (labels.size() != 1 || labels[0]->getTableID() != carrier->getTableID()) return false;
++      for (size_t i = 1; i < values.size(); ++i) {
++        if (!distinctCount(values[i])) return false;
++        const auto operand = values[i]->constCast<AggregateFunctionExpression>().getChild(0);
++        // Nullable properties cannot establish mandatory group presence from
++        // a zero value. This extension proves fresh graph identities only.
++        if (operand->expressionType != ExpressionType::PATTERN) return false;
++        if (operand->getUniqueName() == graph->getQueryNode(0)->getUniqueName()) return false;
++      }
++    }
++    const auto* clause = sourcePart.getReadingClause(totalNodeCount ? 1 : 0);
+     if (clause->getClauseType() != ClauseType::MATCH) return false;
+     const auto& sourceMatch = clause->constCast<BoundMatchClause>();
+-    if (sourceMatch.getMatchClauseType() != MatchClauseType::MATCH || sourceMatch.hasHint())
++    if (sourceMatch.getMatchClauseType() != (totalNodeCount ? MatchClauseType::OPTIONAL_MATCH
++                                                          : MatchClauseType::MATCH) || sourceMatch.hasHint())
+       return false;
+     const auto sourceRels = sourceMatch.getQueryGraphCollection()->getQueryRels();
+     size_t sourceRecursive = 0;

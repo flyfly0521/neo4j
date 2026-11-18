@@ -1,0 +1,39 @@
+# Neo4j LSQB <-> middleware internal schema (NeuG/Kuzu LSQB layout).
+# Matches IncGQ-experiment-docs/Neo4j/scripts/import/import_lsqb.py:
+#   Comment/Post also carry Message; relationship types are the upper-snake
+#   relation names, internally one table per endpoint pair (A_relName_B).
+labels:
+  Message: [Comment, Post]
+typed_labels: {}
+rel_types:
+  CONTAINER_OF: [Forum_containerOf_Post]
+  HAS_CREATOR: [Comment_hasCreator_Person, Post_hasCreator_Person]
+  HAS_INTEREST: [Person_hasInterest_Tag]
+  HAS_MEMBER: [Forum_hasMember_Person]
+  HAS_MODERATOR: [Forum_hasModerator_Person]
+  HAS_TAG: [Comment_hasTag_Tag, Forum_hasTag_Tag, Post_hasTag_Tag]
+  HAS_TYPE: [Tag_hasType_TagClass]
+  IS_LOCATED_IN: [Comment_isLocatedIn_Country, Company_isLocatedIn_Country, Person_isLocatedIn_City,
+                  Post_isLocatedIn_Country, University_isLocatedIn_City]
+  IS_PART_OF: [City_isPartOf_Country, Country_isPartOf_Continent]
+  IS_SUBCLASS_OF: [TagClass_isSubclassOf_TagClass]
+  KNOWS: [Person_knows_Person]
+  LIKES: [Person_likes_Comment, Person_likes_Post]
+  REPLY_OF: [Comment_replyOf_Comment, Comment_replyOf_Post]
+  STUDY_AT: [Person_studyAt_University]
+  WORK_AT: [Person_workAt_Company]
+acyclic_rel_types:      # variable-length walks equal Neo4j trails only on acyclic types
+  - REPLY_OF
+properties:             # internal table -> {Neo4j property: internal property}
+  # Neo4j import keeps the CSV key column `id:ID(<Label>)` as property `id`.
+  City: {id: CityId}
+  Comment: {id: CommentId}
+  Company: {id: CompanyId}
+  Continent: {id: ContinentId}
+  Country: {id: CountryId}
+  Forum: {id: ForumId}
+  Person: {id: PersonId}
+  Post: {id: PostId}
+  Tag: {id: TagId}
+  TagClass: {id: TagClassId}
+  University: {id: UniversityId}

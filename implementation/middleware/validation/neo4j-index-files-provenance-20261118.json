@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-18",
+  "unit_tests_passed": 81,
+  "small_graph_checks": 6,
+  "small_graph_cleanup": true,
+  "native_index_files_planned": 12,
+  "native_index_files_schema_only": 4,
+  "native_index_files_unrendered_template": 1,
+  "native_generated_explain_ok": 84,
+  "editable_file_definitions": 7,
+  "editable_file_generated_explain_ok": 20,
+  "bi_queries_executed": false,
+  "existing_sf1_indexes_rebuilt": false,
+  "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
+  "sha256": {
+    "middleware/cico/index_files.py": "5d92a98bf2813f5cbcbb7882ce886bc0f290ecd635538580b9bb05fc3b7d8fd7",
+    "middleware/cico/middleware.py": "c093aea2d8d59f63af6e688e9c672b32fe246a49d7b183a43c81b83ab55dfeca",
+    "middleware/cico/materialize.py": "67450e881ee0bcd7d5bb4d6ad467db22a6c63bf412d4638480d4754162b1ef36",
+    "middleware/cico/__main__.py": "c6a284570de9b81059e5b59f025945cac06a8e3af945e503ffdc9c445d630694",
+    "middleware/cico/server.py": "b3417d8a47ae8c3df996ddf70e2f2546da522845ef2881478dd085036aa06246",
+    "middleware/cico/__init__.py": "c316dd42c93d0b747785eadc7e09a2de033176179a7afea1c5e5e8e8cc059ce4",
+    "middleware/engine/incgq_rewrite_engine.cc": "a9d40e428d83e0de161c4359f47e449afa745db3e95c234984cdc5b02ca0af71",
+    "middleware/tests/test_index_files.py": "e56c6fc297b3b24327e15233beeacaf411a4c99ba350caef1a4bfe91ea28e436",
+    "middleware/tests/index_file_acceptance.py": "f093c7295003b1ea3de9c87b56cbe63d600257990b75bdc1657422c421f69538",
+    "middleware/tests/neug_fill_registration_audit.py": "4b410d673fdf5d98a47274a0ba181ef66d80943a770daee1ef973c988f8a05a7",
+    "middleware/indexes/ldbc-bi-native.cypher": "81d7324149b9b8f84225aadea4b0bdf68c236985d77b799b0b377670370354ea",
+    "/mnt/sdb1/feiyang/neo4j/middleware/engine/build/incgq_rewrite_engine_patched": "af2f9a90c152131dc9cd6706fb32d8dfe427950c22e18478d83775ed90893065"
+  }
+}

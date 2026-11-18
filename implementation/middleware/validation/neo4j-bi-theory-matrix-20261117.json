@@ -1,0 +1,3142 @@
+{
+  "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
+  "workload_queries_executed": false,
+  "verification_enabled": true,
+  "parameter_indexes": "metadata only; no physical parameter index rebuild",
+  "samples_per_query": 10,
+  "uri": "bolt://127.0.0.1:7693",
+  "queries": [
+    {
+      "query": "bi-2",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-2.cypher",
+      "sha256": "79ea3a72107ff5505081ad4a8cdf7c357e3b0ce35e6fe3c29de598a18443fa61",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "date": "2010-06-09 00:00:00",
+            "tagClass": "Single"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "date": "2010-06-22 00:00:00",
+            "tagClass": "Country"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "date": "2010-06-19 00:00:00",
+            "tagClass": "Philosopher"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "date": "2010-06-12 00:00:00",
+            "tagClass": "President"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "date": "2010-06-14 00:00:00",
+            "tagClass": "Scientist"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "date": "2010-06-08 00:00:00",
+            "tagClass": "SoccerPlayer"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "date": "2010-06-21 00:00:00",
+            "tagClass": "Monarch"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "date": "2010-06-09 00:00:00",
+            "tagClass": "Monarch"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "date": "2010-06-15 00:00:00",
+            "tagClass": "Writer"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "date": "2010-06-13 00:00:00",
+            "tagClass": "Song"
+          },
+          "parameter_indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $date",
+          "indexes": [
+            "TAG(bi2Window1MessageCount)",
+            "TAG(bi2Window2MessageCount)"
+          ],
+          "specialized": [
+            "date"
+          ],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        }
+      ],
+      "rewritten_samples": 10,
+      "all_rewritten": true
+    },
+    {
+      "query": "bi-3",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-3.cypher",
+      "sha256": "a8980d2e0abda909da81c7f56fb7252fc4ded0b7c69f1eb0eea622c9d1d8df45",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "country": "India",
+            "tagClass": "Congressman"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "country": "China",
+            "tagClass": "Boxer"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "country": "India",
+            "tagClass": "NascarDriver"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "country": "China",
+            "tagClass": "Actor"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "country": "India",
+            "tagClass": "MusicalArtist"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "country": "China",
+            "tagClass": "AmericanFootballPlayer"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "country": "India",
+            "tagClass": "Chancellor"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "country": "India",
+            "tagClass": "Athlete"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "country": "China",
+            "tagClass": "Cricketer"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "country": "China",
+            "tagClass": "Thing"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()",
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+          "explain": "ok",
+          "query_type": "r"
+        }
+      ],
+      "rewritten_samples": 10,
+      "all_rewritten": true
+    },
+    {
+      "query": "bi-4",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-4.cypher",
+      "sha256": "92f3385fc493b725b0785b76d929854af18969bc8090fe652894723c20ba1be2",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "date": "2010-02-12 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "date": "2010-01-22 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "date": "2010-01-31 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "date": "2010-01-07 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "date": "2010-01-24 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "date": "2010-01-23 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "date": "2010-02-02 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "date": "2010-01-27 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "date": "2010-01-12 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "date": "2010-01-15 00:00:00"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        }
+      ],
+      "rewritten_samples": 0,
+      "all_rewritten": false
+    },
+    {
+      "query": "bi-5",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-5.cypher",
+      "sha256": "d044ed9780c54065b018a52b79ba779eb2b9bfc633327f2aad285f1bc7b00970",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "tag": "Begin_the_Beguine"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "tag": "The_Marshall_Mathers_LP"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "tag": "Candle_in_the_Wind"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "tag": "Viceroyalty_of_the_Río_de_la_Plata"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "tag": "Theme_from_New_York,_New_York"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "tag": "Fly_Me_to_the_Moon"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "tag": "Land_of_Confusion"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "tag": "Hussein_of_Jordan"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "tag": "Roll_Over_Beethoven"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "tag": "Big_Spender"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "COMMENT(likeCount)",
+            "COMMENT(replyCount)",
+            "POST(likeCount)",
+            "POST(replyCount)"
+          ],
+          "specialized": [],
+          "route": "parts:1,2",
+          "proofs": [],
+          "cypher": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        }
+      ],
+      "rewritten_samples": 10,
+      "all_rewritten": true
+    },
+    {
+      "query": "bi-6",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-6.cypher",
+      "sha256": "5e730b13a7aed61b756d3af69b92e7874fa0501f84151d21804e0ee1d1968cde",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "tag": "Kingdom_of_Romania"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "tag": "The_Christmas_Song"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "tag": "Kushan_Empire"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "tag": "British_Guiana"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "tag": "The_Wall"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "tag": "Margraviate_of_Brandenburg"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "tag": "Second_Mexican_Empire"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "tag": "Colony_of_Virginia"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "tag": "Kingdom_of_Hanover"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "tag": "Kaia_Kanepi"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: no_index_selected",
+          "indexes": [
+            "PERSON(likeCount)"
+          ],
+          "specialized": [],
+          "route": "subqueries",
+          "proofs": [],
+          "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        }
+      ],
+      "rewritten_samples": 10,
+      "all_rewritten": true
+    },
+    {
+      "query": "bi-8",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-8.cypher",
+      "sha256": "dc4c117b58fbe671ae4d2dbb846d3f5227d652e851ca4b127d8794b9cf10d77b",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "startDate": "2010-06-12 00:00:00",
+            "endDate": "2010-06-22 00:00:00",
+            "tag": "Che_Guevara"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "startDate": "2010-06-13 00:00:00",
+            "endDate": "2010-06-25 00:00:00",
+            "tag": "Charles_Darwin"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "startDate": "2010-06-26 00:00:00",
+            "endDate": "2010-07-09 00:00:00",
+            "tag": "Bosnia_and_Herzegovina"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "startDate": "2010-06-24 00:00:00",
+            "endDate": "2010-07-08 00:00:00",
+            "tag": "China"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "startDate": "2010-06-09 00:00:00",
+            "endDate": "2010-06-23 00:00:00",
+            "tag": "Abbas_I_of_Persia"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "startDate": "2010-06-27 00:00:00",
+            "endDate": "2010-07-07 00:00:00",
+            "tag": "Charles_Gounod"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "startDate": "2010-06-27 00:00:00",
+            "endDate": "2010-07-07 00:00:00",
+            "tag": "County_of_Edessa"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "startDate": "2010-06-17 00:00:00",
+            "endDate": "2010-06-27 00:00:00",
+            "tag": "Arnold_Schwarzenegger"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "startDate": "2010-06-14 00:00:00",
+            "endDate": "2010-06-28 00:00:00",
+            "tag": "Barack_Obama"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "startDate": "2010-06-27 00:00:00",
+            "endDate": "2010-07-07 00:00:00",
+            "tag": "Bosnia_and_Herzegovina"
+          },
+          "parameter_indexes": [
+            "PERSON(bi8MessageCount)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        }
+      ],
+      "rewritten_samples": 0,
+      "all_rewritten": false
+    },
+    {
+      "query": "bi-9",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-9.cypher",
+      "sha256": "4c5fb4553a704213ad9e58ede3b2e590d1237c068df658ad33298a1ba21ff168",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "startDate": "2012-09-03 00:00:00",
+            "endDate": "2012-11-30 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "startDate": "2012-08-28 00:00:00",
+            "endDate": "2012-12-02 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "startDate": "2012-08-29 00:00:00",
+            "endDate": "2012-12-04 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "startDate": "2012-09-05 00:00:00",
+            "endDate": "2012-12-06 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "startDate": "2012-09-05 00:00:00",
+            "endDate": "2012-11-26 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "startDate": "2012-09-04 00:00:00",
+            "endDate": "2012-11-22 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "startDate": "2012-09-04 00:00:00",
+            "endDate": "2012-12-02 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "startDate": "2012-08-29 00:00:00",
+            "endDate": "2012-11-25 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "startDate": "2012-08-29 00:00:00",
+            "endDate": "2012-11-24 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "startDate": "2012-08-31 00:00:00",
+            "endDate": "2012-11-30 00:00:00"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "",
+          "indexes": [
+            "ROOT_POST()"
+          ],
+          "specialized": [],
+          "route": "initial",
+          "proofs": [],
+          "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        }
+      ],
+      "rewritten_samples": 10,
+      "all_rewritten": true
+    },
+    {
+      "query": "bi-10",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-10.cypher",
+      "sha256": "087adda85ccdd32ca6b2a2fcea6d94c3daee7c681209110f1e4f887d97dde6f4",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "country": "United_Kingdom",
+            "tagClass": "BaseballPlayer",
+            "personId": 10995116284483,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "country": "Venezuela",
+            "tagClass": "AmericanFootballPlayer",
+            "personId": 6597069770438,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "country": "Sri_Lanka",
+            "tagClass": "SoccerManager",
+            "personId": 4398046514714,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "country": "Tanzania",
+            "tagClass": "Cricketer",
+            "personId": 6597069770945,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "country": "Hungary",
+            "tagClass": "SoccerManager",
+            "personId": 4398046515696,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "country": "Chile",
+            "tagClass": "SoccerManager",
+            "personId": 2199023262112,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "country": "Venezuela",
+            "tagClass": "Monarch",
+            "personId": 2199023259331,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "country": "Sri_Lanka",
+            "tagClass": "Senator",
+            "personId": 8796093030357,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "country": "Democratic_Republic_of_the_Congo",
+            "tagClass": "Cricketer",
+            "personId": 15393162797982,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "country": "Kazakhstan",
+            "tagClass": "Saint",
+            "personId": 15393162797037,
+            "minPathDistance": 3,
+            "maxPathDistance": 4
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [
+            "PERSON(countryName)"
+          ],
+          "specialized": [],
+          "route": "parts:4",
+          "proofs": [],
+          "cypher": "MATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        }
+      ],
+      "rewritten_samples": 10,
+      "all_rewritten": true
+    },
+    {
+      "query": "bi-11",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-11.cypher",
+      "sha256": "55eaa5ddfae1f09d741d281c9913d1f2de84369eba37f4da068c80633cf17189",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "startDate": "2012-10-11 00:00:00",
+            "endDate": "2013-01-23 00:00:00",
+            "country": "India"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "startDate": "2012-10-02 00:00:00",
+            "endDate": "2013-01-14 00:00:00",
+            "country": "India"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "startDate": "2012-09-26 00:00:00",
+            "endDate": "2013-01-08 00:00:00",
+            "country": "India"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "startDate": "2012-10-09 00:00:00",
+            "endDate": "2013-01-09 00:00:00",
+            "country": "China"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "startDate": "2012-10-16 00:00:00",
+            "endDate": "2013-01-16 00:00:00",
+            "country": "China"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "startDate": "2012-10-19 00:00:00",
+            "endDate": "2013-01-19 00:00:00",
+            "country": "China"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "startDate": "2012-10-16 00:00:00",
+            "endDate": "2013-01-28 00:00:00",
+            "country": "India"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "startDate": "2012-10-09 00:00:00",
+            "endDate": "2013-01-21 00:00:00",
+            "country": "India"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "startDate": "2012-10-03 00:00:00",
+            "endDate": "2013-01-15 00:00:00",
+            "country": "India"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "startDate": "2012-09-21 00:00:00",
+            "endDate": "2012-12-22 00:00:00",
+            "country": "China"
+          },
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+          "indexes": [
+            "BI11_PERSON_COUNTRY()"
+          ],
+          "specialized": [],
+          "route": "parts:1",
+          "proofs": [],
+          "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+          "explain": "ok",
+          "query_type": "r"
+        }
+      ],
+      "rewritten_samples": 10,
+      "all_rewritten": true
+    },
+    {
+      "query": "bi-13",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-13.cypher",
+      "sha256": "36e006b05fca5446d924c11a228e7ee082152f0b6c4b6c906e30ccc6cddf1da1",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "endDate": "2012-10-28 00:00:00",
+            "country": "India"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "endDate": "2012-11-10 00:00:00",
+            "country": "India"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "endDate": "2012-10-29 00:00:00",
+            "country": "India"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "endDate": "2012-10-30 00:00:00",
+            "country": "India"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "endDate": "2012-11-01 00:00:00",
+            "country": "China"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "endDate": "2012-11-04 00:00:00",
+            "country": "China"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "endDate": "2012-10-25 00:00:00",
+            "country": "China"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "endDate": "2012-11-04 00:00:00",
+            "country": "India"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "endDate": "2012-10-27 00:00:00",
+            "country": "China"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "endDate": "2012-10-23 00:00:00",
+            "country": "India"
+          },
+          "parameter_indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "rewritten": true,
+          "reason": "rewritten",
+          "detail": "valid only for the given values of $endDate",
+          "indexes": [
+            "PERSON(bi13MessageCount)"
+          ],
+          "specialized": [
+            "endDate"
+          ],
+          "route": "parts:2",
+          "proofs": [],
+          "cypher": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+          "explain": "ok",
+          "query_type": "r"
+        }
+      ],
+      "rewritten_samples": 10,
+      "all_rewritten": true
+    },
+    {
+      "query": "bi-14",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-14.cypher",
+      "sha256": "d37afff37a136cffa37c7650dcec2e6952a1b169d7134f479a4b6dc7f88c50f6",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "country1": "China",
+            "country2": "Canada"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "country1": "Russia",
+            "country2": "Iran"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "country1": "Vietnam",
+            "country2": "Burma"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "country1": "Brazil",
+            "country2": "Philippines"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "country1": "India",
+            "country2": "Canada"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "country1": "Germany",
+            "country2": "Vietnam"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "country1": "Pakistan",
+            "country2": "Afghanistan"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "country1": "Japan",
+            "country2": "Pakistan"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "country1": "Germany",
+            "country2": "Egypt"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "country1": "Indonesia",
+            "country2": "Russia"
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        }
+      ],
+      "rewritten_samples": 0,
+      "all_rewritten": false
+    },
+    {
+      "query": "bi-15",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-15.cypher",
+      "sha256": "59611c9f59c39a7c670340bdf253761d121bf808342d37a88c16bb1854662475",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "startDate": "2012-11-06 00:00:00",
+            "endDate": "2012-11-07 00:00:00",
+            "person1Id": 1450,
+            "person2Id": 21990232556222
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "startDate": "2012-11-07 00:00:00",
+            "endDate": "2012-11-07 00:00:00",
+            "person1Id": 3388,
+            "person2Id": 8796093023774
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "startDate": "2012-11-07 00:00:00",
+            "endDate": "2012-11-13 00:00:00",
+            "person1Id": 3388,
+            "person2Id": 17592186051628
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "startDate": "2012-11-06 00:00:00",
+            "endDate": "2012-11-10 00:00:00",
+            "person1Id": 1450,
+            "person2Id": 5155
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "startDate": "2012-11-02 00:00:00",
+            "endDate": "2012-11-09 00:00:00",
+            "person1Id": 2756,
+            "person2Id": 19791209303042
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "startDate": "2012-11-03 00:00:00",
+            "endDate": "2012-11-09 00:00:00",
+            "person1Id": 396,
+            "person2Id": 6597069769453
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "startDate": "2012-11-06 00:00:00",
+            "endDate": "2012-11-07 00:00:00",
+            "person1Id": 1450,
+            "person2Id": 15393162792434
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "startDate": "2012-11-03 00:00:00",
+            "endDate": "2012-11-07 00:00:00",
+            "person1Id": 396,
+            "person2Id": 4676
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "startDate": "2012-11-07 00:00:00",
+            "endDate": "2012-11-13 00:00:00",
+            "person1Id": 3388,
+            "person2Id": 8796093022968
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "startDate": "2012-11-07 00:00:00",
+            "endDate": "2012-11-08 00:00:00",
+            "person1Id": 2975,
+            "person2Id": 30786325587872
+          },
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        }
+      ],
+      "rewritten_samples": 0,
+      "all_rewritten": false
+    },
+    {
+      "query": "bi-16",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-16.cypher",
+      "sha256": "5fb867224780a00d4a2e1d9fc7870496389b32da832d2ffaceca764addc843d1",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "dateA": "2012-07-26 00:00:00",
+            "dateB": "2012-05-08 00:00:00",
+            "maxKnowsLimit": 4,
+            "tagA": "Marc_Gicquel",
+            "tagB": "Romania"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "dateA": "2011-06-14 00:00:00",
+            "dateB": "2012-12-11 00:00:00",
+            "maxKnowsLimit": 6,
+            "tagA": "David_Hockney",
+            "tagB": "Thomas_Jefferson"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "dateA": "2012-07-14 00:00:00",
+            "dateB": "2012-12-29 00:00:00",
+            "maxKnowsLimit": 3,
+            "tagA": "Ivan_Ljubičić",
+            "tagB": "Turkey"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "dateA": "2012-07-14 00:00:00",
+            "dateB": "2012-12-16 00:00:00",
+            "maxKnowsLimit": 6,
+            "tagA": "Ivan_Ljubičić",
+            "tagB": "Niccolò_Machiavelli"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "dateA": "2012-05-20 00:00:00",
+            "dateB": "2012-12-12 00:00:00",
+            "maxKnowsLimit": 3,
+            "tagA": "Vinicius_de_Moraes",
+            "tagB": "Abraham_Lincoln"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "dateA": "2012-10-08 00:00:00",
+            "dateB": "2012-12-05 00:00:00",
+            "maxKnowsLimit": 5,
+            "tagA": "Diosdado_Macapagal",
+            "tagB": "Czechoslovakia"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "dateA": "2012-04-20 00:00:00",
+            "dateB": "2012-12-11 00:00:00",
+            "maxKnowsLimit": 4,
+            "tagA": "John_Rhys-Davies",
+            "tagB": "Thomas_Jefferson"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "dateA": "2012-06-22 00:00:00",
+            "dateB": "2012-11-17 00:00:00",
+            "maxKnowsLimit": 3,
+            "tagA": "Bobby_Hull",
+            "tagB": "Jim_Carrey"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "dateA": "2012-05-09 00:00:00",
+            "dateB": "2012-12-26 00:00:00",
+            "maxKnowsLimit": 6,
+            "tagA": "Imelda_Marcos",
+            "tagB": "Paul_Keres"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "dateA": "2010-12-30 00:00:00",
+            "dateB": "2011-10-12 00:00:00",
+            "maxKnowsLimit": 4,
+            "tagA": "Chulalongkorn",
+            "tagB": "William_Blake"
+          },
+          "parameter_indexes": [
+            "PERSON(bi16MessageCountA)",
+            "PERSON(bi16MessageCountB)"
+          ],
+          "rewritten": false,
+          "reason": "no_index_selected",
+          "detail": "CALL: no declared opaque type prefix",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        }
+      ],
+      "rewritten_samples": 0,
+      "all_rewritten": false
+    },
+    {
+      "query": "bi-19",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-19.cypher",
+      "sha256": "48efc099d7709f3a0c601fbcf26602fca0d7f9bbb44b526c0f57d136d8363d06",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "city1Id": 363,
+            "city2Id": 578
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "city1Id": 499,
+            "city2Id": 1021
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "city1Id": 399,
+            "city2Id": 1435
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "city1Id": 604,
+            "city2Id": 980
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "city1Id": 124,
+            "city2Id": 440
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "city1Id": 399,
+            "city2Id": 915
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "city1Id": 941,
+            "city2Id": 1253
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "city1Id": 227,
+            "city2Id": 1100
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "city1Id": 553,
+            "city2Id": 737
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "city1Id": 422,
+            "city2Id": 1121
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        }
+      ],
+      "rewritten_samples": 0,
+      "all_rewritten": false
+    },
+    {
+      "query": "bi-20",
+      "source": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/baseline/ldbc-bi/bi-20.cypher",
+      "sha256": "2df4d3c1bcdb45c51a0eef974971123963cdca8163c147b11f75134796ea9f94",
+      "samples": [
+        {
+          "sample": 0,
+          "parameters": {
+            "person2Id": 30786325583226,
+            "company": "Avioquintana"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 1,
+          "parameters": {
+            "person2Id": 2199023264575,
+            "company": "Cebu_Pacific"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 2,
+          "parameters": {
+            "person2Id": 17592186049061,
+            "company": "Tandem_Aero"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 3,
+          "parameters": {
+            "person2Id": 26388279072250,
+            "company": "Pamir_Airways"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 4,
+          "parameters": {
+            "person2Id": 4398046515696,
+            "company": "Wizz_Air"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 5,
+          "parameters": {
+            "person2Id": 2199023255672,
+            "company": "Tanzania_Government_Flight_Agency"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 6,
+          "parameters": {
+            "person2Id": 15393162790150,
+            "company": "Coastal_Aviation"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 7,
+          "parameters": {
+            "person2Id": 21990232564654,
+            "company": "Bakhtar_Afghan_Airlines"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 8,
+          "parameters": {
+            "person2Id": 21990232561641,
+            "company": "Pacific_East_Asia_Cargo_Airlines"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        },
+        {
+          "sample": 9,
+          "parameters": {
+            "person2Id": 15393162790150,
+            "company": "Pacific_East_Asia_Cargo_Airlines"
+          },
+          "rewritten": false,
+          "reason": "frontend_unsupported",
+          "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+          "indexes": [],
+          "specialized": [],
+          "route": "",
+          "proofs": [],
+          "original_preserved": true
+        }
+      ],
+      "rewritten_samples": 0,
+      "all_rewritten": false
+    }
+  ],
+  "index_inventory": [
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi10/index.cypher",
+      "sha256": "c37ba81299debddf82af678b86bf83017ab2317fff9eb1e6acd7efee3c3fb7b3",
+      "status": "registered",
+      "indexes": [
+        "PERSON(countryName)"
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi11/index.cypher",
+      "sha256": "b4fb77930963c7da1041b51101c3bcbc440fdecb4bcfc19aaa33e331dc50a609",
+      "status": "registered",
+      "indexes": [
+        "BI11_PERSON_COUNTRY()"
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi13/index.cypher",
+      "sha256": "77bad3366697af95e41d7c9be3d6cfc790154a9a30bdc3788b10e12cfdbe2351",
+      "parameter_file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi13/parameter.cypher",
+      "status": "registered",
+      "indexes": [
+        "PERSON(bi13MessageCount)"
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi14/index.cypher",
+      "sha256": "98ea2cd06fd58598d676038e57a931135b7f79fc3aa50d347600ae2a717fb4ae",
+      "status": "unsupported",
+      "error": "mixed index writes; use one declaration per statement"
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi15/index.cypher",
+      "sha256": "0358ac3df7689d4476ae55dbb6c123ebf5b3c2c34bc8c0b321931071cc4a709d",
+      "status": "unsupported",
+      "error": "index carrier must have an explicit node label"
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi16/index.cypher",
+      "sha256": "5d73ab962697e998ba0d125e1abf97d371e5ecbd25edde9bed50873807772be4",
+      "parameter_file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi16/parameter.cypher",
+      "status": "registered",
+      "indexes": [
+        "PERSON(bi16MessageCountA)",
+        "PERSON(bi16MessageCountB)"
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi19/index.cypher",
+      "sha256": "3c861e1d75b02dc2a3875fcb6c62d6d1faa8949e20faff3f15204dfca3cb9a4e",
+      "status": "unsupported",
+      "error": "conditional or multiple index assignments"
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi2/index.cypher",
+      "sha256": "dbec8e8fdab6cb59bb99933e6586ac4738f39fd69e26e65c42c35449298289c4",
+      "parameter_file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi2/parameter.cypher",
+      "status": "registered",
+      "indexes": [
+        "TAG(bi2Window1MessageCount)",
+        "TAG(bi2Window2MessageCount)"
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi20/index.cypher",
+      "sha256": "062063ca47b4d5a1bd01d5624da645d94d817ee0813c8c2b917b69ed74c1b9a4",
+      "status": "unsupported",
+      "error": "index carrier must have an explicit node label"
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi3/index.cypher",
+      "sha256": "40b0b1ec04a5a3d225a728b99bf38405ef7b58bf26bba5c7ea287c8f5e6de865",
+      "status": "unsupported",
+      "error": "derived CREATE requires DISTINCT endpoint pairs; use MERGE"
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi4/index.cypher",
+      "sha256": "17caaecb9541144adaf96fc6cffcf63b67f3ee53961b9e33980f0f8f8715ff79",
+      "status": "unsupported",
+      "error": "mixed index writes; use one declaration per statement"
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi5/index.cypher",
+      "sha256": "7cee2d4c4151b2cddc5b3222b1adb939707d36a0522a67cb22aab24238ceb3e4",
+      "status": "registered",
+      "indexes": [
+        "POST(likeCount)",
+        "COMMENT(likeCount)",
+        "POST(replyCount)",
+        "COMMENT(replyCount)"
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi6/index.cypher",
+      "sha256": "42ae776021ed3cdf9c1deb529a2b2a15c0a0cfe422f4013d4a1066407ae3810e",
+      "status": "registered",
+      "indexes": [
+        "PERSON(likeCount)"
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi8/index.cypher",
+      "sha256": "fcddb3bdadf019a87f3692aad1b3bb8e7a124b6c369319f825009423da27f617",
+      "parameter_file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi8/parameter.cypher",
+      "status": "registered",
+      "indexes": [
+        "PERSON(bi8MessageCount)"
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi9/index.cypher",
+      "sha256": "46de81c9c1fbf2baca1222d60b5fcbc15850cc1ba885f51433330a8ea8ba3dde",
+      "status": "registered",
+      "indexes": [
+        "ROOT_POST()"
+      ]
+    }
+  ],
+  "scope": "documented_neo4j_indexes",
+  "total_queries": 15,
+  "total_samples": 150,
+  "all_samples_rewritten": 8,
+  "rewritten_samples": 80,
+  "explain_ok": 80,
+  "invalid_rewrites": 0,
+  "all_rewritten": false
+}

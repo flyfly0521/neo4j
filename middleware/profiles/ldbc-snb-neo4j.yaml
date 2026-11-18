@@ -1,0 +1,51 @@
+# Neo4j LDBC SNB (BI) <-> middleware internal schema (NeuG/Kuzu LDBC layout).
+# Matches IncGQ-experiment-docs/Neo4j/scripts/import/import_bi.py:
+#   Place nodes carry a dynamic label from their `type` column (no `type`
+#   property is stored); Comment/Post also carry the Message label.
+labels:                 # Neo4j label -> internal node tables (union)
+  Person: [PERSON]
+  Forum: [FORUM]
+  Post: [POST]
+  Comment: [COMMENT]
+  Message: [COMMENT, POST]
+  Tag: [TAG]
+  TagClass: [TAGCLASS]
+  Place: [PLACE]
+  Organisation: [ORGANISATION]
+typed_labels:           # Neo4j label -> internal table + discriminator property
+  Country: {table: PLACE, property: type, value: Country}
+  City: {table: PLACE, property: type, value: City}
+  Continent: {table: PLACE, property: type, value: Continent}
+  Company: {table: ORGANISATION, property: type, value: Company}
+  University: {table: ORGANISATION, property: type, value: University}
+rel_types:              # Neo4j relationship type -> internal relationship tables
+  HAS_CREATOR: [HASCREATOR]
+  HAS_TAG: [HASTAG]
+  REPLY_OF: [REPLYOF]
+  CONTAINER_OF: [CONTAINEROF]
+  HAS_MEMBER: [HASMEMBER]
+  HAS_MODERATOR: [HASMODERATOR]
+  HAS_INTEREST: [HASINTEREST]
+  IS_LOCATED_IN: [ISLOCATEDIN, ORGANISATION_ISLOCATEDIN]
+  KNOWS: [KNOWS]
+  LIKES: [LIKES]
+  WORK_AT: [WORKAT]
+  STUDY_AT: [STUDYAT]
+  IS_PART_OF: [ISPARTOF]
+  HAS_TYPE: [HASTYPE]
+  IS_SUBCLASS_OF: [ISSUBCLASSOF]
+acyclic_rel_types:      # variable-length walks equal Neo4j trails only on acyclic types
+  - REPLY_OF            # reply trees (LDBC data model); other types are translated as TRAIL
+# Names not listed (e.g. derived index carriers such as ROOT_POST) are kept as is.
+procedure_types:
+  # A type contract only: the procedure remains opaque in emitted Cypher.
+  # The generic scope inferencer checks closure against the runtime schema.
+  apoc.path.subgraphNodes:
+    arity: 2
+    config_argument: 1
+    type_preserving_options: [relationshipFilter, minLevel, maxLevel]
+    outputs:
+      node:
+        kind: reachable_node
+        seed_argument: 0
+        relationship_option: relationshipFilter

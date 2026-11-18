@@ -1,0 +1,955 @@
+{
+  "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
+  "uri": "bolt://127.0.0.1:7693",
+  "workload_queries_executed": false,
+  "registration": [
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi10/index.cypher",
+      "indexes": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(countryName) FROM (MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'}) RETURN person.id, country.name)",
+          "original": "FILL PERSON(countryName) FROM (MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'}) RETURN person.id, country.name)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(countryName)",
+          "entries": [
+            {
+              "candidate": "PERSON(countryName)",
+              "name": "fill_PERSON_countryName___neug_fill_state_n_rows_f7c34b44c8d2915b_fbcb3f4e27f3",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "countryName",
+                "__neug_fill_state_n_rows_f7c34b44c8d2915b"
+              ],
+              "source_query": "MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'}) RETURN person.id, country.name"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD countryName STRING"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi9/index.cypher",
+      "indexes": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL ROOT_POST() FROM (MATCH (__cico_message:COMMENT:POST)-[:REPLYOF*0..4294967295]->(__cico_post:POST) RETURN DISTINCT __cico_message.id, __cico_post.id)",
+          "original": "FILL ROOT_POST() FROM (MATCH (__cico_message:COMMENT:POST)-[:REPLYOF*0..4294967295]->(__cico_post:POST) RETURN DISTINCT __cico_message.id, __cico_post.id)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "ROOT_POST()",
+          "entries": [
+            {
+              "candidate": "ROOT_POST()",
+              "name": "fill_ROOT_POST_variableLength_no_columns_21318372015a",
+              "target_table": "ROOT_POST",
+              "fill_type": "REL",
+              "target_columns": [],
+              "source_query": "MATCH (__cico_message:COMMENT:POST)-[:REPLYOF*0..4294967295]->(__cico_post:POST) RETURN DISTINCT __cico_message.id, __cico_post.id"
+            }
+          ],
+          "inferred_ddl": [],
+          "schema_changed": false,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi5/index.cypher",
+      "indexes": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL POST(likeCount) FROM (MATCH (message:POST)\n   OPTIONAL MATCH (message)<-[:LIKES]-(__cico_count:PERSON) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+          "original": "FILL POST(likeCount) FROM (MATCH (message:POST)\n   OPTIONAL MATCH (message)<-[:LIKES]-(__cico_count:PERSON) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "POST(likeCount)",
+          "entries": [
+            {
+              "candidate": "POST(likeCount)",
+              "name": "fill_POST_likeCount___neug_fill_state_n_rows_1a82e7f3f050615_45116844034b",
+              "target_table": "POST",
+              "fill_type": "NODE",
+              "target_columns": [
+                "likeCount",
+                "__neug_fill_state_n_rows_1a82e7f3f050615"
+              ],
+              "source_query": "MATCH (message:POST)\n   OPTIONAL MATCH (message)<-[:LIKES]-(__cico_count:PERSON) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE POST ADD likeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL COMMENT(likeCount) FROM (MATCH (message:COMMENT)\n   OPTIONAL MATCH (message)<-[:LIKES]-(__cico_count:PERSON) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+          "original": "FILL COMMENT(likeCount) FROM (MATCH (message:COMMENT)\n   OPTIONAL MATCH (message)<-[:LIKES]-(__cico_count:PERSON) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "COMMENT(likeCount)",
+          "entries": [
+            {
+              "candidate": "COMMENT(likeCount)",
+              "name": "fill_COMMENT_likeCount___neug_fill_state_n_rows_b155d9a83801ffe_63cf04074742",
+              "target_table": "COMMENT",
+              "fill_type": "NODE",
+              "target_columns": [
+                "likeCount",
+                "__neug_fill_state_n_rows_b155d9a83801ffe"
+              ],
+              "source_query": "MATCH (message:COMMENT)\n   OPTIONAL MATCH (message)<-[:LIKES]-(__cico_count:PERSON) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE COMMENT ADD likeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL POST(replyCount) FROM (MATCH (message:POST)\n   OPTIONAL MATCH (message)<-[:REPLYOF]-(__cico_count:COMMENT) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+          "original": "FILL POST(replyCount) FROM (MATCH (message:POST)\n   OPTIONAL MATCH (message)<-[:REPLYOF]-(__cico_count:COMMENT) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "POST(replyCount)",
+          "entries": [
+            {
+              "candidate": "POST(replyCount)",
+              "name": "fill_POST_replyCount___neug_fill_state_n_rows_11fb00093c4795b1_1440889b9440",
+              "target_table": "POST",
+              "fill_type": "NODE",
+              "target_columns": [
+                "replyCount",
+                "__neug_fill_state_n_rows_11fb00093c4795b1"
+              ],
+              "source_query": "MATCH (message:POST)\n   OPTIONAL MATCH (message)<-[:REPLYOF]-(__cico_count:COMMENT) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE POST ADD replyCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        },
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL COMMENT(replyCount) FROM (MATCH (message:COMMENT)\n   OPTIONAL MATCH (message)<-[:REPLYOF]-(__cico_count:COMMENT) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+          "original": "FILL COMMENT(replyCount) FROM (MATCH (message:COMMENT)\n   OPTIONAL MATCH (message)<-[:REPLYOF]-(__cico_count:COMMENT) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "COMMENT(replyCount)",
+          "entries": [
+            {
+              "candidate": "COMMENT(replyCount)",
+              "name": "fill_COMMENT_replyCount___neug_fill_state_n_rows_95e72dd943dd0f95_fbff23a1b88a",
+              "target_table": "COMMENT",
+              "fill_type": "NODE",
+              "target_columns": [
+                "replyCount",
+                "__neug_fill_state_n_rows_95e72dd943dd0f95"
+              ],
+              "source_query": "MATCH (message:COMMENT)\n   OPTIONAL MATCH (message)<-[:REPLYOF]-(__cico_count:COMMENT) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE COMMENT ADD replyCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi6/index.cypher",
+      "indexes": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL PERSON(likeCount) FROM (MATCH (person2:PERSON)\n OPTIONAL MATCH (person2)<-[:HASCREATOR]-(:COMMENT:POST)<-[:LIKES]-(__cico_count:PERSON) WITH person2, count(__cico_count) AS likeCount RETURN person2.id, likeCount)",
+          "original": "FILL PERSON(likeCount) FROM (MATCH (person2:PERSON)\n OPTIONAL MATCH (person2)<-[:HASCREATOR]-(:COMMENT:POST)<-[:LIKES]-(__cico_count:PERSON) WITH person2, count(__cico_count) AS likeCount RETURN person2.id, likeCount)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "PERSON(likeCount)",
+          "entries": [
+            {
+              "candidate": "PERSON(likeCount)",
+              "name": "fill_PERSON_likeCount___neug_fill_state_n_rows_191b789bf6505714_0872d21b8829",
+              "target_table": "PERSON",
+              "fill_type": "NODE",
+              "target_columns": [
+                "likeCount",
+                "__neug_fill_state_n_rows_191b789bf6505714"
+              ],
+              "source_query": "MATCH (person2:PERSON)\n OPTIONAL MATCH (person2)<-[:HASCREATOR]-(:COMMENT:POST)<-[:LIKES]-(__cico_count:PERSON) WITH person2, count(__cico_count) AS likeCount RETURN person2.id, likeCount"
+            }
+          ],
+          "inferred_ddl": [
+            "ALTER TABLE PERSON ADD likeCount INT64"
+          ],
+          "schema_changed": true,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ]
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/Neo4j/queries/index/ldbc-bi/bi11/index.cypher",
+      "indexes": [
+        {
+          "kind": "fill",
+          "ok": true,
+          "cypher": "FILL BI11_PERSON_COUNTRY() FROM (MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'})\n RETURN DISTINCT person.id, country.id)",
+          "original": "FILL BI11_PERSON_COUNTRY() FROM (MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'})\n RETURN DISTINCT person.id, country.id)",
+          "rewritten": false,
+          "reason": "registered",
+          "detail": "",
+          "indexes": [],
+          "columns": [],
+          "index_id": "BI11_PERSON_COUNTRY()",
+          "entries": [
+            {
+              "candidate": "BI11_PERSON_COUNTRY()",
+              "name": "fill_BI11_PERSON_COUNTRY_no_columns_39472f809d00",
+              "target_table": "BI11_PERSON_COUNTRY",
+              "fill_type": "REL",
+              "target_columns": [],
+              "source_query": "MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'})\n RETURN DISTINCT person.id, country.id"
+            }
+          ],
+          "inferred_ddl": [],
+          "schema_changed": false,
+          "route": "",
+          "specialized": [],
+          "parts": []
+        }
+      ]
+    }
+  ],
+  "build": [
+    {
+      "index": 10,
+      "statement": 1,
+      "ok": true
+    },
+    {
+      "index": 10,
+      "statement": 2,
+      "ok": true
+    },
+    {
+      "index": 9,
+      "statement": 1,
+      "ok": true
+    },
+    {
+      "index": 9,
+      "statement": 2,
+      "ok": true
+    },
+    {
+      "index": 9,
+      "statement": 3,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "statement": 1,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "statement": 2,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "statement": 3,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "statement": 4,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "statement": 5,
+      "ok": true
+    },
+    {
+      "index": 6,
+      "statement": 1,
+      "ok": true
+    },
+    {
+      "index": 6,
+      "statement": 2,
+      "ok": true
+    },
+    {
+      "index": 11,
+      "statement": 1,
+      "ok": true
+    },
+    {
+      "index": 11,
+      "statement": 2,
+      "ok": true
+    }
+  ],
+  "queries": [
+    {
+      "query": "bi-1",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q1. Posting summary\n/*\n:params { datetime: datetime('2011-12-01T00:00:00.000') }\n*/\nMATCH (message:Message)\nWHERE message.creationDate < $datetime\nWITH count(message) AS totalMessageCountInt // this should be a subquery once Cypher supports it\nWITH toFloat(totalMessageCountInt) AS totalMessageCount\nMATCH (message:Message)\nWHERE message.creationDate < $datetime\n  AND message.content IS NOT NULL\nWITH\n  totalMessageCount,\n  message,\n  message.creationDate.year AS year\nWITH\n  totalMessageCount,\n  year,\n  message:Comment AS isComment,\n  CASE\n    WHEN message.length <  40 THEN 0\n    WHEN message.length <  80 THEN 1\n    WHEN message.length < 160 THEN 2\n    ELSE                           3\n  END AS lengthCategory,\n  count(message) AS messageCount,\n  sum(message.length) / toFloat(count(message)) AS averageMessageLength,\n  sum(message.length) AS sumMessageLength\nRETURN\n  year,\n  isComment,\n  lengthCategory,\n  messageCount,\n  averageMessageLength,\n  sumMessageLength,\n  messageCount / totalMessageCount AS percentageOfMessages\nORDER BY\n  year DESC,\n  isComment ASC,\n  lengthCategory ASC\n",
+      "original": "// Q1. Posting summary\n/*\n:params { datetime: datetime('2011-12-01T00:00:00.000') }\n*/\nMATCH (message:Message)\nWHERE message.creationDate < $datetime\nWITH count(message) AS totalMessageCountInt // this should be a subquery once Cypher supports it\nWITH toFloat(totalMessageCountInt) AS totalMessageCount\nMATCH (message:Message)\nWHERE message.creationDate < $datetime\n  AND message.content IS NOT NULL\nWITH\n  totalMessageCount,\n  message,\n  message.creationDate.year AS year\nWITH\n  totalMessageCount,\n  year,\n  message:Comment AS isComment,\n  CASE\n    WHEN message.length <  40 THEN 0\n    WHEN message.length <  80 THEN 1\n    WHEN message.length < 160 THEN 2\n    ELSE                           3\n  END AS lengthCategory,\n  count(message) AS messageCount,\n  sum(message.length) / toFloat(count(message)) AS averageMessageLength,\n  sum(message.length) AS sumMessageLength\nRETURN\n  year,\n  isComment,\n  lengthCategory,\n  messageCount,\n  averageMessageLength,\n  sumMessageLength,\n  messageCount / totalMessageCount AS percentageOfMessages\nORDER BY\n  year DESC,\n  isComment ASC,\n  lengthCategory ASC\n",
+      "rewritten": false,
+      "reason": "no_index_selected",
+      "detail": "part 1: no_index_selected | part 3: no_index_selected",
+      "indexes": [],
+      "columns": [
+        [
+          "totalMessageCountInt",
+          "INT64"
+        ]
+      ],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-2",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q2. Tag evolution\n/*\n:params { date: datetime('2012-06-01'), tagClass: 'MusicalArtist' }\n*/\nMATCH (tag:Tag)-[:HAS_TYPE]->(:TagClass {name: $tagClass})\n// window 1\nOPTIONAL MATCH (message1:Message)-[:HAS_TAG]->(tag)\n  WHERE $date <= message1.creationDate\n    AND message1.creationDate < $date + duration({days: 100})\nWITH tag, count(message1) AS countWindow1\n// window 2\nOPTIONAL MATCH (message2:Message)-[:HAS_TAG]->(tag)\n  WHERE $date + duration({days: 100}) <= message2.creationDate\n    AND message2.creationDate < $date + duration({days: 200})\nWITH\n  tag,\n  countWindow1,\n  count(message2) AS countWindow2\nRETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100\n",
+      "original": "// Q2. Tag evolution\n/*\n:params { date: datetime('2012-06-01'), tagClass: 'MusicalArtist' }\n*/\nMATCH (tag:Tag)-[:HAS_TYPE]->(:TagClass {name: $tagClass})\n// window 1\nOPTIONAL MATCH (message1:Message)-[:HAS_TAG]->(tag)\n  WHERE $date <= message1.creationDate\n    AND message1.creationDate < $date + duration({days: 100})\nWITH tag, count(message1) AS countWindow1\n// window 2\nOPTIONAL MATCH (message2:Message)-[:HAS_TAG]->(tag)\n  WHERE $date + duration({days: 100}) <= message2.creationDate\n    AND message2.creationDate < $date + duration({days: 200})\nWITH\n  tag,\n  countWindow1,\n  count(message2) AS countWindow2\nRETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100\n",
+      "rewritten": false,
+      "reason": "no_index_selected",
+      "detail": "part 1: no_index_selected statement changed without reading an index | part 2: no_index_selected statement changed without reading an index",
+      "indexes": [],
+      "columns": [
+        [
+          "tag",
+          "NODE(LABELS(TAG,))"
+        ],
+        [
+          "countWindow1",
+          "INT64"
+        ]
+      ],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-3",
+      "kind": "query",
+      "ok": true,
+      "cypher": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r2:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r3:CONTAINER_OF]->(post) MATCH (forum)-[cico_r4:HAS_MODERATOR]->(person:Person) MATCH (person)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(cico_n1:Place) WHERE (cico_n1.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+      "original": "// Q3. Popular topics in a country\n/*\n:params { tagClass: 'MusicalArtist', country: 'Burma' }\n*/\nMATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message\nMATCH\n  (message)-[:REPLY_OF*0..]->(post:Post)<-[:CONTAINER_OF]-\n  (forum:Forum)-[:HAS_MODERATOR]->(person:Person)-[:IS_LOCATED_IN]->\n  (:City)-[:IS_PART_OF]->(:Country {name: $country})\nRETURN\n  forum.id,\n  forum.title,\n  forum.creationDate,\n  person.id,\n  count(DISTINCT message) AS messageCount\nORDER BY\n  messageCount DESC,\n  forum.id ASC\nLIMIT 20\n",
+      "rewritten": true,
+      "reason": "rewritten",
+      "detail": "part 1: no_index_selected",
+      "indexes": [
+        "BI11_PERSON_COUNTRY()",
+        "ROOT_POST()"
+      ],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "parts:2",
+      "specialized": [],
+      "parts": [
+        2
+      ],
+      "neo4j_explain": "ok"
+    },
+    {
+      "query": "bi-4",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q4. Top message creators in a country\n/*\n:params { date: datetime('2010-01-29') }\n*/\nMATCH (country:Country)<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(person:Person)<-[:HAS_MEMBER]-(forum:Forum)\nWHERE forum.creationDate > $date\nWITH country, forum, count(person) AS numberOfMembers\nORDER BY numberOfMembers DESC, forum.id ASC, country.id\nWITH DISTINCT forum AS topForum\nLIMIT 100\n\nWITH collect(topForum) AS topForums\n\nCALL {\n  WITH topForums\n  UNWIND topForums AS topForum1\n  MATCH (topForum1)-[:CONTAINER_OF]->(post:Post)<-[:REPLY_OF*0..]-(message:Message)-[:HAS_CREATOR]->(person:Person)<-[:HAS_MEMBER]-(topForum2:Forum)\n  WITH person, message, topForum2\n  WHERE topForum2 IN topForums\n  RETURN person, count(DISTINCT message) AS messageCount\nUNION ALL\n  // Ensure that people who are members of top forums but have 0 messages are also returned.\n  // To this end, we return each person with a 0 messageCount\n  WITH topForums\n  UNWIND topForums AS topForum1\n  MATCH (person:Person)<-[:HAS_MEMBER]-(topForum1:Forum)\n  RETURN person, 0 AS messageCount\n}\nRETURN\n  person.id AS personId,\n  person.firstName AS personFirstName,\n  person.lastName AS personLastName,\n  person.creationDate AS personCreationDate,\n  sum(messageCount) AS messageCount\nORDER BY\n  messageCount DESC,\n  person.id ASC\nLIMIT 100\n",
+      "original": "// Q4. Top message creators in a country\n/*\n:params { date: datetime('2010-01-29') }\n*/\nMATCH (country:Country)<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(person:Person)<-[:HAS_MEMBER]-(forum:Forum)\nWHERE forum.creationDate > $date\nWITH country, forum, count(person) AS numberOfMembers\nORDER BY numberOfMembers DESC, forum.id ASC, country.id\nWITH DISTINCT forum AS topForum\nLIMIT 100\n\nWITH collect(topForum) AS topForums\n\nCALL {\n  WITH topForums\n  UNWIND topForums AS topForum1\n  MATCH (topForum1)-[:CONTAINER_OF]->(post:Post)<-[:REPLY_OF*0..]-(message:Message)-[:HAS_CREATOR]->(person:Person)<-[:HAS_MEMBER]-(topForum2:Forum)\n  WITH person, message, topForum2\n  WHERE topForum2 IN topForums\n  RETURN person, count(DISTINCT message) AS messageCount\nUNION ALL\n  // Ensure that people who are members of top forums but have 0 messages are also returned.\n  // To this end, we return each person with a 0 messageCount\n  WITH topForums\n  UNWIND topForums AS topForum1\n  MATCH (person:Person)<-[:HAS_MEMBER]-(topForum1:Forum)\n  RETURN person, 0 AS messageCount\n}\nRETURN\n  person.id AS personId,\n  person.firstName AS personFirstName,\n  person.lastName AS personLastName,\n  person.creationDate AS personCreationDate,\n  sum(messageCount) AS messageCount\nORDER BY\n  messageCount DESC,\n  person.id ASC\nLIMIT 100\n",
+      "rewritten": false,
+      "reason": "frontend_unsupported",
+      "detail": "CALL subquery",
+      "indexes": [],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-5",
+      "kind": "query",
+      "ok": true,
+      "cypher": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)\nOPTIONAL MATCH (message)<-[likes:LIKES]-(:Person)\nWITH person, message, count(likes) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+      "original": "// Q5. Most active Posters of a given Topic\n/*\n:params { tag: 'Abbas_I_of_Persia' }\n*/\nMATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)\nOPTIONAL MATCH (message)<-[likes:LIKES]-(:Person)\nWITH person, message, count(likes) AS likeCount\nOPTIONAL MATCH (message)<-[:REPLY_OF]-(reply:Comment)\nWITH person, message, likeCount, count(reply) AS replyCount\nWITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount\nRETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100\n",
+      "rewritten": true,
+      "reason": "rewritten",
+      "detail": "part 1: no_index_selected",
+      "indexes": [
+        "COMMENT(replyCount)",
+        "POST(replyCount)"
+      ],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "parts:2",
+      "specialized": [],
+      "parts": [
+        2
+      ],
+      "neo4j_explain": "ok"
+    },
+    {
+      "query": "bi-6",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q6. Most authoritative users on a given topic\n/*\n:params { tag: 'Arnold_Schwarzenegger' }\n*/\nMATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) {\n  OPTIONAL MATCH (person2)<-[:HAS_CREATOR]-(:Message)<-[like:LIKES]-(:Person)\n  RETURN count(like) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100\n\n// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.\n// This might change in the future with new Cypher versions and GQL.\n",
+      "original": "// Q6. Most authoritative users on a given topic\n/*\n:params { tag: 'Arnold_Schwarzenegger' }\n*/\nMATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) {\n  OPTIONAL MATCH (person2)<-[:HAS_CREATOR]-(:Message)<-[like:LIKES]-(:Person)\n  RETURN count(like) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100\n\n// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.\n// This might change in the future with new Cypher versions and GQL.\n",
+      "rewritten": false,
+      "reason": "frontend_unsupported",
+      "detail": "CALL subquery",
+      "indexes": [],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-7",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q7. Related Topics\n/*\n:params { tag: 'Enrique_Iglesias' }\n*/\nMATCH\n  (tag:Tag {name: $tag})<-[:HAS_TAG]-(message:Message),\n  (message)<-[:REPLY_OF]-(comment:Comment)-[:HAS_TAG]->(relatedTag:Tag)\nWHERE NOT (comment)-[:HAS_TAG]->(tag)\nRETURN\n  relatedTag.name,\n  count(DISTINCT comment) AS count\nORDER BY\n  count DESC,\n  relatedTag.name ASC\nLIMIT 100\n",
+      "original": "// Q7. Related Topics\n/*\n:params { tag: 'Enrique_Iglesias' }\n*/\nMATCH\n  (tag:Tag {name: $tag})<-[:HAS_TAG]-(message:Message),\n  (message)<-[:REPLY_OF]-(comment:Comment)-[:HAS_TAG]->(relatedTag:Tag)\nWHERE NOT (comment)-[:HAS_TAG]->(tag)\nRETURN\n  relatedTag.name,\n  count(DISTINCT comment) AS count\nORDER BY\n  count DESC,\n  relatedTag.name ASC\nLIMIT 100\n",
+      "rewritten": false,
+      "reason": "no_index_selected",
+      "detail": "",
+      "indexes": [],
+      "columns": [
+        [
+          "_10_relatedTag.name",
+          "STRING"
+        ],
+        [
+          "count",
+          "INT64"
+        ]
+      ],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-8",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q8. Central Person for a Tag\n/*\n:params { tag: 'Che_Guevara', startDate: datetime('2011-07-20'), endDate: datetime('2011-07-25') }\n*/\nMATCH (tag:Tag {name: $tag})\n// score\nOPTIONAL MATCH (tag)<-[interest:HAS_INTEREST]-(person:Person)\nWITH tag, collect(person) AS interestedPersons\nOPTIONAL MATCH (tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)\n         WHERE $startDate < message.creationDate\n           AND message.creationDate < $endDate\nWITH tag, interestedPersons, interestedPersons + collect(person) AS persons\nUNWIND persons AS person\nWITH DISTINCT tag, person\nWITH\n  tag,\n  person,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(person) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS score\nOPTIONAL MATCH (person)-[:KNOWS]-(friend)\n// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.\n// This might change in the future with new Cypher versions and GQL.\nWITH\n  person,\n  score,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(friend) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(friend) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS friendScore\nRETURN\n  person.id,\n  score,\n  sum(friendScore) AS friendsScore\nORDER BY\n  score + friendsScore DESC,\n  person.id ASC\nLIMIT 100\n",
+      "original": "// Q8. Central Person for a Tag\n/*\n:params { tag: 'Che_Guevara', startDate: datetime('2011-07-20'), endDate: datetime('2011-07-25') }\n*/\nMATCH (tag:Tag {name: $tag})\n// score\nOPTIONAL MATCH (tag)<-[interest:HAS_INTEREST]-(person:Person)\nWITH tag, collect(person) AS interestedPersons\nOPTIONAL MATCH (tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)\n         WHERE $startDate < message.creationDate\n           AND message.creationDate < $endDate\nWITH tag, interestedPersons, interestedPersons + collect(person) AS persons\nUNWIND persons AS person\nWITH DISTINCT tag, person\nWITH\n  tag,\n  person,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(person) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS score\nOPTIONAL MATCH (person)-[:KNOWS]-(friend)\n// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.\n// This might change in the future with new Cypher versions and GQL.\nWITH\n  person,\n  score,\n  100 * size([(tag)<-[interest:HAS_INTEREST]-(friend) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(friend) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])\n  AS friendScore\nRETURN\n  person.id,\n  score,\n  sum(friendScore) AS friendsScore\nORDER BY\n  score + friendsScore DESC,\n  person.id ASC\nLIMIT 100\n",
+      "rewritten": false,
+      "reason": "no_index_selected",
+      "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: part_input_unavailable an earlier QueryPart is not convertible: function size(): not in the NeuG catalog",
+      "indexes": [],
+      "columns": [
+        [
+          "tag",
+          "NODE(LABELS(TAG,))"
+        ],
+        [
+          "interestedPersons",
+          "NODE(LABELS(PERSON,))[]"
+        ]
+      ],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-9",
+      "kind": "query",
+      "ok": true,
+      "cypher": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+      "original": "// Q9. Top thread initiators\n/*\n:params { startDate: datetime('2011-10-01'), endDate: datetime('2011-10-15') }\n*/\nMATCH (person:Person)<-[:HAS_CREATOR]-(post:Post)<-[:REPLY_OF*0..]-(reply:Message)\nWHERE  post.creationDate >= $startDate\n  AND  post.creationDate <= $endDate\n  AND reply.creationDate >= $startDate\n  AND reply.creationDate <= $endDate\nRETURN\n  person.id,\n  person.firstName,\n  person.lastName,\n  count(DISTINCT post) AS threadCount,\n  count(DISTINCT reply) AS messageCount\nORDER BY\n  messageCount DESC,\n  person.id ASC\nLIMIT 100\n",
+      "rewritten": true,
+      "reason": "rewritten",
+      "detail": "",
+      "indexes": [
+        "ROOT_POST()"
+      ],
+      "columns": [
+        [
+          "_0_person.id",
+          "INT64"
+        ],
+        [
+          "_0_person.firstName",
+          "STRING"
+        ],
+        [
+          "_0_person.lastName",
+          "STRING"
+        ],
+        [
+          "threadCount",
+          "INT64"
+        ],
+        [
+          "messageCount",
+          "INT64"
+        ]
+      ],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "initial",
+      "specialized": [],
+      "parts": [],
+      "neo4j_explain": "ok"
+    },
+    {
+      "query": "bi-10",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q10. Experts in social circle\n// Requires the Neo4j APOC library\n/*\n:params {\n    personId: 30786325588624,\n    country: 'China',\n    tagClass: 'MusicalArtist',\n    minPathDistance: 3,\n    maxPathDistance: 4\n}\n*/\nMATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance\n// compute the difference of sets: nodesCloserThanMaxPathDistance - nodesCloserThanMinPathDistance\nWITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons\nUNWIND expertCandidatePersons AS expertCandidatePerson\nMATCH\n  (expertCandidatePerson)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(:Country {name: $country}),\n  (expertCandidatePerson)<-[:HAS_CREATOR]-(message:Message)-[:HAS_TAG]->(:Tag)-[:HAS_TYPE]->\n  (:TagClass {name: $tagClass})\nMATCH\n  (message)-[:HAS_TAG]->(tag:Tag)\nRETURN\n  expertCandidatePerson.id,\n  tag.name,\n  count(DISTINCT message) AS messageCount\nORDER BY\n  messageCount DESC,\n  tag.name ASC,\n  expertCandidatePerson.id ASC\nLIMIT 100\n",
+      "original": "// Q10. Experts in social circle\n// Requires the Neo4j APOC library\n/*\n:params {\n    personId: 30786325588624,\n    country: 'China',\n    tagClass: 'MusicalArtist',\n    minPathDistance: 3,\n    maxPathDistance: 4\n}\n*/\nMATCH (startPerson:Person {id: $personId})\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $minPathDistance-1\n})\nYIELD node\nWITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance\nCALL apoc.path.subgraphNodes(startPerson, {\n\trelationshipFilter: \"KNOWS\",\n    minLevel: 1,\n    maxLevel: $maxPathDistance\n})\nYIELD node\nWITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance\n// compute the difference of sets: nodesCloserThanMaxPathDistance - nodesCloserThanMinPathDistance\nWITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons\nUNWIND expertCandidatePersons AS expertCandidatePerson\nMATCH\n  (expertCandidatePerson)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(:Country {name: $country}),\n  (expertCandidatePerson)<-[:HAS_CREATOR]-(message:Message)-[:HAS_TAG]->(:Tag)-[:HAS_TYPE]->\n  (:TagClass {name: $tagClass})\nMATCH\n  (message)-[:HAS_TAG]->(tag:Tag)\nRETURN\n  expertCandidatePerson.id,\n  tag.name,\n  count(DISTINCT message) AS messageCount\nORDER BY\n  messageCount DESC,\n  tag.name ASC,\n  expertCandidatePerson.id ASC\nLIMIT 100\n",
+      "rewritten": false,
+      "reason": "frontend_unsupported",
+      "detail": "CALL procedure: no internal equivalent",
+      "indexes": [],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-11",
+      "kind": "query",
+      "ok": true,
+      "cypher": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) MATCH (a)-[BI11_PERSON_COUNTRY:BI11_PERSON_COUNTRY]->(country:Place) WHERE ((((country.name = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT country, a, b MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
+      "original": "// Q11. Friend triangles\n/*\n:params {\n  country: 'India',\n  startDate: datetime('2012-09-29'),\n  endDate: datetime('2013-01-01')\n}\n*/\nMATCH (a:Person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country:Country {name: $country}),\n      (a)-[k1:KNOWS]-(b:Person)\nWHERE a.id < b.id\n  AND $startDate <= k1.creationDate AND k1.creationDate <= $endDate\nWITH DISTINCT country, a, b\nMATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWITH DISTINCT country, a, b\nMATCH (b)-[k2:KNOWS]-(c:Person),\n      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)\nWHERE b.id < c.id\n  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate\nWITH DISTINCT a, b, c\nMATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c\nRETURN count(*) AS count\n",
+      "rewritten": true,
+      "reason": "rewritten",
+      "detail": "part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+      "indexes": [
+        "BI11_PERSON_COUNTRY()"
+      ],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "parts:1",
+      "specialized": [],
+      "parts": [
+        1
+      ],
+      "neo4j_explain": "ok"
+    },
+    {
+      "query": "bi-12",
+      "kind": "query",
+      "ok": true,
+      "cypher": "MATCH(person:Person)\nOPTIONAL MATCH(person)<-[:HAS_CREATOR]-(message:Message)-[:REPLY_OF*0..]->(post:Post)\nWHERE message.content IS NOT NULL AND message.length<$lengthThreshold\nAND message.creationDate>$startDate AND post.language IN $languages\nWITH person,count(message) AS messageCount\nRETURN messageCount,count(person) AS personCount ORDER BY personCount DESC,messageCount DESC;\n",
+      "original": "MATCH(person:Person)\nOPTIONAL MATCH(person)<-[:HAS_CREATOR]-(message:Message)-[:REPLY_OF*0..]->(post:Post)\nWHERE message.content IS NOT NULL AND message.length<$lengthThreshold\nAND message.creationDate>$startDate AND post.language IN $languages\nWITH person,count(message) AS messageCount\nRETURN messageCount,count(person) AS personCount ORDER BY personCount DESC,messageCount DESC;\n",
+      "rewritten": false,
+      "reason": "no_index_selected",
+      "detail": "part 1: no_index_selected",
+      "indexes": [],
+      "columns": [
+        [
+          "person",
+          "NODE(LABELS(PERSON,))"
+        ],
+        [
+          "messageCount",
+          "INT64"
+        ]
+      ],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-13",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q13. Zombies in a country\n/*\n:params { country: 'France', endDate: datetime('2013-01-01') }\n*/\nMATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie\nOPTIONAL MATCH (zombie)<-[:HAS_CREATOR]-(message:Message)\nWHERE message.creationDate < $endDate\nWITH\n  country,\n  zombie,\n  count(message) AS messageCount\nWITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1\nWITH\n  country,\n  collect(zombie) AS zombies\nUNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount\nRETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100\n",
+      "original": "// Q13. Zombies in a country\n/*\n:params { country: 'France', endDate: datetime('2013-01-01') }\n*/\nMATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie\nOPTIONAL MATCH (zombie)<-[:HAS_CREATOR]-(message:Message)\nWHERE message.creationDate < $endDate\nWITH\n  country,\n  zombie,\n  count(message) AS messageCount\nWITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1\nWITH\n  country,\n  collect(zombie) AS zombies\nUNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount\nRETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100\n",
+      "rewritten": false,
+      "reason": "no_index_selected",
+      "detail": "part 1: no_index_selected | part 2: no_index_selected | part 5: frontend_unsupported NeuG: Not supported: OPTIONAL MATCH predicate requires unsupported mixed outer/inner correlation: LIST_CONTAINS(zombies,likerZombie) at /mnt/sdb1/feiyang/IncGQ/src/compiler/planner/plan/plan_subquery. | part 6: part_input_unavailable an earlier QueryPart is not convertible: NeuG: Not supported: OPTIONAL MATCH predicate requires unsupported mixed outer/inner correlation: LIST_CONTAINS(zombies,likerZombie) at /mnt/sdb1/feiyang/IncGQ",
+      "indexes": [],
+      "columns": [
+        [
+          "country",
+          "NODE(LABELS(PLACE,))"
+        ],
+        [
+          "zombie",
+          "NODE(LABELS(PERSON,))"
+        ]
+      ],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-14",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q14. International dialog\n/*\n:params { country1: 'Chile', country2: 'Argentina' }\n*/\nMATCH\n  (country1:Country {name: $country1})<-[:IS_PART_OF]-(city1:City)<-[:IS_LOCATED_IN]-(person1:Person),\n  (country2:Country {name: $country2})<-[:IS_PART_OF]-(city2:City)<-[:IS_LOCATED_IN]-(person2:Person),\n  (person1)-[:KNOWS]-(person2)\nWITH person1, person2, city1, 0 AS score\n// case 1\nOPTIONAL MATCH (person1)<-[:HAS_CREATOR]-(c:Comment)-[:REPLY_OF]->(:Message)-[:HAS_CREATOR]->(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN c IS NULL THEN 0 ELSE  4 END) AS score\n// case 2\nOPTIONAL MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:REPLY_OF]-(:Comment)-[:HAS_CREATOR]->(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE  1 END) AS score\n// case 3\nOPTIONAL MATCH (person1)-[:LIKES]->(m:Message)-[:HAS_CREATOR]->(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE 10 END) AS score\n// case 4\nOPTIONAL MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:LIKES]-(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE  1 END) AS score\n// preorder\nORDER BY\n  city1.name ASC,\n  score DESC,\n  person1.id ASC,\n  person2.id ASC\nWITH city1, collect({score: score, person1Id: person1.id, person2Id: person2.id})[0] AS top\nRETURN\n  top.person1Id,\n  top.person2Id,\n  city1.name,\n  top.score\nORDER BY\n  top.score DESC,\n  top.person1Id ASC,\n  top.person2Id ASC\nLIMIT 100\n",
+      "original": "// Q14. International dialog\n/*\n:params { country1: 'Chile', country2: 'Argentina' }\n*/\nMATCH\n  (country1:Country {name: $country1})<-[:IS_PART_OF]-(city1:City)<-[:IS_LOCATED_IN]-(person1:Person),\n  (country2:Country {name: $country2})<-[:IS_PART_OF]-(city2:City)<-[:IS_LOCATED_IN]-(person2:Person),\n  (person1)-[:KNOWS]-(person2)\nWITH person1, person2, city1, 0 AS score\n// case 1\nOPTIONAL MATCH (person1)<-[:HAS_CREATOR]-(c:Comment)-[:REPLY_OF]->(:Message)-[:HAS_CREATOR]->(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN c IS NULL THEN 0 ELSE  4 END) AS score\n// case 2\nOPTIONAL MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:REPLY_OF]-(:Comment)-[:HAS_CREATOR]->(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE  1 END) AS score\n// case 3\nOPTIONAL MATCH (person1)-[:LIKES]->(m:Message)-[:HAS_CREATOR]->(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE 10 END) AS score\n// case 4\nOPTIONAL MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:LIKES]-(person2)\nWITH DISTINCT person1, person2, city1, score + (CASE WHEN m IS NULL THEN 0 ELSE  1 END) AS score\n// preorder\nORDER BY\n  city1.name ASC,\n  score DESC,\n  person1.id ASC,\n  person2.id ASC\nWITH city1, collect({score: score, person1Id: person1.id, person2Id: person2.id})[0] AS top\nRETURN\n  top.person1Id,\n  top.person2Id,\n  city1.name,\n  top.score\nORDER BY\n  top.score DESC,\n  top.person1Id ASC,\n  top.person2Id ASC\nLIMIT 100\n",
+      "rewritten": false,
+      "reason": "no_index_selected",
+      "detail": "part 1: no_index_selected | part 2: no_index_selected statement changed without reading an index | part 3: no_index_selected statement changed without reading an index | part 4: no_index_selected | part 5: no_index_selected",
+      "indexes": [],
+      "columns": [
+        [
+          "person1",
+          "NODE(LABELS(PERSON,))"
+        ],
+        [
+          "person2",
+          "NODE(LABELS(PERSON,))"
+        ],
+        [
+          "city1",
+          "NODE(LABELS(PLACE,))"
+        ],
+        [
+          "score",
+          "INT64"
+        ]
+      ],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-15",
+      "reason": "write_query",
+      "rewritten": false
+    },
+    {
+      "query": "bi-16",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q16. Fake news detection\n// These parameters return a 'false positive' as the maxKnowsLimit is set too high.\n/*\n:params {\n  tagA: 'Meryl_Streep',\n  dateA: datetime('2012-09-16'),\n  tagB: 'Hank_Williams',\n  dateB: datetime('2012-05-08'),\n  maxKnowsLimit: 4\n}\n*/\nUNWIND [\n    {letter: 'A', tag: $tagA, date: $dateA},\n    {letter: 'B', tag: $tagB, date: $dateB}\n  ] AS param\nWITH param.letter AS paramLetter, param.tag AS paramTagX, param.date AS paramDateX\nCALL {\n  WITH paramTagX, paramDateX\n  MATCH (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:HAS_TAG]->(tag:Tag {name: paramTagX})\n  WHERE date(message1.creationDate) = date(paramDateX)\n  // filter out Persons with more than $maxKnowsLimit friends who created the same kind of Message\n  OPTIONAL MATCH (person1)-[:KNOWS]-(person2:Person)<-[:HAS_CREATOR]-(message2:Message)-[:HAS_TAG]->(tag)\n  WHERE date(message2.creationDate) = date(paramDateX)\n  WITH person1, count(DISTINCT message1) AS cm, count(DISTINCT person2) AS cp2\n  WHERE cp2 <= $maxKnowsLimit\n  // return count\n  RETURN person1, cm\n}\nWITH person1, collect({letter: paramLetter, messageCount: cm}) AS results\nWHERE size(results) = 2\nRETURN\n  person1.id,\n  [r IN results WHERE r.letter = 'A' | r.messageCount][0] AS messageCountA,\n  [r IN results WHERE r.letter = 'B' | r.messageCount][0] AS messageCountB\nORDER BY messageCountA + messageCountB DESC, person1.id ASC\nLIMIT 20\n",
+      "original": "// Q16. Fake news detection\n// These parameters return a 'false positive' as the maxKnowsLimit is set too high.\n/*\n:params {\n  tagA: 'Meryl_Streep',\n  dateA: datetime('2012-09-16'),\n  tagB: 'Hank_Williams',\n  dateB: datetime('2012-05-08'),\n  maxKnowsLimit: 4\n}\n*/\nUNWIND [\n    {letter: 'A', tag: $tagA, date: $dateA},\n    {letter: 'B', tag: $tagB, date: $dateB}\n  ] AS param\nWITH param.letter AS paramLetter, param.tag AS paramTagX, param.date AS paramDateX\nCALL {\n  WITH paramTagX, paramDateX\n  MATCH (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:HAS_TAG]->(tag:Tag {name: paramTagX})\n  WHERE date(message1.creationDate) = date(paramDateX)\n  // filter out Persons with more than $maxKnowsLimit friends who created the same kind of Message\n  OPTIONAL MATCH (person1)-[:KNOWS]-(person2:Person)<-[:HAS_CREATOR]-(message2:Message)-[:HAS_TAG]->(tag)\n  WHERE date(message2.creationDate) = date(paramDateX)\n  WITH person1, count(DISTINCT message1) AS cm, count(DISTINCT person2) AS cp2\n  WHERE cp2 <= $maxKnowsLimit\n  // return count\n  RETURN person1, cm\n}\nWITH person1, collect({letter: paramLetter, messageCount: cm}) AS results\nWHERE size(results) = 2\nRETURN\n  person1.id,\n  [r IN results WHERE r.letter = 'A' | r.messageCount][0] AS messageCountA,\n  [r IN results WHERE r.letter = 'B' | r.messageCount][0] AS messageCountB\nORDER BY messageCountA + messageCountB DESC, person1.id ASC\nLIMIT 20\n",
+      "rewritten": false,
+      "reason": "frontend_unsupported",
+      "detail": "CALL subquery",
+      "indexes": [],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-17",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q17. Information propagation analysis\n/*\n:params { tag: 'Slavoj_Žižek', delta: 4 }\n*/\nMATCH\n  (tag:Tag {name: $tag}),\n  (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:REPLY_OF*0..]->(post1:Post)<-[:CONTAINER_OF]-(forum1:Forum),\n  (message1)-[:HAS_TAG]->(tag),\n// Having two HAS_MEMBER edges in the same MATCH clause ensures that person2 and person3 are different\n// as Cypher's edge-isomorphic matching does not allow for such a match in a single MATCH clause.\n  (forum1)<-[:HAS_MEMBER]->(person2:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:HAS_TAG]->(tag),\n  (forum1)<-[:HAS_MEMBER]->(person3:Person)<-[:HAS_CREATOR]-(message2:Message),\n  (comment)-[:REPLY_OF]->(message2)-[:REPLY_OF*0..]->(post2:Post)<-[:CONTAINER_OF]-(forum2:Forum)\n// The query allows message2 = post2. If this is the case, their HAS_TAG edges to tag overlap,\n// and Cypher's edge-isomorphic matching does not allow for such a match in a single MATCH clause.\n// To work around this, we add them in separate MATCH clauses.\nMATCH (comment)-[:HAS_TAG]->(tag)\nMATCH (message2)-[:HAS_TAG]->(tag)\nWHERE forum1 <> forum2\n  AND message2.creationDate > message1.creationDate + duration({hours: $delta})\n  AND NOT (forum2)-[:HAS_MEMBER]->(person1)\nRETURN person1.id, count(DISTINCT message2) AS messageCount\nORDER BY messageCount DESC, person1.id ASC\nLIMIT 10\n",
+      "original": "// Q17. Information propagation analysis\n/*\n:params { tag: 'Slavoj_Žižek', delta: 4 }\n*/\nMATCH\n  (tag:Tag {name: $tag}),\n  (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:REPLY_OF*0..]->(post1:Post)<-[:CONTAINER_OF]-(forum1:Forum),\n  (message1)-[:HAS_TAG]->(tag),\n// Having two HAS_MEMBER edges in the same MATCH clause ensures that person2 and person3 are different\n// as Cypher's edge-isomorphic matching does not allow for such a match in a single MATCH clause.\n  (forum1)<-[:HAS_MEMBER]->(person2:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:HAS_TAG]->(tag),\n  (forum1)<-[:HAS_MEMBER]->(person3:Person)<-[:HAS_CREATOR]-(message2:Message),\n  (comment)-[:REPLY_OF]->(message2)-[:REPLY_OF*0..]->(post2:Post)<-[:CONTAINER_OF]-(forum2:Forum)\n// The query allows message2 = post2. If this is the case, their HAS_TAG edges to tag overlap,\n// and Cypher's edge-isomorphic matching does not allow for such a match in a single MATCH clause.\n// To work around this, we add them in separate MATCH clauses.\nMATCH (comment)-[:HAS_TAG]->(tag)\nMATCH (message2)-[:HAS_TAG]->(tag)\nWHERE forum1 <> forum2\n  AND message2.creationDate > message1.creationDate + duration({hours: $delta})\n  AND NOT (forum2)-[:HAS_MEMBER]->(person1)\nRETURN person1.id, count(DISTINCT message2) AS messageCount\nORDER BY messageCount DESC, person1.id ASC\nLIMIT 10\n",
+      "rewritten": false,
+      "reason": "frontend_unsupported",
+      "detail": "relationship uniqueness involving a variable-length relationship",
+      "indexes": [],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-18",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q18. Friend recommendation\n/*\n:params { tag: 'Frank_Sinatra' }\n*/\nMATCH (tag:Tag {name: $tag})<-[:HAS_INTEREST]-(person1:Person)-[:KNOWS]-(mutualFriend:Person)-[:KNOWS]-(person2:Person)-[:HAS_INTEREST]->(tag)\nWHERE person1 <> person2\n  AND NOT (person1)-[:KNOWS]-(person2)\nRETURN person1.id AS person1Id, person2.id AS person2Id, count(DISTINCT mutualFriend) AS mutualFriendCount\nORDER BY mutualFriendCount DESC, person1Id ASC, person2Id ASC\nLIMIT 20\n",
+      "original": "// Q18. Friend recommendation\n/*\n:params { tag: 'Frank_Sinatra' }\n*/\nMATCH (tag:Tag {name: $tag})<-[:HAS_INTEREST]-(person1:Person)-[:KNOWS]-(mutualFriend:Person)-[:KNOWS]-(person2:Person)-[:HAS_INTEREST]->(tag)\nWHERE person1 <> person2\n  AND NOT (person1)-[:KNOWS]-(person2)\nRETURN person1.id AS person1Id, person2.id AS person2Id, count(DISTINCT mutualFriend) AS mutualFriendCount\nORDER BY mutualFriendCount DESC, person1Id ASC, person2Id ASC\nLIMIT 20\n",
+      "rewritten": false,
+      "reason": "no_index_selected",
+      "detail": "",
+      "indexes": [],
+      "columns": [
+        [
+          "person1Id",
+          "INT64"
+        ],
+        [
+          "person2Id",
+          "INT64"
+        ],
+        [
+          "mutualFriendCount",
+          "INT64"
+        ]
+      ],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-19",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q19. Interaction path between cities\n// Requires the Neo4j Graph Data Science library\n/*\n:params { city1Id: 669, city2Id: 648 }\n*/\nMATCH\n  (person1:Person)-[:IS_LOCATED_IN]->(city1:City {id: $city1Id}),\n  (person2:Person)-[:IS_LOCATED_IN]->(city2:City {id: $city2Id})\nCALL gds.shortestPath.dijkstra.stream('bi19', {\n  sourceNode: person1,\n  targetNode: person2,\n  relationshipWeightProperty: 'weight'\n})\nYIELD totalCost\nWITH person1.id AS person1Id, person2.id AS person2Id, totalCost AS totalWeight\nORDER BY totalWeight ASC, person1.id ASC, person2.id ASC\nWITH collect({person1Id: person1Id, person2Id: person2Id, totalWeight: totalWeight}) AS results\nUNWIND results AS result\nWITH result.person1Id AS person1Id, result.person2Id AS person2Id, result.totalWeight AS totalWeight\nWHERE totalWeight = results[0].totalWeight\nRETURN person1Id, person2Id, totalWeight\nORDER BY person1Id, person2Id\n",
+      "original": "// Q19. Interaction path between cities\n// Requires the Neo4j Graph Data Science library\n/*\n:params { city1Id: 669, city2Id: 648 }\n*/\nMATCH\n  (person1:Person)-[:IS_LOCATED_IN]->(city1:City {id: $city1Id}),\n  (person2:Person)-[:IS_LOCATED_IN]->(city2:City {id: $city2Id})\nCALL gds.shortestPath.dijkstra.stream('bi19', {\n  sourceNode: person1,\n  targetNode: person2,\n  relationshipWeightProperty: 'weight'\n})\nYIELD totalCost\nWITH person1.id AS person1Id, person2.id AS person2Id, totalCost AS totalWeight\nORDER BY totalWeight ASC, person1.id ASC, person2.id ASC\nWITH collect({person1Id: person1Id, person2Id: person2Id, totalWeight: totalWeight}) AS results\nUNWIND results AS result\nWITH result.person1Id AS person1Id, result.person2Id AS person2Id, result.totalWeight AS totalWeight\nWHERE totalWeight = results[0].totalWeight\nRETURN person1Id, person2Id, totalWeight\nORDER BY person1Id, person2Id\n",
+      "rewritten": false,
+      "reason": "frontend_unsupported",
+      "detail": "CALL procedure: no internal equivalent",
+      "indexes": [],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    },
+    {
+      "query": "bi-20",
+      "kind": "query",
+      "ok": true,
+      "cypher": "// Q20. Recruitment\n// Requires the Neo4j Graph Data Science library\n/*\n:params { company: 'Falcon_Air', person2Id: 66 }\n*/\nMATCH\n  (company:Company {name: $company})<-[:WORK_AT]-(person1:Person),\n  (person2:Person {id: $person2Id})\nCALL gds.shortestPath.dijkstra.stream('bi20', {\n  sourceNode: person1,\n  targetNode: person2,\n  relationshipWeightProperty: 'weight'\n})\nYIELD totalCost\nWHERE person1.id <> $person2Id\nWITH person1.id AS person1Id, totalCost AS totalWeight\nORDER BY totalWeight ASC\nWITH collect({person1Id: person1Id, totalWeight: totalWeight}) AS results\nUNWIND results AS result\nWITH result.person1Id AS person1Id, result.totalWeight AS totalWeight\nWHERE totalWeight = results[0].totalWeight\nRETURN person1Id, totalWeight\nORDER BY person1Id ASC\nLIMIT 20\n",
+      "original": "// Q20. Recruitment\n// Requires the Neo4j Graph Data Science library\n/*\n:params { company: 'Falcon_Air', person2Id: 66 }\n*/\nMATCH\n  (company:Company {name: $company})<-[:WORK_AT]-(person1:Person),\n  (person2:Person {id: $person2Id})\nCALL gds.shortestPath.dijkstra.stream('bi20', {\n  sourceNode: person1,\n  targetNode: person2,\n  relationshipWeightProperty: 'weight'\n})\nYIELD totalCost\nWHERE person1.id <> $person2Id\nWITH person1.id AS person1Id, totalCost AS totalWeight\nORDER BY totalWeight ASC\nWITH collect({person1Id: person1Id, totalWeight: totalWeight}) AS results\nUNWIND results AS result\nWITH result.person1Id AS person1Id, result.totalWeight AS totalWeight\nWHERE totalWeight = results[0].totalWeight\nRETURN person1Id, totalWeight\nORDER BY person1Id ASC\nLIMIT 20\n",
+      "rewritten": false,
+      "reason": "frontend_unsupported",
+      "detail": "CALL procedure: no internal equivalent",
+      "indexes": [],
+      "columns": [],
+      "index_id": "",
+      "entries": [],
+      "inferred_ddl": [],
+      "schema_changed": false,
+      "route": "",
+      "specialized": [],
+      "parts": []
+    }
+  ],
+  "counts": {
+    "nodes": 2997352,
+    "relationships": 17196776
+  },
+  "generated_build": [
+    {
+      "index_id": "PERSON(countryName)",
+      "fill": "FILL PERSON(countryName) FROM (MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'}) RETURN person.id, country.name)",
+      "ok": true,
+      "ddl": [],
+      "reset": [
+        "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.countryName = NULL } IN TRANSACTIONS OF 10000 ROWS"
+      ],
+      "fill_statements": [
+        "MATCH (person:Person)-[cico_r2:IS_LOCATED_IN]->(cico_n1:City) MATCH (cico_n1)-[cico_r3:IS_PART_OF]->(country:Country) WITH person, country.name AS cico_v0 CALL (person, cico_v0) { SET person.countryName = cico_v0 } IN TRANSACTIONS OF 10000 ROWS"
+      ]
+    },
+    {
+      "index_id": "ROOT_POST()",
+      "fill": "FILL ROOT_POST() FROM (MATCH (__cico_message:COMMENT:POST)-[:REPLYOF*0..4294967295]->(__cico_post:POST) RETURN DISTINCT __cico_message.id, __cico_post.id)",
+      "ok": true,
+      "ddl": [],
+      "reset": [
+        "MATCH ()-[cico_e:ROOT_POST]->() WITH cico_e CALL (cico_e) { DELETE cico_e } IN TRANSACTIONS OF 10000 ROWS"
+      ],
+      "fill_statements": [
+        "MATCH (__cico_message:Message) CALL (__cico_message) { MATCH (__cico_message:Message)-[cico_r1:REPLY_OF*0..]->(__cico_post:Post) WITH DISTINCT __cico_message, __cico_post CREATE (__cico_message)-[:ROOT_POST]->(__cico_post) } IN TRANSACTIONS OF 1000 ROWS"
+      ]
+    },
+    {
+      "index_id": "POST(likeCount)",
+      "fill": "FILL POST(likeCount) FROM (MATCH (message:POST)\n   OPTIONAL MATCH (message)<-[:LIKES]-(__cico_count:PERSON) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+      "ok": true,
+      "ddl": [],
+      "reset": [
+        "MATCH (cico_n:Post) WITH cico_n CALL (cico_n) { SET cico_n.likeCount = NULL } IN TRANSACTIONS OF 10000 ROWS"
+      ],
+      "fill_statements": [
+        "MATCH (message:Post) OPTIONAL MATCH (__cico_count:Person)-[cico_r1:LIKES]->(message) WITH message, count(__cico_count) AS cnt WITH message, cnt AS cico_v0 CALL (message, cico_v0) { SET message.likeCount = cico_v0 } IN TRANSACTIONS OF 10000 ROWS"
+      ]
+    },
+    {
+      "index_id": "COMMENT(likeCount)",
+      "fill": "FILL COMMENT(likeCount) FROM (MATCH (message:COMMENT)\n   OPTIONAL MATCH (message)<-[:LIKES]-(__cico_count:PERSON) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+      "ok": true,
+      "ddl": [],
+      "reset": [
+        "MATCH (cico_n:Comment) WITH cico_n CALL (cico_n) { SET cico_n.likeCount = NULL } IN TRANSACTIONS OF 10000 ROWS"
+      ],
+      "fill_statements": [
+        "MATCH (message:Comment) OPTIONAL MATCH (__cico_count:Person)-[cico_r1:LIKES]->(message) WITH message, count(__cico_count) AS cnt WITH message, cnt AS cico_v0 CALL (message, cico_v0) { SET message.likeCount = cico_v0 } IN TRANSACTIONS OF 10000 ROWS"
+      ]
+    },
+    {
+      "index_id": "POST(replyCount)",
+      "fill": "FILL POST(replyCount) FROM (MATCH (message:POST)\n   OPTIONAL MATCH (message)<-[:REPLYOF]-(__cico_count:COMMENT) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+      "ok": true,
+      "ddl": [],
+      "reset": [
+        "MATCH (cico_n:Post) WITH cico_n CALL (cico_n) { SET cico_n.replyCount = NULL } IN TRANSACTIONS OF 10000 ROWS"
+      ],
+      "fill_statements": [
+        "MATCH (message:Post) OPTIONAL MATCH (__cico_count:Comment)-[cico_r1:REPLY_OF]->(message) WITH message, count(__cico_count) AS cnt WITH message, cnt AS cico_v0 CALL (message, cico_v0) { SET message.replyCount = cico_v0 } IN TRANSACTIONS OF 10000 ROWS"
+      ]
+    },
+    {
+      "index_id": "COMMENT(replyCount)",
+      "fill": "FILL COMMENT(replyCount) FROM (MATCH (message:COMMENT)\n   OPTIONAL MATCH (message)<-[:REPLYOF]-(__cico_count:COMMENT) WITH message, count(__cico_count) AS cnt RETURN message.id, cnt)",
+      "ok": true,
+      "ddl": [],
+      "reset": [
+        "MATCH (cico_n:Comment) WITH cico_n CALL (cico_n) { SET cico_n.replyCount = NULL } IN TRANSACTIONS OF 10000 ROWS"
+      ],
+      "fill_statements": [
+        "MATCH (message:Comment) OPTIONAL MATCH (__cico_count:Comment)-[cico_r1:REPLY_OF]->(message) WITH message, count(__cico_count) AS cnt WITH message, cnt AS cico_v0 CALL (message, cico_v0) { SET message.replyCount = cico_v0 } IN TRANSACTIONS OF 10000 ROWS"
+      ]
+    },
+    {
+      "index_id": "PERSON(likeCount)",
+      "fill": "FILL PERSON(likeCount) FROM (MATCH (person2:PERSON)\n OPTIONAL MATCH (person2)<-[:HASCREATOR]-(:COMMENT:POST)<-[:LIKES]-(__cico_count:PERSON) WITH person2, count(__cico_count) AS likeCount RETURN person2.id, likeCount)",
+      "ok": true,
+      "ddl": [],
+      "reset": [
+        "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.likeCount = NULL } IN TRANSACTIONS OF 10000 ROWS"
+      ],
+      "fill_statements": [
+        "MATCH (person2:Person) OPTIONAL MATCH (cico_n1:Message)-[cico_r2:HAS_CREATOR]->(person2), (__cico_count:Person)-[cico_r3:LIKES]->(cico_n1) WITH person2, count(__cico_count) AS likeCount WITH person2, likeCount AS cico_v0 CALL (person2, cico_v0) { SET person2.likeCount = cico_v0 } IN TRANSACTIONS OF 10000 ROWS"
+      ]
+    },
+    {
+      "index_id": "BI11_PERSON_COUNTRY()",
+      "fill": "FILL BI11_PERSON_COUNTRY() FROM (MATCH (person:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {type: 'Country'})\n RETURN DISTINCT person.id, country.id)",
+      "ok": true,
+      "ddl": [],
+      "reset": [
+        "MATCH ()-[cico_e:BI11_PERSON_COUNTRY]->() WITH cico_e CALL (cico_e) { DELETE cico_e } IN TRANSACTIONS OF 10000 ROWS"
+      ],
+      "fill_statements": [
+        "MATCH (person:Person) CALL (person) { MATCH (person:Person)-[cico_r2:IS_LOCATED_IN]->(cico_n1:City) MATCH (cico_n1)-[cico_r3:IS_PART_OF]->(country:Country) WITH DISTINCT person, country CREATE (person)-[:BI11_PERSON_COUNTRY]->(country) } IN TRANSACTIONS OF 1000 ROWS"
+      ]
+    }
+  ],
+  "rewritten": 4,
+  "explain_ok": 4,
+  "tests": {
+    "passed": 38,
+    "command": "python3 -m unittest discover -s middleware/tests -v"
+  },
+  "import": {
+    "dataset": "/mnt/sdb1/feiyang/datasets/bi-sf1-composite-projected-fk/graphs/csv/bi/composite-projected-fk/initial_snapshot",
+    "target": "/mnt/sdb1/feiyang/neo4j/middleware/runtime/bi_sf1",
+    "neo4j_version": "5.26.28",
+    "nodes": 2997352,
+    "relationships": 17196776,
+    "input_row_validation": "passed"
+  }
+}

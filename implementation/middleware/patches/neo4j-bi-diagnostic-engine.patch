@@ -1,0 +1,120 @@
+--- a/incgq_rewrite_engine.cc
++++ b/incgq_rewrite_engine.cc
+@@ -105,7 +105,7 @@
+ 
+ struct IndexRecord {
+   std::string candidate, name, table, fillType, sourceQuery;
+-  std::vector<std::string> columns;
++  std::vector<std::string> columns, diagnostics;
+ };
+ 
+ struct Failure : std::runtime_error {
+@@ -307,6 +307,16 @@
+         record.fillType = info.getFillType() == neug::catalog::FillEntryType::REL ? "REL" : "NODE";
+         record.sourceQuery = info.getSourceQuery();
+         record.columns = info.getTargetColumns();
++        record.diagnostics = info.getPredicateTemplates();
++        for (const auto& node : info.getPatternIR().nodesInfo) record.diagnostics.push_back("node=" + node.varName + ":" + node.uniqName);
++        for (const auto& column : info.getIndexColumnInfos()) {
++          if (const auto* agg = dynamic_cast<const neug::catalog::NodeAggregationIndexColnumInfo*>(column.get())) record.diagnostics.push_back("aggregate=" + agg->aggregateFuncName + ":" + agg->nameTemplate);
++        }
++        record.diagnostics.push_back("stage=" + std::to_string(info.isStagedPipeline()));
++        record.diagnostics.push_back("recompute=" + std::to_string(info.requiresSourceRecompute()));
++        record.diagnostics.push_back("compat=" + std::to_string(info.usesWorkloadCompatibility()));
++        for (const auto& column : info.getIndexColumnInfos()) record.diagnostics.push_back("columnType=" + std::to_string(static_cast<int>(column->columnType)));
++
+         added.push_back(std::move(record));
+       }
+       // READY is simulated only in this nonpersistent compiler catalog.
+@@ -494,6 +504,7 @@
+     out.put(o, "fill_type", out.str(r.fillType));
+     out.put(o, "target_columns", out.strings(r.columns));
+     out.put(o, "source_query", out.str(r.sourceQuery));
++    out.put(o, "diagnostics", out.strings(r.diagnostics));
+     return o;
+   }
+ 
+--- a/rewriter_v4.cpp
++++ b/rewriter_v4.cpp
+@@ -1,3 +1,4 @@
++#include <iostream>
+ #include "neug/compiler/binder/rewriter/fill_predicate_signature.h"
+ #include "neug/compiler/main/metadata_registry.h"
+ #include "neug/compiler/binder/rewriter/distinct_fill_shape.h"
+@@ -2984,7 +2985,7 @@
+           carriedProjectionInputs(queryPart, currentQuery_));
+   if (requiresCompleteAggregateRead(*candidate.info, clientContext) &&
+       !completePairDistinctCountCandidate &&
+-      !aggregateEndpointPresenceOnlyCandidate) return false;
++      !aggregateEndpointPresenceOnlyCandidate) { std::cerr << "CICO_REJECT complete_aggregate_read\n"; return false; }
+   if (candidate.weightedRecursiveRelCoverageOnly) {
+     return true;
+   }
+@@ -3279,7 +3280,7 @@
+     if (fillPredicate == RECURSIVE_ENDPOINT_CONTRACT) continue;
+     if (std::find(queryPredicateTemplates.begin(), queryPredicateTemplates.end(),
+                   fillPredicate) == queryPredicateTemplates.end()) {
+-      return false;
++      std::cerr << "CICO_REJECT fill_predicate_not_in_query\n"; return false;
+     }
+   }
+ 
+@@ -3322,7 +3323,7 @@
+       !validatePropertyCoverageForIndexRewrite(
+           queryPart.getProjectionBodyPredicate(), nodesIR, indexInfo, indexIR,
+           &retained.nodeUniqueNames, &retained.relUniqueNames)) {
+-    return false;
++    std::cerr << "CICO_REJECT projection_body_predicate_coverage\n"; return false;
+   }
+   if (!queryPart.hasProjectionBody()) {
+     return false;
+@@ -5897,6 +5898,7 @@
+       auto& indexInfo =
+           indexEntry->getAuxInfoUnsafe().cast<catalog::FillIndexAuxInfo>();
+       // DISTINCT FILLs may only be consumed by the whole-fragment path below.
++      std::cerr << "CICO_CANDIDATE " << indexEntry->getName() << " local=" << nodesIR.nodesInfo.size() << "/" << nodesIR.relsInfo.size() << " index=" << indexInfo.getPatternIR().nodesInfo.size() << "/" << indexInfo.getPatternIR().relsInfo.size() << "\n";
+       if (hasDistinctFillShape(indexInfo)) continue;
+       auto& fullIndexIR = indexInfo.getPatternIR();
+       if (mergedQueryIR_.nodesInfo.empty() ||
+@@ -5933,6 +5935,13 @@
+                                   node.nodeLabels, indexNode.nodeLabels);
+                             });
+                       });
++      std::cerr << "CICO_SHAPE " << localShapePossible << " missingRels=" << missingRels << "\n";
++      for (auto* debugIR : {&nodesIR, &fullIndexIR}) {
++        std::cerr << (debugIR == &nodesIR ? "CICO_QUERY_IR " : "CICO_FILL_IR ");
++        for (auto& node : debugIR->nodesInfo) { std::cerr << node.varName << ':'; for (auto l : node.nodeLabels) std::cerr << l << ','; std::cerr << ' '; }
++        for (auto& rel : debugIR->relsInfo) { std::cerr << "edge:" << static_cast<int>(rel.relType) << '/' << static_cast<int>(rel.edgeType) << ':'; for (auto l : rel.relLabels) std::cerr << l << ','; std::cerr << ' '; }
++        std::cerr << "\n";
++      }
+       if (!localShapePossible && !matchesWeightedRecursiveRelPropertyIndex(
+               IndexRewriteCandidate{indexEntry, &indexInfo, {}, queryGraph})) {
+         continue;
+@@ -5942,6 +5951,7 @@
+       propertyRewriteTargets.clear();
+       auto candidate =
+           makeRewriteCandidate(matchClause, indexInfoCopied, indexEntry, fullIndexIR);
++      std::cerr << "CICO_LOCAL_MATCH " << candidate.has_value() << "\n";
+       if (!candidate.has_value()) {
+         continue;
+       }
+@@ -5952,6 +5962,7 @@
+         auto indexCopy = fullIndexIR;
+         auto [gateMatch, _] = PatternIR::findMatch(
+             mergedQueryIR_, indexCopy, indexEntry->getName());
++        std::cerr << "CICO_GATE_MATCH " << gateMatch << "\n";
+         if (!gateMatch && indexInfo.getFillType() != FillEntryType::REL) {
+           continue;
+         }
+@@ -6083,9 +6094,11 @@
+     return false;
+   }
+ 
++  std::cerr << "CICO_PART clauses=" << queryPart.getNumReadingClause() << "\n";
+   bool removedReadingClause = false;
+   for (auto i = 0u; i < queryPart.getNumReadingClause();) {
+     auto* clause = queryPart.getReadingClause(i);
++    std::cerr << "CICO_CLAUSE type=" << static_cast<int>(clause->getClauseType()) << "\n";
+     if (clause->getClauseType() == ClauseType::MATCH) {
+       auto& match = clause->cast<BoundMatchClause>();
+       tryRewriteMatchClause(match, queryPart);

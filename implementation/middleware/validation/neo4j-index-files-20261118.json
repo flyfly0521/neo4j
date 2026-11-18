@@ -1,0 +1,171 @@
+{
+  "workload_queries_executed": false,
+  "small_graph_queries_executed": true,
+  "checks": [
+    {
+      "name": "initial_build_count_and_hidden_state",
+      "writes": 3,
+      "physical_count_and_state": [
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          3,
+          0,
+          0
+        ]
+      ],
+      "query": "MATCH (p:CicoReload550ffcde935fPerson)-[:CicoReload550ffcde935fLives]->(c:CicoReload550ffcde935fCity) RETURN p.id AS personId, count(c) AS cnt ORDER BY personId",
+      "output": "MATCH (p:CicoReload550ffcde935fPerson) WHERE (p.cached <> 0) RETURN p.id AS personId, sum(CASE WHEN (p.cached IS NULL) THEN 0 ELSE p.cached END) AS cnt ORDER BY personId",
+      "rows": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "equal": true
+    },
+    {
+      "name": "restart_no_rebuild",
+      "writes": 0,
+      "query": "MATCH (p:CicoReload550ffcde935fPerson)-[:CicoReload550ffcde935fLives]->(c:CicoReload550ffcde935fCity) RETURN p.id AS personId, count(c) AS cnt ORDER BY personId",
+      "output": "MATCH (p:CicoReload550ffcde935fPerson) WHERE (p.cached <> 0) RETURN p.id AS personId, sum(CASE WHEN (p.cached IS NULL) THEN 0 ELSE p.cached END) AS cnt ORDER BY personId",
+      "rows": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "equal": true
+    },
+    {
+      "name": "formatting_no_rebuild",
+      "writes": 0,
+      "query": "MATCH (p:CicoReload550ffcde935fPerson)-[:CicoReload550ffcde935fLives]->(c:CicoReload550ffcde935fCity) RETURN p.id AS personId, count(c) AS cnt ORDER BY personId",
+      "output": "MATCH (p:CicoReload550ffcde935fPerson) WHERE (p.cached <> 0) RETURN p.id AS personId, sum(CASE WHEN (p.cached IS NULL) THEN 0 ELSE p.cached END) AS cnt ORDER BY personId",
+      "rows": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "equal": true
+    },
+    {
+      "name": "add_only_builds_new",
+      "built": [
+        "CICORELOAD550FFCDE935FPERSON(doubled)"
+      ],
+      "writes": 3,
+      "query": "MATCH (p:CicoReload550ffcde935fPerson)-[:CicoReload550ffcde935fLives]->(c:CicoReload550ffcde935fCity) RETURN p.id AS personId, count(c) AS cnt ORDER BY personId",
+      "output": "MATCH (p:CicoReload550ffcde935fPerson) WHERE (p.cached <> 0) RETURN p.id AS personId, sum(CASE WHEN (p.cached IS NULL) THEN 0 ELSE p.cached END) AS cnt ORDER BY personId",
+      "rows": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "equal": true
+    },
+    {
+      "name": "change_rebuilds_dependency_chain",
+      "built": [
+        "CICORELOAD550FFCDE935FPERSON(cached)",
+        "CICORELOAD550FFCDE935FPERSON(doubled)"
+      ],
+      "writes": 6,
+      "query": "MATCH (p:CicoReload550ffcde935fPerson)-[:CicoReload550ffcde935fLives]->(c:CicoReload550ffcde935fCity) WHERE c.id >= 2 RETURN p.id AS personId, count(c) AS cnt ORDER BY personId",
+      "output": "MATCH (p:CicoReload550ffcde935fPerson) WHERE (p.cached <> 0) RETURN p.id AS personId, sum(CASE WHEN (p.cached IS NULL) THEN 0 ELSE p.cached END) AS cnt ORDER BY personId",
+      "rows": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "equal": true
+    },
+    {
+      "name": "native_derived_relationship_materializes",
+      "built": [
+        "CICORELOAD550FFCDE935FCACHEDLIVES()"
+      ],
+      "writes": 2,
+      "query": "MATCH (p:CicoReload550ffcde935fPerson)-[:CicoReload550ffcde935fLives]->(c:CicoReload550ffcde935fCity) RETURN DISTINCT p.id AS personId,c.id AS cityId",
+      "output": "MATCH (p:CicoReload550ffcde935fPerson)-[CICORELOAD550FFCDE935FCACHEDLIVES:CICORELOAD550FFCDE935FCACHEDLIVES]->(c:CicoReload550ffcde935fCity) RETURN DISTINCT p.id AS personId, c.id AS cityId",
+      "rows": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "equal": true
+    }
+  ],
+  "target": {
+    "database": "neo4j",
+    "database_id": "A36592E13ACFE6AA96716E3E8D5E60FD692BAE4DE05C02D285122163E70020B2",
+    "uri": "bolt://127.0.0.1:7693"
+  },
+  "cleanup": true,
+  "state": {
+    "version": 1,
+    "target": "{\"database\": \"neo4j\", \"database_id\": \"A36592E13ACFE6AA96716E3E8D5E60FD692BAE4DE05C02D285122163E70020B2\", \"uri\": \"bolt://127.0.0.1:7693\"}",
+    "indexes": {
+      "CICORELOAD550FFCDE935FPERSON(cached)": {
+        "fingerprint": "18c5a4b18876d1c111dff581564683bdcb558b09ccd74432118b529147094c63",
+        "status": "ready",
+        "dependencies": [],
+        "built_at": "2026-11-18T02:52:11.465855+00:00"
+      },
+      "CICORELOAD550FFCDE935FPERSON(doubled)": {
+        "fingerprint": "3f6592dceb121c110d165e7e4fd5b21762c7bd119914d1d589ea3d3a5193205a",
+        "status": "ready",
+        "dependencies": [
+          "CICORELOAD550FFCDE935FPERSON(cached)"
+        ],
+        "built_at": "2026-11-18T02:52:11.624516+00:00"
+      },
+      "CICORELOAD550FFCDE935FCACHEDLIVES()": {
+        "fingerprint": "c5beaf916b40d6b0b0d058832ba3dcf333875caeb1adaa249e4833c273985ccf",
+        "status": "ready",
+        "dependencies": [],
+        "built_at": "2026-11-18T02:52:11.907958+00:00"
+      }
+    }
+  }
+}

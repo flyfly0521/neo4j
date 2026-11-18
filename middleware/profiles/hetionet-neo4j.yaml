@@ -1,0 +1,7 @@
+# Neo4j Hetionet <-> middleware internal schema.
+# IncGQ-experiment-docs/Neo4j/scripts/import/import_hetionet.py keeps the
+# Hetionet labels (Compound, Gene, ...) and metaedge types (BINDS_CbG, ...)
+# and the node properties id/identifier/name/kind, i.e. the NeuG/Kuzu names.
+labels: {}
+typed_labels: {}
+rel_types: {}

@@ -1,0 +1,35 @@
+diff --git a/src/compiler/binder/rewriter/rewriter_v4.cpp b/src/compiler/binder/rewriter/rewriter_v4.cpp
+--- a/src/compiler/binder/rewriter/rewriter_v4.cpp
++++ b/src/compiler/binder/rewriter/rewriter_v4.cpp
+@@ -3391,8 +3391,30 @@
+   if (!hasAggregateColumn) return true;
+   if (propertyRewriteTargets.empty()) return false;
+   const auto& aggregates = projectionBody->getAggregateExpressions();
++  const auto hasPublicAggregateColumn = [&]() {
++    for (size_t i = 0; i < indexInfo.indexColumnInfos.size(); ++i) {
++      const auto& name = indexInfo.getTargetColumns()[i];
++      if (name.starts_with(InternalKeyword::FILL_AGGREGATE_STATE_PREFIX) ||
++          name.starts_with(InternalKeyword::FILL_ROW_COUNT_STATE_PREFIX)) continue;
++      const auto type = indexInfo.indexColumnInfos[i]->columnType;
++      if (type == IndexColumnType::NODE_AGGREGATE || type == IndexColumnType::REL_AGGREGATE ||
++          type == IndexColumnType::REL_COMPUATION_WITH_AGGREGATION) return true;
++    }
++    return false;
++  }();
+   return std::all_of(aggregates.begin(), aggregates.end(), [&](const auto& expression) {
+-    return propertyRewriteTargets.contains(expression.get());
++    if (propertyRewriteTargets.contains(expression.get())) return true;
++    // A property-copy FILL's private row counter must not make an unrelated
++    // DISTINCT count look like an unweighted additive aggregate. It sees the
++    // same surviving identity set after duplicate source rows collapse.
++    if (hasPublicAggregateColumn || !expression ||
++        expression->expressionType != ExpressionType::AGGREGATE_FUNCTION) return false;
++    const auto& aggregate = expression->template constCast<AggregateFunctionExpression>();
++    const auto anchor = findAnchorInIndexIR(indexInfo);
++    return aggregate.isDistinct() && aggregate.getFunction().name == "COUNT" &&
++        anchor < indexIR.nodesInfo.size() &&
++        !referencesRemovedPatternVariables(expression, nodesIR,
++            indexIR.nodesInfo[anchor].matchedIdx, &retainedNodes, &retained.relUniqueNames);
+   });
+ }
+ 

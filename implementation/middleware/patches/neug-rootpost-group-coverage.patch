@@ -1,0 +1,288 @@
+diff --git a/src/compiler/binder/rewriter/rewriter_v4.cpp b/src/compiler/binder/rewriter/rewriter_v4.cpp
+index 428a0904..e8550aa4 100644
+--- a/src/compiler/binder/rewriter/rewriter_v4.cpp
++++ b/src/compiler/binder/rewriter/rewriter_v4.cpp
+@@ -76,6 +76,18 @@ namespace {
+ 
+ using RelLabelMap = std::unordered_map<table_id_t, std::string>;
+ 
++// A FILL target may name a REL group (one FILL routed to several child
++// tables, or a FILL into one child of a group); a group is not a table entry
++// and Catalog::getTableCatalogEntry throws for it.  Callers treat nullptr as
++// "no single table" and fall back to their conservative answer.
++template <typename CatalogT, typename TransactionT>
++static auto* tableByName(CatalogT* catalog, TransactionT* transaction, const std::string& name,
++                         bool useInternal = true) {
++  using Entry = decltype(catalog->getTableCatalogEntry(transaction, name, useInternal));
++  if (catalog == nullptr || !catalog->containsTable(transaction, name, useInternal)) return Entry{nullptr};
++  return catalog->getTableCatalogEntry(transaction, name, useInternal);
++}
++
+ static std::string tableLabel(const catalog::TableCatalogEntry* entry,
+                                      const RelLabelMap& labels) {
+   const auto found = labels.find(entry->getTableID());
+@@ -187,8 +199,8 @@ static bool requiresCompleteAggregateRead(const FillIndexAuxInfo& info,
+     hasSum |= function == "SUM" || spelling.find("SUM(") != std::string::npos;
+   }
+   if (!hasSum) return false;
+-  const auto* table = context->getCatalog()->getTableCatalogEntry(
+-      context->getTransaction(), info.getTableName());
++  const auto* table = tableByName(context->getCatalog(), context->getTransaction(), info.getTableName());
++  if (table == nullptr) return true;  // unknown carrier layout: require the complete-read proof
+   for (const auto& name : info.getTargetColumns()) {
+     if (!table->containsProperty(name)) continue;
+     const auto type = table->getProperty(name).getType().getLogicalTypeID();
+@@ -949,6 +961,11 @@ struct OrderedRecursiveCoverage {
+ // Replacing a union-label path by only one partition would silently lose rows
+ // (including the zero-hop same-label partition). Require the complete product
+ // of endpoint labels, and choose one compatible definition for every pair.
++// A pair is covered either by a per-pair FILL or by one FILL into a REL group
++// whose source endpoints carry several labels: such a FILL routes every row
++// to the child table of its endpoint labels (e.g. ROOT_POST(FROM COMMENT TO
++// POST, FROM POST TO POST) filled from (message:COMMENT:POST)), so each child
++// whose pair lies in the source label product holds exactly that partition.
+ static std::optional<OrderedRecursiveCoverage> orderedRecursiveCoverage(
+     const catalog::FillIndexAuxInfo& info, const PatternIR& matched,
+     const QueryGraph& query, main::ClientContext* context) {
+@@ -986,11 +1003,6 @@ static std::optional<OrderedRecursiveCoverage> orderedRecursiveCoverage(
+         !sibling.getExistsPredicates().empty() ||
+         sibling.getRecursiveRelLowerBound() != info.getRecursiveRelLowerBound() ||
+         sibling.getRecursiveRelUpperBound() != info.getRecursiveRelUpperBound()) continue;
+-    const auto pair = std::make_pair<common::table_id_t, common::table_id_t>(
+-        sibling.getSrcTableId(), sibling.getDstTableId());
+-    if (covered.contains(pair) ||
+-        std::find(sourceLabels.begin(), sourceLabels.end(), pair.first) == sourceLabels.end() ||
+-        std::find(destinationLabels.begin(), destinationLabels.end(), pair.second) == destinationLabels.end()) continue;
+     const auto siblingSource = endpointPosition(sibling, sibling.getSrcNodeUniqueName());
+     const auto siblingDestination = endpointPosition(sibling, sibling.getDstNodeUniqueName());
+     auto basePattern = info.getPatternIR();
+@@ -1007,12 +1019,39 @@ static std::optional<OrderedRecursiveCoverage> orderedRecursiveCoverage(
+         });
+     (void)ignored;
+     if (!same) continue;
+-    auto* table = catalog->getTableCatalogEntry(transaction, entry->getTableID());
+-    if (table == nullptr) continue;
+-    const auto& rel = table->constCast<catalog::RelTableCatalogEntry>();
+-    if (rel.getSrcTableID() != pair.first || rel.getDstTableID() != pair.second) continue;
+-    result.tables.push_back(table);
+-    covered.insert(pair);
++    // Per-pair FILL: its single carrier table. Group FILL: each child whose
++    // endpoint pair lies in the source label product (a pair without a child
++    // stays uncovered; label-filtered sources cannot target a whole group,
++    // see FillRecursiveGroupMetadata.DynamicLabelFilterCannotAdvertiseWholeGroup).
++    const auto& siblingSourceLabels = siblingPattern.nodesInfo[siblingSource].nodeLabels;
++    const auto& siblingDestinationLabels =
++        siblingPattern.nodesInfo[siblingDestination].nodeLabels;
++    const auto inSource = [&](common::table_id_t id) {
++      return id == sibling.getSrcTableId() ||
++          std::find(siblingSourceLabels.begin(), siblingSourceLabels.end(), id) !=
++              siblingSourceLabels.end();
++    };
++    const auto inDestination = [&](common::table_id_t id) {
++      return id == sibling.getDstTableId() ||
++          std::find(siblingDestinationLabels.begin(), siblingDestinationLabels.end(), id) !=
++              siblingDestinationLabels.end();
++    };
++    std::vector<common::table_id_t> carriers{entry->getTableID()};
++    if (catalog->containsRelGroup(transaction, sibling.getTableName())) {
++      carriers = catalog->getRelGroupEntry(transaction, sibling.getTableName())->getRelTableIDs();
++    }
++    for (const auto id : carriers) {
++      auto* table = catalog->getTableCatalogEntry(transaction, id);
++      if (table == nullptr || table->getType() != CatalogEntryType::REL_TABLE_ENTRY) continue;
++      const auto& rel = table->constCast<catalog::RelTableCatalogEntry>();
++      const auto pair = std::make_pair(rel.getSrcTableID(), rel.getDstTableID());
++      if (covered.contains(pair) || !inSource(pair.first) || !inDestination(pair.second) ||
++          std::find(sourceLabels.begin(), sourceLabels.end(), pair.first) == sourceLabels.end() ||
++          std::find(destinationLabels.begin(), destinationLabels.end(), pair.second) ==
++              destinationLabels.end()) continue;
++      result.tables.push_back(table);
++      covered.insert(pair);
++    }
+   }
+   for (const auto src : sourceLabels)
+     for (const auto dst : destinationLabels)
+@@ -1087,8 +1126,7 @@ static bool hasOrderedDerivedRelEndpoints(
+       info.getSrcNodeUniqueName() == info.getDstNodeUniqueName()) {
+     return false;
+   }
+-  const auto* table = context->getCatalog()->getTableCatalogEntry(
+-      context->getTransaction(), info.getTableName(),
++  const auto* table = tableByName(context->getCatalog(), context->getTransaction(), info.getTableName(),
+       context->useInternalCatalogEntry());
+   if (table == nullptr) return false;
+   const auto& pattern = info.getPatternIR();
+@@ -1382,8 +1420,8 @@ static bool provesNodePresenceSetSource(const FillIndexAuxInfo& info,
+       info.getRowCountColumn().empty() ||
+       !info.getRowCountColumn().starts_with(InternalKeyword::FILL_ROW_COUNT_STATE_PREFIX))
+     return false;
+-  auto* table = context.getCatalog()->getTableCatalogEntry(
+-      context.getTransaction(), info.getTableName(), context.useInternalCatalogEntry());
++  auto* table = tableByName(context.getCatalog(), context.getTransaction(), info.getTableName(),
++      context.useInternalCatalogEntry());
+   if (table == nullptr || table->getType() != CatalogEntryType::NODE_TABLE_ENTRY)
+     return false;
+   const auto& columns = info.getIndexColumnInfos();
+@@ -2123,9 +2161,8 @@ static bool indexHasDirectionAwareSiblingColumns(
+   if (clientContext == nullptr) {
+     return false;
+   }
+-  auto* tableEntry = clientContext->getCatalog()->getTableCatalogEntry(
+-      clientContext->getTransaction(), indexInfo.getTableName(),
+-      clientContext->useInternalCatalogEntry());
++  auto* tableEntry = tableByName(clientContext->getCatalog(), clientContext->getTransaction(),
++      indexInfo.getTableName(), clientContext->useInternalCatalogEntry());
+   if (tableEntry == nullptr) {
+     return false;
+   }
+@@ -2377,8 +2414,8 @@ static bool sameNodeAggregateIndexExceptAnchorLabel(
+       return traceReject("derived family correlated predicates differ");
+   }
+   if (lhs.getFillType() == catalog::FillEntryType::REL && !derivedFamily) {
+-    auto* lhsTable = catalog->getTableCatalogEntry(transaction, lhs.getTableName());
+-    auto* rhsTable = catalog->getTableCatalogEntry(transaction, rhs.getTableName());
++    auto* lhsTable = tableByName(catalog, transaction, lhs.getTableName());
++    auto* rhsTable = tableByName(catalog, transaction, rhs.getTableName());
+     if (lhsTable == nullptr || rhsTable == nullptr ||
+         tableLabel(lhsTable, relLabels) != tableLabel(rhsTable, relLabels) ||
+         lhs.getDstTableId() != rhs.getDstTableId()) {
+@@ -2486,9 +2523,8 @@ findNodeBoundaryProperty(size_t indexNodePos,
+   if (context == nullptr || node.nodeLabels.size() != 1) return std::nullopt;
+   const auto* source = context->getCatalog()->getTableCatalogEntry(
+       context->getTransaction(), node.nodeLabels[0]);
+-  const auto* target = context->getCatalog()->getTableCatalogEntry(
+-      context->getTransaction(), indexInfo.getTableName(),
+-      context->useInternalCatalogEntry());
++  const auto* target = tableByName(context->getCatalog(), context->getTransaction(),
++      indexInfo.getTableName(), context->useInternalCatalogEntry());
+   if (source == nullptr || target == nullptr ||
+       source->getType() != CatalogEntryType::NODE_TABLE_ENTRY)
+     return std::nullopt;
+@@ -2581,6 +2617,12 @@ std::optional<RewriterV4::FillTableContext> RewriterV4::getFillTableContext(
+     const catalog::FillIndexAuxInfo& indexInfo) const {
+   auto* catalog = clientContext->getCatalog();
+   auto* transaction = clientContext->getTransaction();
++  // A REL-group carrier (one FILL routed to several child tables) has no
++  // single table entry; callers handle the group through its children.
++  if (!catalog->containsTable(transaction, indexInfo.getTableName(),
++                              clientContext->useInternalCatalogEntry())) {
++    return std::nullopt;
++  }
+   auto* fillTableEntry = catalog->getTableCatalogEntry(
+       transaction, indexInfo.getTableName(), clientContext->useInternalCatalogEntry());
+   if (fillTableEntry == nullptr) {
+@@ -3768,9 +3810,8 @@ bool RewriterV4::registerAggregateRewriteTargets(
+     if (indexInfo.fillType == FillEntryType::REL &&
+         !indexInfo.isFillUndirectedRel() &&
+         indexInfo.getSrcTableId() == indexInfo.getDstTableId()) {
+-      auto* tableEntry = clientContext->getCatalog()->getTableCatalogEntry(
+-          clientContext->getTransaction(), indexInfo.getTableName(),
+-          clientContext->useInternalCatalogEntry());
++      auto* tableEntry = tableByName(clientContext->getCatalog(), clientContext->getTransaction(),
++          indexInfo.getTableName(), clientContext->useInternalCatalogEntry());
+       if (tableEntry != nullptr) {
+         if (auto columns = directionAwareCounterpartColumns(
+                 *tableEntry, targetForExpr.newPropertyName);
+@@ -5396,8 +5437,16 @@ bool RewriterV4::rewriteMatchClause(BoundMatchClause& matchClause,
+   }
+ 
+   if (candidate.info->getFillType() == FillEntryType::REL) {
++    std::set<table_id_t> tables;
+     if (const auto fill = getFillTableContext(*candidate.info)) {
+-      std::set<table_id_t> tables{fill->tableID};
++      tables.insert(fill->tableID);
++    } else if (auto* catalog = clientContext->getCatalog();
++               catalog->containsRelGroup(clientContext->getTransaction(),
++                                         candidate.info->getTableName())) {
++      for (const auto id : catalog->getRelGroupEntry(clientContext->getTransaction(),
++               candidate.info->getTableName())->getRelTableIDs()) tables.insert(id);
++    }
++    if (!tables.empty()) {
+       for (const auto& additional : additionalFillTables) tables.insert(additional.tableID);
+       pruneGuaranteedDerivedEndpointPredicates(matchClause, *candidate.info, tables,
+           *clientContext, *binder->getExpressionBinder());
+@@ -6835,7 +6884,8 @@ bool RewriterV4::tryRewriteCompleteAggregate(NormalizedSingleQuery& query) {
+       return identity;
+     };
+     if (!exactGrouping(sourceShape, anchor->binding)) continue;
+-    auto* table = catalog->getTableCatalogEntry(clientContext->getTransaction(), info.getTableName());
++    auto* table = tableByName(catalog, clientContext->getTransaction(), info.getTableName());
++    if (table == nullptr) continue;
+     const auto sourceOutputs = sourceBody->getProjectionExpressions();
+     std::optional<size_t> presence;
+     bool typesMatch = sourceOutputs.size() == sourceShape.outputs.size();
+diff --git a/tests/unittest/index_rewrite_metadata_test.cc b/tests/unittest/index_rewrite_metadata_test.cc
+index 8d87aa81..3e54d61b 100644
+--- a/tests/unittest/index_rewrite_metadata_test.cc
++++ b/tests/unittest/index_rewrite_metadata_test.cc
+@@ -2025,6 +2025,16 @@ schema:
+       destination_vertex: B
+       relation: MANY_TO_MANY
+     properties: []
++  - type_name: ReachGroup
++    type_id: 16
++    vertex_type_pair_relations:
++    - source_vertex: A
++      destination_vertex: A
++      relation: MANY_TO_MANY
++    - source_vertex: B
++      destination_vertex: A
++      relation: MANY_TO_MANY
++    properties: []
+ )yaml"));
+     context = std::make_unique<main::ClientContext>(metadata.get());
+   }
+@@ -2284,7 +2294,7 @@ schema:
+       for (auto* table : rel->getEntries()) {
+         const auto label = table->getLabel(context->getCatalog(), context->getTransaction());
+         if (label == "ShortcutAA" || label == "ShortcutAB" ||
+-            label == "ReachAA" || label == "ReachAB") return rel;
++            label == "ReachAA" || label == "ReachAB" || label == "ReachGroup") return rel;
+       }
+     }
+     for (const auto& child : op->getChildren()) {
+@@ -2870,6 +2880,44 @@ TEST_F(DerivedRelationRewriteMetadata, OrderedRecursiveBranchesCoverZeroHopAndBo
+   EXPECT_EQ(rel->getEntries().size(), 2u);
+ }
+ 
++// One FILL into a REL group routes each reachable pair to the child table of
++// its endpoint labels (LDBC ROOT_POST(FROM Comment TO Post, FROM Post TO Post)
++// filled from (message:Comment:Post)). That single entry covers every pair of
++// the endpoint label product; it is not a per-pair dispatched family.
++TEST_F(DerivedRelationRewriteMetadata, RecursiveGroupFillCoversEveryChildPair) {
++  registerFill("ReachGroup()", "MATCH (message:A:B)-[:Path*0..]->(root:A) "
++               "RETURN DISTINCT message.id, root.id");
++  for (const auto& query : {
++           "MATCH (message:A:B)-[:Path*0..]->(root:A) "
++           "RETURN DISTINCT message.id AS m, root.id AS r",
++           "MATCH (root:A)<-[:Path*0..]-(message:A:B) "
++           "RETURN root.id AS r, count(DISTINCT message) AS count"}) {
++    auto result = prepare(query);
++    ASSERT_TRUE(result->isSuccess());
++    const auto rel = findShortcut(result->logicalPlan->getLastOperator());
++    ASSERT_NE(rel, nullptr) << query << "\n" << result->logicalPlan->toString();
++    EXPECT_EQ(rel->getSrcNode()->getVariableName(), "message");
++    EXPECT_EQ(rel->getDstNode()->getVariableName(), "root");
++    EXPECT_EQ(rel->getDirectionType(), RelDirectionType::SINGLE);
++    EXPECT_EQ(rel->getEntries().size(), 2u);
++  }
++}
++
++TEST_F(DerivedRelationRewriteMetadata, RecursiveGroupFillKeepsSetAndBoundGuards) {
++  registerFill("ReachGroup()", "MATCH (message:A:B)-[:Path*0..]->(root:A) "
++               "RETURN DISTINCT message.id, root.id");
++  for (const auto& query : {
++           "MATCH (message:A:B)-[:Path*0..]->(root:A) RETURN count(*) AS count",
++           "MATCH (message:A:B)-[:Path*1..]->(root:A) "
++           "RETURN DISTINCT message.id AS m, root.id AS r",
++           "MATCH (message:A:B)-[:Path*0..]-(root:A) "
++           "RETURN DISTINCT message.id AS m, root.id AS r"}) {
++    auto result = prepare(query);
++    ASSERT_TRUE(result->isSuccess());
++    EXPECT_EQ(findShortcut(result->logicalPlan->getLastOperator()), nullptr) << query;
++  }
++}
++
+ TEST_F(DerivedRelationRewriteMetadata, MissingRecursiveBranchCannotNarrowEndpointDomain) {
+   registerReachability(false);
+   auto result = prepare("MATCH (message:A:B)-[:Path*0..]->(root:A) "

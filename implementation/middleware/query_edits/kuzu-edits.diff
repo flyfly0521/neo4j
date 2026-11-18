@@ -1,0 +1,86 @@
+diff --git a/Kuzu/queries/baseline/ldbc-bi/bi-4.cypher b/Kuzu/queries/baseline/ldbc-bi/bi-4.cypher
+index bcdab0b2..f47f3990 100644
+--- a/Kuzu/queries/baseline/ldbc-bi/bi-4.cypher
++++ b/Kuzu/queries/baseline/ldbc-bi/bi-4.cypher
+@@ -12,10 +12,16 @@ WITH collect(forum) AS topForums
+ UNWIND topForums AS memberForum
+ MATCH (person:PERSON)<-[:HASMEMBER]-(memberForum)
+ WITH DISTINCT topForums, person
++// Same result as OPTIONAL MATCH ... (rootForum:FORUM) WHERE rootForum IN topForums:
++// every row has a non-empty topForums (person comes from UNWIND topForums), FORUM.id
++// is the primary key, and count(DISTINCT message) ignores the per-forum duplication.
++// Written per forum so that the index rewrite stays inside one QueryPart (IncGQ
++// middleware); Kuzu cannot bind an unwound node in a pattern, hence the id.
++UNWIND topForums AS topForum
++WITH person, topForum.id AS rootForumId
+ OPTIONAL MATCH
+   (person)<-[:HASCREATOR]-(message:POST:COMMENT)-[:REPLYOF*0..]->
+-  (post:POST)<-[:CONTAINEROF]-(rootForum:FORUM)
+-WHERE rootForum IN topForums
++  (post:POST)<-[:CONTAINEROF]-(rootForum:FORUM {id: rootForumId})
+ WITH person, count(DISTINCT message) AS messageCount
+ RETURN
+   person.id AS personId,
+diff --git a/Kuzu/queries/baseline/lsqb/q4.cypher b/Kuzu/queries/baseline/lsqb/q4.cypher
+index a9a6d673..d543fc68 100644
+--- a/Kuzu/queries/baseline/lsqb/q4.cypher
++++ b/Kuzu/queries/baseline/lsqb/q4.cypher
+@@ -1,14 +1,16 @@
++// One QueryPart per label branch of the original count{} + count{}:
++// part 1 counts the Post branch; part 2 counts the Comment branch with
++// OPTIONAL MATCH + count(message), which is 0 without a match (as count{}).
++// MATCH (d:Person) ... LIMIT 1 keeps the original row semantics (one row iff
++// Person is non-empty).
++MATCH (:Tag)<-[:Post_hasTag_Tag]-(message:Post)-[:Post_hasCreator_Person]->(creator:Person),
++  (message)<-[:Person_likes_Post]-(liker:Person),
++  (message)<-[:Comment_replyOf_Post]-(comment:Comment)
++WITH count(*) AS postCount
++OPTIONAL MATCH (:Tag)<-[:Comment_hasTag_Tag]-(message:Comment)-[:Comment_hasCreator_Person]->(creator:Person),
++  (message)<-[:Person_likes_Comment]-(liker:Person),
++  (message)<-[:Comment_replyOf_Comment]-(comment:Comment)
++WITH postCount, count(message) AS commentCount
+ MATCH (d:Person)
+-WITH d LIMIT 1
+-RETURN
+-  count {
+-    MATCH (:Tag)<-[:Post_hasTag_Tag]-(message:Post)-[:Post_hasCreator_Person]->(creator:Person),
+-      (message)<-[:Person_likes_Post]-(liker:Person),
+-      (message)<-[:Comment_replyOf_Post]-(comment:Comment)
+-  }
+-  +
+-  count {
+-    MATCH (:Tag)<-[:Comment_hasTag_Tag]-(message:Comment)-[:Comment_hasCreator_Person]->(creator:Person),
+-      (message)<-[:Person_likes_Comment]-(liker:Person),
+-      (message)<-[:Comment_replyOf_Comment]-(comment:Comment)
+-  } AS count
++WITH postCount, commentCount, d LIMIT 1
++RETURN postCount + commentCount AS count
+diff --git a/Kuzu/queries/baseline/lsqb/q8.cypher b/Kuzu/queries/baseline/lsqb/q8.cypher
+index c1bb9243..3e7f82bb 100644
+--- a/Kuzu/queries/baseline/lsqb/q8.cypher
++++ b/Kuzu/queries/baseline/lsqb/q8.cypher
+@@ -1,14 +1,11 @@
++// Single QueryPart form of the original count{Post branch} + count{Comment branch}:
++// every relationship table has fixed endpoint labels, so the Post:Comment pattern
++// matches exactly the disjoint union of the two branches.  MATCH (d:Person) ...
++// LIMIT 1 keeps the original row semantics (one row iff Person is non-empty).
++MATCH (tag1:Tag)<-[:Post_hasTag_Tag|Comment_hasTag_Tag]-(message:Post:Comment)<-[:Comment_replyOf_Post|Comment_replyOf_Comment]-(comment:Comment)-[:Comment_hasTag_Tag]->(tag2:Tag)
++WHERE NOT EXISTS { MATCH (comment)-[:Comment_hasTag_Tag]->(tag1) }
++  AND tag1 <> tag2
++WITH count(*) AS cnt
+ MATCH (d:Person)
+-WITH d LIMIT 1
+-RETURN
+-  count {
+-    MATCH (tag1:Tag)<-[:Post_hasTag_Tag]-(message:Post)<-[:Comment_replyOf_Post]-(comment:Comment)-[:Comment_hasTag_Tag]->(tag2:Tag)
+-    WHERE NOT (comment)-[:Comment_hasTag_Tag]->(tag1)
+-      AND tag1 <> tag2
+-  }
+-  +
+-  count {
+-    MATCH (tag1:Tag)<-[:Comment_hasTag_Tag]-(message:Comment)<-[:Comment_replyOf_Comment]-(comment:Comment)-[:Comment_hasTag_Tag]->(tag2:Tag)
+-    WHERE NOT (comment)-[:Comment_hasTag_Tag]->(tag1)
+-      AND tag1 <> tag2
+-  } AS count
++WITH cnt, d LIMIT 1
++RETURN cnt AS count

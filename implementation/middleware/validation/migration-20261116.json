@@ -1,0 +1,97 @@
+{
+  "date": "2026-11-16",
+  "scope": "Rebuilt middleware migration regression; no new target database execution",
+  "configure": "cmake -S middleware/engine -B middleware/engine/build -DCICO_BUNDLED_PATCH=ON",
+  "build": "cmake --build middleware/engine/build --target incgq_rewrite_engine_patched cico_exec_patched -j 2",
+  "tests": {
+    "command": "python3 -m unittest discover -s middleware/tests -v",
+    "passed": 30,
+    "failed": 0
+  },
+  "patch": {
+    "source": "src/compiler/binder/rewriter/rewriter_v4.cpp",
+    "base_blob": "428a0904",
+    "patched_blob": "e8550aa4be137af3ab81f86d0707d06ab024342c",
+    "patch_sha256": "450cea74a0fe2ec1df8c1d6ae566a0dad3246fe80f4a8957f382281ade564fc4"
+  },
+  "baseline": "/tmp/cico_moved",
+  "reports": "/tmp/cico_migration_verified",
+  "dump_command": "CICO_ENGINE_MEMORY_GB=4 python3 middleware/tests/dump_all_queries.py SYSTEM WORKLOAD",
+  "total_records": 220,
+  "query_records": 210,
+  "index_registration_records": 10,
+  "rewritten": 66,
+  "different_records": 0,
+  "workloads": [
+    {
+      "workload": "kuzu-finbench",
+      "queries": 36,
+      "rewritten": 0,
+      "records_equal": true,
+      "canonical_sha256": "f822ae9364d48398bdd44e47df7404eaad95f4d4d086595efd823f727a5afa9a"
+    },
+    {
+      "workload": "kuzu-hetionet",
+      "queries": 26,
+      "rewritten": 26,
+      "records_equal": true,
+      "canonical_sha256": "29ac843190d8f4dc76d38bb2f86ecc22b16f4f0f10e5c2a91c1f30f0d7ccea5e"
+    },
+    {
+      "workload": "kuzu-ldbc-bi",
+      "queries": 19,
+      "rewritten": 5,
+      "records_equal": true,
+      "canonical_sha256": "9e7c62cb5d86b8345fc69fbb11decb72ece2928eb51c171229ab2f4273bad0b6"
+    },
+    {
+      "workload": "kuzu-ldbc-ic",
+      "queries": 14,
+      "rewritten": 0,
+      "records_equal": true,
+      "canonical_sha256": "303e2a6916d79db236273e58211e01fae6de71c616ff67d5c66b84b0f2e4e4cb"
+    },
+    {
+      "workload": "kuzu-lsqb",
+      "queries": 10,
+      "rewritten": 3,
+      "records_equal": true,
+      "canonical_sha256": "79d7169b9e2f7d7c8964f23ad760bf09baf1533d21a11effa35fbf42339713f3"
+    },
+    {
+      "workload": "neo4j-finbench",
+      "queries": 36,
+      "rewritten": 0,
+      "records_equal": true,
+      "canonical_sha256": "b18e4abc7c522a7103087dc5a1d17d210fe5b885ee5bd8faebee14672721d320"
+    },
+    {
+      "workload": "neo4j-hetionet",
+      "queries": 26,
+      "rewritten": 26,
+      "records_equal": true,
+      "canonical_sha256": "d4b4dec48a8fdd57fa223acfc0ff51d44ad270026e8bb551fd62e3ff7b72621f"
+    },
+    {
+      "workload": "neo4j-ldbc-bi",
+      "queries": 19,
+      "rewritten": 3,
+      "records_equal": true,
+      "canonical_sha256": "eb6f47266614ce885b2fe2e4789f810099fbb1bf3581253eb2ddc3ba0bf934d2"
+    },
+    {
+      "workload": "neo4j-ldbc-ic",
+      "queries": 14,
+      "rewritten": 0,
+      "records_equal": true,
+      "canonical_sha256": "66f2be7f317ecb917aaf7ed8f9f9212a6254186e4034a8de4fdb5fe3c1af87e9"
+    },
+    {
+      "workload": "neo4j-lsqb",
+      "queries": 10,
+      "rewritten": 3,
+      "records_equal": true,
+      "canonical_sha256": "da294210909fead6a44591ca857ac2bce18bd3e32d2c01bce902c52fc469254b"
+    }
+  ]
+}

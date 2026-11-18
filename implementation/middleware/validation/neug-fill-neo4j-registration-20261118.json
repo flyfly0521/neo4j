@@ -1,0 +1,638 @@
+{
+  "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
+  "registration_input": "neug",
+  "target_profile": "neo4j",
+  "physical_builds_executed": false,
+  "workload_queries_executed": false,
+  "scope": "NeuG/queries/index/ldbc-bi/*/index.cypher",
+  "parameter_files_tested": false,
+  "files": [
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi10/index.cypher",
+      "sha256": "5b7be733fec8e9fc4878bbc4bb507012f3087e73570d3ab140dffb13c9a3b2b6",
+      "status": "planned",
+      "indexes": [
+        "PERSON(countryName)"
+      ],
+      "plans": [
+        {
+          "index_id": "PERSON(countryName)",
+          "fill": "FILL PERSON(countryName) FROM (MATCH (cico_n1:PLACE)-[cico_r2:ISPARTOF]->(country:PLACE), (person:PERSON)-[cico_r3:ISLOCATEDIN]->(cico_n1) RETURN person.id AS cico_fill_0, country.name AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.countryName = '' } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.__neug_fill_state_n_rows_580c8732ae54e1b8 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (person:Person)-[cico_r3:IS_LOCATED_IN]->(cico_n1:Place) MATCH (cico_n1)-[cico_r2:IS_PART_OF]->(country:Place) WITH person, country.name AS cico_v0, 1 AS cico_v1 CALL (person, cico_v0, cico_v1) { SET person.countryName = cico_v0, person.__neug_fill_state_n_rows_580c8732ae54e1b8 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "PERSON(countryName)": []
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 3
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi11/index.cypher",
+      "sha256": "5b7be733fec8e9fc4878bbc4bb507012f3087e73570d3ab140dffb13c9a3b2b6",
+      "status": "planned",
+      "indexes": [
+        "PERSON(countryName)"
+      ],
+      "plans": [
+        {
+          "index_id": "PERSON(countryName)",
+          "fill": "FILL PERSON(countryName) FROM (MATCH (cico_n1:PLACE)-[cico_r2:ISPARTOF]->(country:PLACE), (person:PERSON)-[cico_r3:ISLOCATEDIN]->(cico_n1) RETURN person.id AS cico_fill_0, country.name AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.countryName = '' } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.__neug_fill_state_n_rows_580c8732ae54e1b8 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (person:Person)-[cico_r3:IS_LOCATED_IN]->(cico_n1:Place) MATCH (cico_n1)-[cico_r2:IS_PART_OF]->(country:Place) WITH person, country.name AS cico_v0, 1 AS cico_v1 CALL (person, cico_v0, cico_v1) { SET person.countryName = cico_v0, person.__neug_fill_state_n_rows_580c8732ae54e1b8 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "PERSON(countryName)": []
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 3
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi13/index.cypher",
+      "sha256": "980d05cbcd9216b5579c016ad24779b68a2e6c22c00dab06c1e6d0f1493d92e3",
+      "status": "schema_only",
+      "indexes": [],
+      "plans": [],
+      "dependencies": {}
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi14/index.cypher",
+      "sha256": "6a29a7eae23c626d83bb4fdaff621432d23cd610ae5569a0a456fd6fda7aa996",
+      "status": "planned",
+      "indexes": [
+        "KNOWS(bi14_case1_fwd)",
+        "KNOWS(bi14_case1_rev)",
+        "KNOWS(bi14_case2_fwd)",
+        "KNOWS(bi14_case2_rev)",
+        "KNOWS(bi14_case3_fwd)",
+        "KNOWS(bi14_case3_rev)",
+        "KNOWS(bi14_case4_fwd)",
+        "KNOWS(bi14_case4_rev)"
+      ],
+      "plans": [
+        {
+          "index_id": "KNOWS(bi14_case1_fwd)",
+          "fill": "FILL KNOWS(bi14_case1_fwd) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (c:COMMENT)-[cico_r2:HASCREATOR]->(pA), (c)-[cico_r3:REPLYOF]->(cico_n1:COMMENT:POST), (cico_n1)-[cico_r4:HASCREATOR]->(pB) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(c) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case1_fwd = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_2277ae2022ba4477 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB MATCH (cico_n1:Message)-[cico_r4:HAS_CREATOR]->(pB) MATCH (c:Comment)-[cico_r3:REPLY_OF]->(cico_n1) MATCH (c)-[cico_r2:HAS_CREATOR]->(pA) WITH pA, pB, count(c) AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case1_fwd = cico_v0, cico_e.__neug_fill_state_n_rows_2277ae2022ba4477 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi14_case1_rev)",
+          "fill": "FILL KNOWS(bi14_case1_rev) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (c:COMMENT)-[cico_r2:HASCREATOR]->(pB), (c)-[cico_r3:REPLYOF]->(cico_n1:COMMENT:POST), (cico_n1)-[cico_r4:HASCREATOR]->(pA) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(c) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case1_rev = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_ceb40ddb77659bc9 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB MATCH (cico_n1:Message)-[cico_r4:HAS_CREATOR]->(pA) MATCH (c:Comment)-[cico_r3:REPLY_OF]->(cico_n1) MATCH (c)-[cico_r2:HAS_CREATOR]->(pB) WITH pA, pB, count(c) AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case1_rev = cico_v0, cico_e.__neug_fill_state_n_rows_ceb40ddb77659bc9 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi14_case2_fwd)",
+          "fill": "FILL KNOWS(bi14_case2_fwd) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (m:COMMENT:POST)-[cico_r2:HASCREATOR]->(pA), (cico_n1:COMMENT)-[cico_r3:REPLYOF]->(m), (cico_n1)-[cico_r4:HASCREATOR]->(pB) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(m) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case2_fwd = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_671e537ffaa8ed00 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB MATCH (cico_n1:Comment)-[cico_r4:HAS_CREATOR]->(pB) MATCH (cico_n1)-[cico_r3:REPLY_OF]->(m:Message) MATCH (m)-[cico_r2:HAS_CREATOR]->(pA) WITH pA, pB, count(m) AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case2_fwd = cico_v0, cico_e.__neug_fill_state_n_rows_671e537ffaa8ed00 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi14_case2_rev)",
+          "fill": "FILL KNOWS(bi14_case2_rev) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (m:COMMENT:POST)-[cico_r2:HASCREATOR]->(pB), (cico_n1:COMMENT)-[cico_r3:REPLYOF]->(m), (cico_n1)-[cico_r4:HASCREATOR]->(pA) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(m) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case2_rev = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_34b8412c41bb8ec7 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB MATCH (cico_n1:Comment)-[cico_r4:HAS_CREATOR]->(pA) MATCH (cico_n1)-[cico_r3:REPLY_OF]->(m:Message) MATCH (m)-[cico_r2:HAS_CREATOR]->(pB) WITH pA, pB, count(m) AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case2_rev = cico_v0, cico_e.__neug_fill_state_n_rows_34b8412c41bb8ec7 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi14_case3_fwd)",
+          "fill": "FILL KNOWS(bi14_case3_fwd) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (pA)-[cico_r1:LIKES]->(m:COMMENT:POST), (m)-[cico_r2:HASCREATOR]->(pB) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(m) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case3_fwd = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_5672c6a0f4f140dc = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB MATCH (m:Message)-[cico_r2:HAS_CREATOR]->(pB) MATCH (pA)-[cico_r1:LIKES]->(m) WITH pA, pB, count(m) AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case3_fwd = cico_v0, cico_e.__neug_fill_state_n_rows_5672c6a0f4f140dc = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi14_case3_rev)",
+          "fill": "FILL KNOWS(bi14_case3_rev) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (pB)-[cico_r1:LIKES]->(m:COMMENT:POST), (m)-[cico_r2:HASCREATOR]->(pA) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(m) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case3_rev = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_96c6f07f60f97e59 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB MATCH (m:Message)-[cico_r2:HAS_CREATOR]->(pA) MATCH (pB)-[cico_r1:LIKES]->(m) WITH pA, pB, count(m) AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case3_rev = cico_v0, cico_e.__neug_fill_state_n_rows_96c6f07f60f97e59 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi14_case4_fwd)",
+          "fill": "FILL KNOWS(bi14_case4_fwd) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (m:COMMENT:POST)-[cico_r1:HASCREATOR]->(pA), (pB)-[cico_r2:LIKES]->(m) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(m) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case4_fwd = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_4a5904f32d6f1446 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB MATCH (pB)-[cico_r2:LIKES]->(m:Message) MATCH (m)-[cico_r1:HAS_CREATOR]->(pA) WITH pA, pB, count(m) AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case4_fwd = cico_v0, cico_e.__neug_fill_state_n_rows_4a5904f32d6f1446 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi14_case4_rev)",
+          "fill": "FILL KNOWS(bi14_case4_rev) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (m:COMMENT:POST)-[cico_r1:HASCREATOR]->(pB), (pA)-[cico_r2:LIKES]->(m) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(m) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case4_rev = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_923a45493400673c = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB MATCH (pA)-[cico_r2:LIKES]->(m:Message) MATCH (m)-[cico_r1:HAS_CREATOR]->(pB) WITH pA, pB, count(m) AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case4_rev = cico_v0, cico_e.__neug_fill_state_n_rows_923a45493400673c = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "KNOWS(bi14_case1_fwd)": [],
+        "KNOWS(bi14_case1_rev)": [],
+        "KNOWS(bi14_case2_fwd)": [],
+        "KNOWS(bi14_case2_rev)": [],
+        "KNOWS(bi14_case3_fwd)": [],
+        "KNOWS(bi14_case3_rev)": [],
+        "KNOWS(bi14_case4_fwd)": [],
+        "KNOWS(bi14_case4_rev)": []
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 24
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi15/index.cypher",
+      "sha256": "ba0033e71b384d75d11293578cb21465ad650de2fa15b58039f8a71539879342",
+      "status": "planned",
+      "indexes": [
+        "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
+        "KNOWS(bi14_case1_rev,bi15_post_rev)",
+        "KNOWS(bi15_weight)"
+      ],
+      "plans": [
+        {
+          "index_id": "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
+          "fill": "FILL KNOWS(bi14_case1_fwd,bi15_post_fwd) FROM (MATCH (pA:PERSON)-[cico_r1:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (comment:COMMENT)-[cico_r2:HASCREATOR]->(pA), (comment)-[cico_r3:REPLYOF]->(target:COMMENT:POST), (target)-[cico_r4:HASCREATOR]->(pB) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(comment) AS cico_fill_2, sum(CASE WHEN ((label(target) = 'POST') = true) THEN 1 ELSE 0 END) AS cico_fill_3)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case1_fwd = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi15_post_fwd = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_1bc749c7c14a8f78 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[cico_r1:KNOWS]->(pB:Person) WITH pA, pB MATCH (target:Message)-[cico_r4:HAS_CREATOR]->(pB) MATCH (comment:Comment)-[cico_r3:REPLY_OF]->(target) MATCH (comment)-[cico_r2:HAS_CREATOR]->(pA) WITH pA, pB, count(comment) AS cico_v0, sum(CASE WHEN ((target:Post) = true) THEN 1 ELSE 0 END) AS cico_v1, 1 AS cico_v2 CALL (pA, pB, cico_v0, cico_v1, cico_v2) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case1_fwd = cico_v0, cico_e.bi15_post_fwd = cico_v1, cico_e.__neug_fill_state_n_rows_1bc749c7c14a8f78 = cico_v2 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi14_case1_rev,bi15_post_rev)",
+          "fill": "FILL KNOWS(bi14_case1_rev,bi15_post_rev) FROM (MATCH (pA:PERSON)-[cico_r1:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (comment:COMMENT)-[cico_r2:HASCREATOR]->(pB), (comment)-[cico_r3:REPLYOF]->(target:COMMENT:POST), (target)-[cico_r4:HASCREATOR]->(pA) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(comment) AS cico_fill_2, sum(CASE WHEN ((label(target) = 'POST') = true) THEN 1 ELSE 0 END) AS cico_fill_3)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case1_rev = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi15_post_rev = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_5a2d4dab8f954381 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[cico_r1:KNOWS]->(pB:Person) WITH pA, pB MATCH (target:Message)-[cico_r4:HAS_CREATOR]->(pA) MATCH (comment:Comment)-[cico_r3:REPLY_OF]->(target) MATCH (comment)-[cico_r2:HAS_CREATOR]->(pB) WITH pA, pB, count(comment) AS cico_v0, sum(CASE WHEN ((target:Post) = true) THEN 1 ELSE 0 END) AS cico_v1, 1 AS cico_v2 CALL (pA, pB, cico_v0, cico_v1, cico_v2) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case1_rev = cico_v0, cico_e.bi15_post_rev = cico_v1, cico_e.__neug_fill_state_n_rows_5a2d4dab8f954381 = cico_v2 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi15_weight)",
+          "fill": "FILL KNOWS(bi15_weight) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB, knows, (knows.bi14_case1_fwd + knows.bi14_case1_rev) AS replyCount, (knows.bi15_post_fwd + knows.bi15_post_rev) AS postReplyCount RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, (1.000000 / ((0.500000 * CAST((replyCount + postReplyCount) AS DOUBLE)) + 1.000000)) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi15_weight = 1.0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_177ab64869936516 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB, knows, (knows.bi14_case1_fwd + knows.bi14_case1_rev) AS replyCount, (knows.bi15_post_fwd + knows.bi15_post_rev) AS postReplyCount WITH pA, pB, (1.000000 / ((0.500000 * toFloat((replyCount + postReplyCount))) + 1.000000)) AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi15_weight = cico_v0, cico_e.__neug_fill_state_n_rows_177ab64869936516 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "KNOWS(bi14_case1_fwd,bi15_post_fwd)": [],
+        "KNOWS(bi14_case1_rev,bi15_post_rev)": [],
+        "KNOWS(bi15_weight)": [
+          "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
+          "KNOWS(bi14_case1_rev,bi15_post_rev)"
+        ]
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 11
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi15w/index.cypher",
+      "sha256": "2bde037cc6cc0b76d91f8b5f84cdc899e81283270a0df062ccad459e35925a05",
+      "status": "unsupported",
+      "error": "ValueError: Overlapping FILL carriers: ('KNOWS', ('{}', '{}')) and KNOWS('{}', '{}')"
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi16/index.cypher",
+      "sha256": "dadc1017d2fb02fac50aa7c3916e4b254c85de8435abd9c44aa41ca6b7b9d040",
+      "status": "schema_only",
+      "indexes": [],
+      "plans": [],
+      "dependencies": {}
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi17/index.cypher",
+      "sha256": "d59688e5a957623439c1827eb63592f7736dbbee16fb9f71d927e1500cee1eb9",
+      "status": "planned",
+      "indexes": [
+        "ROOT_POST()"
+      ],
+      "plans": [
+        {
+          "index_id": "ROOT_POST()",
+          "fill": "FILL ROOT_POST() FROM (MATCH (message:COMMENT:POST)-[cico_r1:REPLYOF*0..4294967295]->(post:POST) RETURN DISTINCT message.id AS cico_fill_0, post.id AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:ROOT_POST]->() WITH cico_e CALL (cico_e) { DELETE cico_e } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (message:Message) CALL (message) { MATCH (message:Message)-[cico_r1:REPLY_OF*0..]->(post:Post) WITH DISTINCT message, post CREATE (message)-[:ROOT_POST]->(post) } IN TRANSACTIONS OF 1000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "ROOT_POST()": []
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 2
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi19a/index.cypher",
+      "sha256": "d7ebadb8f44a0b1094015e91b29b2c49622b32e20b5409b638e1dc2c91a7a4ef",
+      "status": "planned",
+      "indexes": [
+        "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
+        "KNOWS(bi14_case1_rev,bi15_post_rev)",
+        "KNOWS(weight_bi19)"
+      ],
+      "plans": [
+        {
+          "index_id": "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
+          "fill": "FILL KNOWS(bi14_case1_fwd,bi15_post_fwd) FROM (MATCH (pA:PERSON)-[cico_r1:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (comment:COMMENT)-[cico_r2:HASCREATOR]->(pA), (comment)-[cico_r3:REPLYOF]->(target:COMMENT:POST), (target)-[cico_r4:HASCREATOR]->(pB) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(comment) AS cico_fill_2, sum(CASE WHEN ((label(target) = 'POST') = true) THEN 1 ELSE 0 END) AS cico_fill_3)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case1_fwd = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi15_post_fwd = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_1bc749c7c14a8f78 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[cico_r1:KNOWS]->(pB:Person) WITH pA, pB MATCH (target:Message)-[cico_r4:HAS_CREATOR]->(pB) MATCH (comment:Comment)-[cico_r3:REPLY_OF]->(target) MATCH (comment)-[cico_r2:HAS_CREATOR]->(pA) WITH pA, pB, count(comment) AS cico_v0, sum(CASE WHEN ((target:Post) = true) THEN 1 ELSE 0 END) AS cico_v1, 1 AS cico_v2 CALL (pA, pB, cico_v0, cico_v1, cico_v2) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case1_fwd = cico_v0, cico_e.bi15_post_fwd = cico_v1, cico_e.__neug_fill_state_n_rows_1bc749c7c14a8f78 = cico_v2 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi14_case1_rev,bi15_post_rev)",
+          "fill": "FILL KNOWS(bi14_case1_rev,bi15_post_rev) FROM (MATCH (pA:PERSON)-[cico_r1:KNOWS]->(pB:PERSON) WITH pA, pB MATCH (comment:COMMENT)-[cico_r2:HASCREATOR]->(pB), (comment)-[cico_r3:REPLYOF]->(target:COMMENT:POST), (target)-[cico_r4:HASCREATOR]->(pA) RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, count(comment) AS cico_fill_2, sum(CASE WHEN ((label(target) = 'POST') = true) THEN 1 ELSE 0 END) AS cico_fill_3)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi14_case1_rev = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi15_post_rev = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_5a2d4dab8f954381 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[cico_r1:KNOWS]->(pB:Person) WITH pA, pB MATCH (target:Message)-[cico_r4:HAS_CREATOR]->(pA) MATCH (comment:Comment)-[cico_r3:REPLY_OF]->(target) MATCH (comment)-[cico_r2:HAS_CREATOR]->(pB) WITH pA, pB, count(comment) AS cico_v0, sum(CASE WHEN ((target:Post) = true) THEN 1 ELSE 0 END) AS cico_v1, 1 AS cico_v2 CALL (pA, pB, cico_v0, cico_v1, cico_v2) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.bi14_case1_rev = cico_v0, cico_e.bi15_post_rev = cico_v1, cico_e.__neug_fill_state_n_rows_5a2d4dab8f954381 = cico_v2 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(weight_bi19)",
+          "fill": "FILL KNOWS(weight_bi19) FROM (MATCH (pA:PERSON)-[knows:KNOWS]->(pB:PERSON) WITH pA, pB, knows, (knows.bi14_case1_fwd + knows.bi14_case1_rev) AS replyCount RETURN pA.id AS cico_fill_0, pB.id AS cico_fill_1, CASE WHEN ((replyCount = 0) = true) THEN 10000000000000.000000 ELSE CASE WHEN ((ROUND((40.000000 - SQRT(CAST(replyCount AS DOUBLE))), 0) > 1.000000) = true) THEN ROUND((40.000000 - SQRT(CAST(replyCount AS DOUBLE))), 0) ELSE 1.000000 END END AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.weight_bi19 = 10000000000000.0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_5e6264ae13b1b344 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (pA:Person)-[knows:KNOWS]->(pB:Person) WITH pA, pB, knows, (knows.bi14_case1_fwd + knows.bi14_case1_rev) AS replyCount WITH pA, pB, CASE WHEN ((replyCount = 0) = true) THEN 10000000000000.000000 ELSE CASE WHEN ((round((40.000000 - sqrt(toFloat(replyCount))), 0) > 1.000000) = true) THEN round((40.000000 - sqrt(toFloat(replyCount))), 0) ELSE 1.000000 END END AS cico_v0, 1 AS cico_v1 CALL (pA, pB, cico_v0, cico_v1) { MATCH (pA)-[cico_e:KNOWS]->(pB) SET cico_e.weight_bi19 = cico_v0, cico_e.__neug_fill_state_n_rows_5e6264ae13b1b344 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "KNOWS(bi14_case1_fwd,bi15_post_fwd)": [],
+        "KNOWS(bi14_case1_rev,bi15_post_rev)": [],
+        "KNOWS(weight_bi19)": [
+          "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
+          "KNOWS(bi14_case1_rev,bi15_post_rev)"
+        ]
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 11
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi2/index.cypher",
+      "sha256": "53d5e45f6d5bf4eef948c8d085a213d8f998a245173c5c39edf588554833df79",
+      "status": "schema_only",
+      "indexes": [],
+      "plans": [],
+      "dependencies": {}
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi20/index.cypher",
+      "sha256": "9d0e8b9071e9f123d4972c2d59c2fb5b147eaca367b8bc73b4c92e21a7adfb93",
+      "status": "planned",
+      "indexes": [
+        "KNOWS(bi20_direct)",
+        "KNOWS(bi20_weight)"
+      ],
+      "plans": [
+        {
+          "index_id": "KNOWS(bi20_direct)",
+          "fill": "FILL KNOWS(bi20_direct) FROM (MATCH (personA:PERSON)-[saA:STUDYAT]->(university:ORGANISATION), (personB:PERSON)-[saB:STUDYAT]->(university), (personA)-[cico_r1:KNOWS]->(personB) RETURN personA.id AS cico_fill_0, personB.id AS cico_fill_1, (CAST(min(CASE WHEN ((saA.classYear >= saB.classYear) = true) THEN (saA.classYear - saB.classYear) ELSE (saB.classYear - saA.classYear) END) AS INT64) + 1) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi20_direct = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_c265d228e89ddc28 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (personA:Person)-[cico_r1:KNOWS]->(personB:Person) MATCH (personB)-[saB:STUDY_AT]->(university:Organisation) MATCH (personA)-[saA:STUDY_AT]->(university) WITH personA, personB, (toInteger(min(CASE WHEN ((saA.classYear >= saB.classYear) = true) THEN (saA.classYear - saB.classYear) ELSE (saB.classYear - saA.classYear) END)) + 1) AS cico_v0, 1 AS cico_v1 CALL (personA, personB, cico_v0, cico_v1) { MATCH (personA)-[cico_e:KNOWS]->(personB) SET cico_e.bi20_direct = cico_v0, cico_e.__neug_fill_state_n_rows_c265d228e89ddc28 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "KNOWS(bi20_weight)",
+          "fill": "FILL KNOWS(bi20_weight) FROM (MATCH (personA:PERSON)-[knows:KNOWS]->(personB:PERSON) RETURN personA.id AS cico_fill_0, personB.id AS cico_fill_1, CASE WHEN ((knows.bi20_direct = 0) = true) THEN 10000000000000.000000 ELSE CAST(knows.bi20_direct AS DOUBLE) END AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.bi20_weight = 10000000000000.0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH ()-[cico_e:KNOWS]->() WITH cico_e CALL (cico_e) { SET cico_e.__neug_fill_state_n_rows_e57bdbc92d6266e9 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (personA:Person)-[knows:KNOWS]->(personB:Person) WITH personA, personB, CASE WHEN ((knows.bi20_direct = 0) = true) THEN 10000000000000.000000 ELSE toFloat(knows.bi20_direct) END AS cico_v0, 1 AS cico_v1 CALL (personA, personB, cico_v0, cico_v1) { MATCH (personA)-[cico_e:KNOWS]->(personB) SET cico_e.bi20_weight = cico_v0, cico_e.__neug_fill_state_n_rows_e57bdbc92d6266e9 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "KNOWS(bi20_direct)": [],
+        "KNOWS(bi20_weight)": [
+          "KNOWS(bi20_direct)"
+        ]
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 6
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi3/index.cypher",
+      "sha256": "65696e8c50162029c7e55dc5cab41b8bcaf1f1a102faac0364f817166daee99b",
+      "status": "planned",
+      "indexes": [
+        "PERSON(countryName)",
+        "ROOT_POST()"
+      ],
+      "plans": [
+        {
+          "index_id": "PERSON(countryName)",
+          "fill": "FILL PERSON(countryName) FROM (MATCH (cico_n1:PLACE)-[cico_r2:ISPARTOF]->(country:PLACE), (person:PERSON)-[cico_r3:ISLOCATEDIN]->(cico_n1) RETURN person.id AS cico_fill_0, country.name AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.countryName = '' } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.__neug_fill_state_n_rows_580c8732ae54e1b8 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (person:Person)-[cico_r3:IS_LOCATED_IN]->(cico_n1:Place) MATCH (cico_n1)-[cico_r2:IS_PART_OF]->(country:Place) WITH person, country.name AS cico_v0, 1 AS cico_v1 CALL (person, cico_v0, cico_v1) { SET person.countryName = cico_v0, person.__neug_fill_state_n_rows_580c8732ae54e1b8 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "ROOT_POST()",
+          "fill": "FILL ROOT_POST() FROM (MATCH (message:COMMENT:POST)-[e:REPLYOF*0..4294967295]->(post:POST) RETURN DISTINCT message.id AS cico_fill_0, post.id AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:ROOT_POST]->() WITH cico_e CALL (cico_e) { DELETE cico_e } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (message:Message) CALL (message) { MATCH (message:Message)-[e:REPLY_OF*0..]->(post:Post) WITH DISTINCT message, post CREATE (message)-[:ROOT_POST]->(post) } IN TRANSACTIONS OF 1000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "PERSON(countryName)": [],
+        "ROOT_POST()": []
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 5
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi4/index.cypher",
+      "sha256": "9e8a4e64ee0a7a8d273462935a6f97dd4037c620402896044512a880aa307348",
+      "status": "planned",
+      "indexes": [
+        "BI4_MESSAGE_COUNT()"
+      ],
+      "plans": [
+        {
+          "index_id": "BI4_MESSAGE_COUNT()",
+          "fill": "FILL BI4_MESSAGE_COUNT() FROM (MATCH (forum:FORUM)-[cico_r1:CONTAINEROF]->(post:POST), (message:COMMENT:POST)-[cico_r2:REPLYOF*0..4294967295]->(post), (message)-[cico_r3:HASCREATOR]->(person:PERSON) RETURN forum.id AS cico_fill_0, person.id AS cico_fill_1, count(DISTINCT message) AS cico_fill_2)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:BI4_MESSAGE_COUNT]->() WITH cico_e CALL (cico_e) { DELETE cico_e } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (forum:Forum) CALL (forum) { MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(person:Person) MATCH (message)-[cico_r2:REPLY_OF*0..]->(post:Post) MATCH (forum:Forum)-[cico_r1:CONTAINER_OF]->(post) WITH forum, person, count(DISTINCT message) AS cico_v0, 1 AS cico_v1 CREATE (forum)-[:BI4_MESSAGE_COUNT {messageCount: cico_v0, __neug_fill_state_n_rows_ee0b3473b5e89ea3: cico_v1}]->(person) } IN TRANSACTIONS OF 1000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "BI4_MESSAGE_COUNT()": []
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 2
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi5/index.cypher",
+      "sha256": "044d8bbcfbea8d981edd2f93c79f4e0c96022ab99316423099f9d6c11e1072f1",
+      "status": "planned",
+      "indexes": [
+        "COMMENT(likeCount)",
+        "POST(likeCount)",
+        "COMMENT(replyCount)",
+        "POST(replyCount)"
+      ],
+      "plans": [
+        {
+          "index_id": "COMMENT(likeCount)",
+          "fill": "FILL COMMENT(likeCount) FROM (MATCH (liker:PERSON)-[cico_r1:LIKES]->(message:COMMENT) RETURN message.id AS cico_fill_0, count(liker) AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH (cico_n:Comment) WITH cico_n CALL (cico_n) { SET cico_n.likeCount = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH (cico_n:Comment) WITH cico_n CALL (cico_n) { SET cico_n.__neug_fill_state_n_rows_d46f5f0a4b0566f8 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (liker:Person)-[cico_r1:LIKES]->(message:Comment) WITH message, count(liker) AS cico_v0, count(*) AS cico_v1 CALL (message, cico_v0, cico_v1) { SET message.likeCount = cico_v0, message.__neug_fill_state_n_rows_d46f5f0a4b0566f8 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "POST(likeCount)",
+          "fill": "FILL POST(likeCount) FROM (MATCH (liker:PERSON)-[cico_r1:LIKES]->(message:POST) RETURN message.id AS cico_fill_0, count(liker) AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH (cico_n:Post) WITH cico_n CALL (cico_n) { SET cico_n.likeCount = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH (cico_n:Post) WITH cico_n CALL (cico_n) { SET cico_n.__neug_fill_state_n_rows_396b848b64ef983c = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (liker:Person)-[cico_r1:LIKES]->(message:Post) WITH message, count(liker) AS cico_v0, count(*) AS cico_v1 CALL (message, cico_v0, cico_v1) { SET message.likeCount = cico_v0, message.__neug_fill_state_n_rows_396b848b64ef983c = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "COMMENT(replyCount)",
+          "fill": "FILL COMMENT(replyCount) FROM (MATCH (reply:COMMENT)-[cico_r1:REPLYOF]->(message:COMMENT) RETURN message.id AS cico_fill_0, count(reply) AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH (cico_n:Comment) WITH cico_n CALL (cico_n) { SET cico_n.replyCount = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH (cico_n:Comment) WITH cico_n CALL (cico_n) { SET cico_n.__neug_fill_state_n_rows_d14ba99f7d76f9e5 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (reply:Comment)-[cico_r1:REPLY_OF]->(message:Comment) WITH message, count(reply) AS cico_v0, count(*) AS cico_v1 CALL (message, cico_v0, cico_v1) { SET message.replyCount = cico_v0, message.__neug_fill_state_n_rows_d14ba99f7d76f9e5 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        },
+        {
+          "index_id": "POST(replyCount)",
+          "fill": "FILL POST(replyCount) FROM (MATCH (reply:COMMENT)-[cico_r1:REPLYOF]->(message:POST) RETURN message.id AS cico_fill_0, count(reply) AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH (cico_n:Post) WITH cico_n CALL (cico_n) { SET cico_n.replyCount = 0 } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH (cico_n:Post) WITH cico_n CALL (cico_n) { SET cico_n.__neug_fill_state_n_rows_f51c2ccc9228deba = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (reply:Comment)-[cico_r1:REPLY_OF]->(message:Post) WITH message, count(reply) AS cico_v0, count(*) AS cico_v1 CALL (message, cico_v0, cico_v1) { SET message.replyCount = cico_v0, message.__neug_fill_state_n_rows_f51c2ccc9228deba = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "COMMENT(likeCount)": [],
+        "POST(likeCount)": [],
+        "COMMENT(replyCount)": [],
+        "POST(replyCount)": []
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 12
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi6/index.cypher",
+      "sha256": "4347b3a72e2f64dacc5413d86de3ed09c252f18426d8f1f6cd286758f5318022",
+      "status": "planned",
+      "indexes": [
+        "PERSON(likeCount)"
+      ],
+      "plans": [
+        {
+          "index_id": "PERSON(likeCount)",
+          "fill": "FILL PERSON(likeCount) FROM (MATCH (message2:COMMENT:POST)-[cico_r1:HASCREATOR]->(person2:PERSON), (person3:PERSON)-[like:LIKES]->(message2) RETURN person2.id AS cico_fill_0, count(person3) AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.likeCount = NULL } IN TRANSACTIONS OF 10000 ROWS",
+            "MATCH (cico_n:Person) WITH cico_n CALL (cico_n) { SET cico_n.__neug_fill_state_n_rows_d9d56bb4708a1fb2 = 0 } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (person3:Person)-[like:LIKES]->(message2:Message) MATCH (message2)-[cico_r1:HAS_CREATOR]->(person2:Person) WITH person2, count(person3) AS cico_v0, count(*) AS cico_v1 CALL (person2, cico_v0, cico_v1) { SET person2.likeCount = cico_v0, person2.__neug_fill_state_n_rows_d9d56bb4708a1fb2 = cico_v1 } IN TRANSACTIONS OF 10000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "PERSON(likeCount)": []
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 3
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi8/index.cypher",
+      "sha256": "edfdae19a04b99372f3fcabe401ca01112bc537beadd5b760eb3e08a0c35ee99",
+      "status": "schema_only",
+      "indexes": [],
+      "plans": [],
+      "dependencies": {}
+    },
+    {
+      "file": "/mnt/sdb1/feiyang/IncGQ-experiment-docs/NeuG/queries/index/ldbc-bi/bi9/index.cypher",
+      "sha256": "20746f38ed7f4803f8980abc36910f33299006fcc4d126725871f037b6984a67",
+      "status": "planned",
+      "indexes": [
+        "ROOT_POST()"
+      ],
+      "plans": [
+        {
+          "index_id": "ROOT_POST()",
+          "fill": "FILL ROOT_POST() FROM (MATCH (message:COMMENT:POST)-[e:REPLYOF*0..4294967295]->(post:POST) RETURN DISTINCT message.id AS cico_fill_0, post.id AS cico_fill_1)",
+          "ok": true,
+          "ddl": [],
+          "reset": [
+            "MATCH ()-[cico_e:ROOT_POST]->() WITH cico_e CALL (cico_e) { DELETE cico_e } IN TRANSACTIONS OF 10000 ROWS"
+          ],
+          "fill_statements": [
+            "MATCH (message:Message) CALL (message) { MATCH (message:Message)-[e:REPLY_OF*0..]->(post:Post) WITH DISTINCT message, post CREATE (message)-[:ROOT_POST]->(post) } IN TRANSACTIONS OF 1000 ROWS"
+          ]
+        }
+      ],
+      "dependencies": {
+        "ROOT_POST()": []
+      },
+      "neo4j_explain": "ok",
+      "explain_statements": 2
+    }
+  ],
+  "counts": {
+    "planned": 12,
+    "schema_only": 4,
+    "unsupported": 1
+  }
+}

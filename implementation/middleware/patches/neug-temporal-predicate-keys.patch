@@ -1,0 +1,21 @@
+diff --git a/src/compiler/binder/expression/index_predicate_key.cpp b/src/compiler/binder/expression/index_predicate_key.cpp
+--- a/src/compiler/binder/expression/index_predicate_key.cpp
++++ b/src/compiler/binder/expression/index_predicate_key.cpp
+@@ -96,7 +96,7 @@
+   }
+   if (is(ExpressionType::FUNCTION)) {
+     static const std::set<std::string> supported = {
+-        "+", "-", "*", "/", "%", "LABEL", "STRUCT_EXTRACT", "TIMESTAMP"};
++        "+", "-", "*", "/", "%", "LABEL", "STRUCT_EXTRACT", "TIMESTAMP", "TO_DATE", "TO_INTERVAL", "CAST"};
+     if (fields.size() < 4 || !supported.contains(fields[2])) return std::nullopt;
+     childrenBegin = 4;
+   } else if (is(ExpressionType::CASE_ELSE)) {
+@@ -192,7 +192,7 @@
+     // their typed arguments/result. The FILL maintenance converter separately
+     // verifies that the stored source supports incremental evaluation.
+     static const std::set<std::string> supported = {
+-        "+", "-", "*", "/", "%", "LABEL", "STRUCT_EXTRACT", "TIMESTAMP"};
++        "+", "-", "*", "/", "%", "LABEL", "STRUCT_EXTRACT", "TIMESTAMP", "TO_DATE", "TO_INTERVAL", "CAST"};
+     if (!supported.contains(function.name)) return std::nullopt;
+     appendField(key, function.name);
+     appendField(key, function.signatureToString());
