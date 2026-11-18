@@ -16,8 +16,8 @@ from cico.queryparts import split_parts
 
 ROOT = Path(__file__).resolve().parents[1]
 
-ORDER = ['bi11', 'bi4', 'bi8', 'bi16', 'bi19a', 'bi20', 'bi15', 'bi15w']
-NEW = {'bi2', 'bi10', 'bi14', 'bi17'}
+ORDER = ['bi16', 'bi19a', 'bi20', 'bi15', 'bi15w']
+NEW = {'bi2', 'bi4', 'bi8', 'bi10', 'bi11', 'bi14', 'bi17'}
 
 # case -> (one-line verdict, blocking analysis (markdown), fix plan (markdown), parts to translate (0-based))
 ANALYSIS = {
@@ -59,7 +59,7 @@ ANALYSIS = {
         '''- `UNWIND [{letter:'A', tag:$tagA, date:$dateA}, {...B...}] AS param` 后进入相关 `CALL { WITH paramTagX, paramDateX ... }`；CALL 前缀的类型推断报 `no declared opaque type prefix`，CALL 分支未编译。
 - CALL 内 `count(DISTINCT message1)`（`cm`）对应索引 A/B 列，但同一个 CALL 里还有 `OPTIONAL MATCH (person1)-[:KNOWS]-(person2)<-[:HAS_CREATOR]-(message2)-[:HAS_TAG]->(tag)`，再次使用第一个 MATCH 的**同一个 Tag 节点**并计算 `count(DISTINCT person2)`（`cp2`），索引不覆盖。
 - `date(message1.creationDate) = date(paramDateX)` 与索引的 `[dateXStart, dateXEnd)` 区间之间的等价需要按 UTC 日边界证明。''',
-        '''- 可行路径：有限记录 CALL 按 `letter` 分支、`Tag.name` 唯一、日期按 UTC 规范化，只把 `cm` 换成 `person1.bi16MessageCountA/B`。
+        '''- 可行路径：有限记录 CALL 按 `letter` 分支；`Tag.name` 唯一且非空现已声明（BI8 的常量键绑定 T3 可复用，但 BI16 的 tag 来自 CALL 内的 MATCH，需要扩展 T3 的绑定来源）；`date(x) = date(p)` 按 UTC 日边界规范化；只把 `cm` 换成 `person1.bi16MessageCountA/B`。
 - 判断：`cp2` 的好友 OPTIONAL 仍需现场计算，而改写后要按全体 Person 读属性筛选，可能比原查询从 Tag 出发更慢。暂缓，除非你需要。''',
         []),
     'bi19a': (
@@ -146,24 +146,30 @@ def render(status, out):
               '- BI10：SF1 实例上原查询与改写结果逐行一致 3/3 组参数（100/44/11 行；耗时 13.7s→0.09s、4.1s→0.07s、3.7s→0.07s，'
               '只读，`countryName` 已物化且 0 缺失、0 过期）。[结果](validation/neo4j-bi10-sf1-20261118.json)；'
               '另有单测：去掉任一类前提（类型域、至多一条、至少一条）都拒绝改写。',
+              '- BI11：SF1 的参数样本计数全为 0（相等但不说明问题），另用随机夹具：20 个种子 × 2 个国家 × 2 个时间窗，80/80 一致，25 组计数非零。'
+              '[夹具](validation/neo4j-bi11-fixture-20261118.json)、[SF1](validation/neo4j-bi11-sf1-20261118.json)',
+              '- BI4：top forum 选择会扫描整个 SF1，测试把 CALL 之前的前缀换成夹具论坛列表（含一个重复元素），30/30 一致，145 行消息数非零；'
+              '去掉改写中的 `WITH DISTINCT` 后同一检查失败（说明重复元素确实被测到）。[结果](validation/neo4j-bi4-fixture-20261118.json)',
+              '- BI8：改写对 `$tag/$startDate/$endDate` 特化；夹具用唯一 Tag 名和固定时间窗注册 FILL，30/30 一致，169 行分数非零。'
+              '[结果](validation/neo4j-bi8-fixture-20261118.json)',
               '- BI17：真实 Neo4j 上 20 个随机夹具 × delta∈{0,4,24}，60/60 一致（40 组非空，含零长度路径与同一棵回复树）。'
               '[结果](validation/neo4j-bi17-path-carrier-20261118.json)。BI17 不经 NeuG 绑定校验：NeuG 规划器对这个含 11 条关系的单个 MATCH 在 24 GB 上限下仍内存耗尽'
               '（README 7.7，上游问题），证明中记为 `neug_bind: skipped`，只做了转换和 schema 检查。', '',
               '## 声明约束', '',
               '用户 2026-11-18 同意。写在 `middleware/profiles/ldbc-snb-neo4j.yaml` 的 `constraints:`，是个别改写步骤的前提（不是定理本身的前提），'
-              '用到的写入 `Result.premises`。`middleware/tests/constraint_checks.py` 在 SF1 实例（`bolt://127.0.0.1:7693`，只读）上 10/10 条 0 违反'
+              '用到的写入 `Result.premises`。`middleware/tests/constraint_checks.py` 在 SF1 实例（`bolt://127.0.0.1:7693`，只读）上 12/12 条 0 违反'
               '（[结果](validation/neo4j-constraint-checks-sf1-20261118.json)）。', '',
               '| 约束 | 已用于 | 计划用于 |', '| --- | --- | --- |',
-              '| `(:Message)-[:REPLY_OF]->` 至多一条 | BI17 | BI4 |',
-              '| `-[:CONTAINER_OF]->(:Post)` 至多一条 | BI17 | BI4 |',
-              '| `(:Person)-[:IS_LOCATED_IN]->` 至多一条 | BI10（投影载体函数依赖） | BI11 |',
-              '| `(:City)-[:IS_PART_OF]->` 至多一条 | BI10 | BI11 |',
-              '| `(:Person)-[:IS_LOCATED_IN]->` 至少一条 | BI10（投影载体全覆盖：缺失分组不会读到默认值 `\'\'`） | BI11 |',
-              '| `(:City)-[:IS_PART_OF]->` 至少一条 | BI10 | BI11 |',
-              '| `(:Person)-[:IS_LOCATED_IN]->(:City)` | BI10（去掉冗余 City 类型谓词） | BI11 |',
-              '| `(:City)-[:IS_PART_OF]->(:Country)` | BI10（去掉冗余 Country 类型谓词） | BI11 |',
-              '| `Tag.name` 唯一 | | BI8（BI16） |',
-              '| `Country.name` 唯一 | | BI11 |', '',
+              '| `(:Message)-[:REPLY_OF]->` 至多一条 | BI17、BI4（消息按论坛不相交） | |',
+              '| `-[:CONTAINER_OF]->(:Post)` 至多一条 | BI17、BI4 | |',
+              '| `(:Person)-[:IS_LOCATED_IN]->` 至多一条 | BI10、BI11（投影载体函数依赖） | |',
+              '| `(:City)-[:IS_PART_OF]->` 至多一条 | BI10、BI11 | |',
+              '| `(:Person)-[:IS_LOCATED_IN]->` 至少一条 | BI10、BI11（投影载体全覆盖：缺失分组不会读到默认值 `\'\'`） | |',
+              '| `(:City)-[:IS_PART_OF]->` 至少一条 | BI10、BI11 | |',
+              '| `(:Person)-[:IS_LOCATED_IN]->(:City)` | BI10、BI11（去掉冗余 City 类型谓词） | |',
+              '| `(:City)-[:IS_PART_OF]->(:Country)` | BI10、BI11（去掉冗余 Country 类型谓词） | |',
+              '| `Tag.name` 唯一且非空 | BI8（常量键绑定） | BI16 |',
+              '| `Country.name` 唯一且非空 | BI11（键身份） | |', '',
               '## 未改写的查询（按计划修复顺序）', '']
     with IndexMiddleware(ROOT / 'schemas/ldbc-bi.yaml', profile=neo4j_profile()) as mw:
         for name in ORDER:
@@ -184,7 +190,7 @@ def render(status, out):
                           block(source, 'cypher'), block(internal, 'cypher')]
             lines += ['**修复计划**', '', plan, '']
     lines += ['## 已改写的查询（本轮新增）', '']
-    for name in ('bi2', 'bi10', 'bi14', 'bi17'):
+    for name in ('bi2', 'bi4', 'bi8', 'bi10', 'bi11', 'bi14', 'bi17'):
         c = cases[name]
         lines += [f"### {name} → `{c['query']}`", '',
                   f"- 路径：`{c['route']}`；读取：{', '.join(f'`{i}`' for i in c['indexes'])}"
@@ -204,7 +210,10 @@ def render(status, out):
               '| 声明约束与检查语句 | `cico/constraints.py`、`tests/constraint_checks.py` | 改写步骤的前提，`Result.premises` |',
               '| 变长关系唯一性的根路径证明 | `cico/neo4j.py`（`_root_path`、`_uniqueness_implied`、`contradiction`） | Neo4j 关系同构与内部同态等价的前提 |',
               '| 关系载体替换变长路径（回退阶段） | `cico/path_carriers.py` | $(L)$：至多一条路径 ⇒ $|G_k|=1$；同一子句的载体唯一性由过滤推出矛盾 |',
-              '| 声明约束重试：类型谓词推导（含 `collect`/`UNWIND` 传递）、投影载体“恰好一个见证”检查 | `cico/neo4j.py`（`_implied_typed_labels`）、`cico/middleware.py`（`_relaxed`、`_projection_premises`） | $(M_F)$；投影载体 $|G_k|=1$ |', '']
+              '| 声明约束重试：类型谓词推导（含 `collect`/`UNWIND` 传递）、投影载体“恰好一个见证”检查 | `cico/neo4j.py`（`_implied_typed_labels`）、`cico/middleware.py`（`_relaxed`、`_projection_premises`） | $(M_F)$；投影载体 $|G_k|=1$ |',
+              '| 键身份（T1 延后绑定、T2 键比较） | `cico/neo4j.py`（`_key_identities`） | $(M_P)$(ii)：链终点成为隐藏顶点 |',
+              '| DISTINCT 计数按键列表分区（CALL 分支回退） | `cico/distinct_partitions.py` | $(M_P)$ 子图嵌入、接口公开、$(M_A)$(ii)；分组不相交由声明约束证明 |',
+              '| 常量键绑定（T3）与计数见证选择 | `cico/neo4j.py`（`key_constants`）、`cico/scalar_subqueries.py` | $(M_P)$(ii)：计数区域不再以 Tag 为输入接口 |', '']
     Path(out).write_text('\n'.join(lines))
 
 

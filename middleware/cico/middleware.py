@@ -482,14 +482,22 @@ class IndexMiddleware:
         constraints = getattr(self.frontend, 'constraints', None)
         if constraints is None or not constraints.items:
             return None
+        text, premises = (None, set())
+        if hasattr(self.frontend, 'key_constants'):
+            try:
+                text, premises = self.frontend.key_constants(cypher)
+            except Unsupported:
+                text, premises = None, set()
         self.frontend.relax = True
         try:
-            result = self._rewrite_once(cypher, parameters, parameter_types)
+            result = self._rewrite_once(text or cypher, parameters, parameter_types)
         finally:
             self.frontend.relax = False
         if not result.rewritten:
             return None
-        premises = set()
+        if text:
+            result.original = cypher
+        premises = set(premises) if text else set()
         for index_id in result.indexes:
             fd = self._projection_premises(index_id)
             if fd is None:

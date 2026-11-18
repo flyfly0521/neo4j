@@ -10,7 +10,7 @@
 
 ## 当前交接入口（2026-11-18 更新）
 
-**最新状态先读 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)**（由 `middleware/tests/render_bi_status.py` 从实测结果生成，逐条给出 FILL、原始查询、中间件返回、卡点和计划）。口径：实验文档 `NeuG/queries/index/ldbc-bi/` 的 NeuG FILL 直接注册，改写 `Neo4j/queries/baseline/ldbc-bi/` 原始查询，SF1 第 0 组参数：**9/17 改写**（BI2、3、5、6、9、10、13、14、17）。用户 2026-11-18 同意使用**声明约束**（profile `constraints:`，SF1 上 10/10 成立），并要求遵循 QueryPart 定理（`theory.md`，即 wiki《QueryPart 索引改写的语义等价定理与 Lean 形式化》）。代码在分支 `develop`（`origin/develop`），每步修复单独提交。下一步按优先级：BI11 → BI4 → BI8；BI16 暂缓；BI19/BI20 待用户决定是否纳入 create-graph 脚本；BI15 不建议。
+**最新状态先读 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)**（由 `middleware/tests/render_bi_status.py` 从实测结果生成，逐条给出 FILL、原始查询、中间件返回、卡点和计划）。口径：实验文档 `NeuG/queries/index/ldbc-bi/` 的 NeuG FILL 直接注册，改写 `Neo4j/queries/baseline/ldbc-bi/` 原始查询，SF1 第 0 组参数：**12/17 改写**（BI2、3、4、5、6、8、9、10、11、13、14、17）。用户 2026-11-18 同意使用**声明约束**（profile `constraints:`，SF1 上 12/12 成立），并要求遵循 QueryPart 定理（`theory.md`，即 wiki《QueryPart 索引改写的语义等价定理与 Lean 形式化》）。代码在分支 `develop`（`origin/develop`），每步修复单独提交。剩余：BI16 暂缓（收益低）；BI19/BI20 待用户决定是否纳入 create-graph 脚本；BI15/BI15w 不建议。
 
 以下为 2026-11-17 的交接说明（旧 Neo4j 原生索引 15 组口径），保留作历史记录。
 
@@ -27,7 +27,7 @@ BI3 原建索引脚本仍未支持。第 11.2、11.3 节及全量报告保留为
 
 NeuG FILL 文件注册后改写 Neo4j 原始查询的 11 个未命中案例，见 [BI 改写失败定位](neo4j-bi-neug-fill-rewrite-diagnosis.md)。
 
-**最新进度（2026-11-18）**：NeuG FILL 注册后 Neo4j 原始查询改写 **9/17**（新增 BI2、BI10、BI14、BI17），仍未改写的查询、对应索引、卡点和下一步见 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)。本轮引入声明约束（profile `constraints:`，SF1 上 10/10 成立）。
+**最新进度（2026-11-18）**：NeuG FILL 注册后 Neo4j 原始查询改写 **12/17**（新增 BI2、BI4、BI8、BI10、BI11、BI14、BI17），仍未改写的查询、对应索引、卡点和下一步见 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)。本轮引入声明约束（profile `constraints:`，SF1 上 12/12 成立）。
 
 已注册但未命中的历史定位见 [`neo4j-bi-rewrite-root-cause.md`](neo4j-bi-rewrite-root-cause.md)，首轮修复见 [`neo4j-bi-rewrite-fix.md`](neo4j-bi-rewrite-fix.md)。**最新增强见 [以 QueryPart 正确性定义增强中间件](neo4j-theory-hardening.md)**：按 wiki 的接口、作用域和重数约束支持相关图计数/存在性表达式、有限记录传入 CALL、保守的外层类型推断及探针参数隔离。65/65 回归通过，13/13 个独立小图用例实际结果多重集一致，全部事务回滚。BI 原始覆盖仍为 8/15；BI8/16 还受未公开 Tag 接口的限制，不能只补语法或放松匹配来解决。未执行 BI 负载查询。
 
@@ -170,6 +170,11 @@ NeuG FILL 文件注册后改写 Neo4j 原始查询的 11 个未命中案例，�
     - NeuG 规划器在 BI17 这类大模式上耗尽内存（7.7），此时理智性绑定检查记为 `neug_bind: skipped`，只做转换与 schema 检查；正确性由真实 Neo4j 比对补充。
 22. **声明约束重试阶段（BI10，`cico/middleware.py` 的 `_relaxed`）。** 常规改写失败后，前端把由 `endpoint_labels` 推出恒真的类型标签换成基础标签（`(:City)` → `(:Place)`），类型沿定长单类型关系传播，并经 `collect(x) AS L`、`UNWIND L AS v` 传递（只对语句中只绑定一次的名字）。不在常规阶段做，以免改变 BI3 等已有输出形状（3.13）。
     - 重试结果若读取**非聚合投影载体**（如 `countryName`），定理不直接覆盖，必须由声明约束证明每个键恰好一个见证：至多一个（值有定义、行重数不变）且至少一个（所有键都在 Read 中，列的 DDL 默认值 `''` 不会冒充缺失分组）。否则拒绝。
+23. **键身份（BI11，重试阶段，`_key_identities`）。** 投影载体只能替换以**隐藏**顶点结尾的地点链（$(M_P)$(ii)）；BI11 把同一个 Country 节点跨段携带。用 `unique_property` + `required_property`（唯一且非空的键）改写节点身份：
+    - T1：链末端 `(v:L {p: E})`（E 为参数或字面量）换成新变量 `(k:L {p: E})`；v 在本段只作为投影的裸项出现时，延后到投影之后按键重新绑定：`WITH [DISTINCT] 其余项 MATCH (v:L {p: E}) WITH [DISTINCT] 原投影`（RewriterV4 不接受含不连通节点模式的段）。v 在本段每一行上都是同一个节点，两种投影划分相同。v 在别处没有引用时不改写。
+    - T2：前面子句绑定的 `(v)`，入边由 `endpoint_labels` 推出为 L，换成 `(k:L)` 并在本子句 WHERE 加 `k.p = v.p AND v:L`；原匹配中 v 必为 L，守卫不删行。
+24. **DISTINCT 计数按键列表分区（BI4，`cico/distinct_partitions.py`）。** CALL 分支形如 `UNWIND L AS f MATCH P … RETURN g, count(DISTINCT x)`，FILL 按 (k1, k2) 存 `count(DISTINCT y)`。FILL 模式须在 f/g/x 固定下嵌入 P（$(M_P)$(i)），其余模式只接在 f、g 上（$(M_P)$(ii)），过滤不引用隐藏顶点（$(M_A)$(ii)）；声明约束证明 FILL 模式中 y→k1 是函数，于是各组互不相交，`count(DISTINCT)` 等于各组计数之和。改写对 f 先 `WITH DISTINCT`，对任意列表（含重复元素）成立；剩余模式与过滤放进 EXISTS。只在 RewriterV4 未改写该分支时运行。`FILL R()` 的列取关系表自身的属性。
+25. **常量键绑定（BI8，重试阶段，`key_constants`）。** 变量 v 只由必选的顶层 `MATCH (v:L {p: E})` 绑定一次，且其间每个 WITH 都以裸项投影 v 时，v 在每一行上都是唯一键值为 E 的节点；`size([...])`/`COUNT{}`/`EXISTS{}` 区域里的 `(v)` 换成 `(k:L {p: E})`，区域不再以 v 为输入接口，按名称过滤、隐藏 Tag 的计数载体满足接口条件。另外，相关计数规则的见证优先取 `size([... | x])` 投影的新鲜节点（与 FILL 计数的变量一致；任何新鲜节点的计数都相同）。
 
 ## 4. 引擎协议（JSON lines，protocol 2）
 
@@ -201,7 +206,7 @@ NeuG FILL 文件注册后改写 Neo4j 原始查询的 11 个未命中案例，�
 | 索引物化（M2） | ✅ | `cico/materialize.py`、`cico build`、`GET /build` |
 | NeuG FILL 文件与持久化重载 | ✅ 规范注册与计划指纹、依赖传播、成功回执、只物化待构建项、失败恢复；含隐藏聚合状态 | `cico/index_files.py`、`neo4j-fill-file-reload.md` |
 | CLI、HTTP 服务 | ✅ | `cico/__main__.py`、`cico/server.py` |
-| 单元与集成测试 | ✅ 100/100；此前 13/13 理论小图、6/6 文件重载小图；2026-11-18 另有 BI14 60/60、BI17 60/60 随机夹具（真实 Neo4j，事务回滚）与 BI10 SF1 3/3 逐行一致 | `tests/test_*.py`、`tests/theory_rewrite_acceptance.py`、`tests/index_file_acceptance.py`、`tests/carrier_existence_acceptance.py`、`tests/path_carrier_acceptance.py`、`tests/bi10_sf1_compare.py` |
+| 单元与集成测试 | ✅ 110/110；BI11 80/80、BI4 30/30、BI8 30/30 随机夹具（真实 Neo4j，事务回滚）；此前 13/13 理论小图、6/6 文件重载小图；2026-11-18 另有 BI14 60/60、BI17 60/60 随机夹具（真实 Neo4j，事务回滚）与 BI10 SF1 3/3 逐行一致 | `tests/test_*.py`、`tests/theory_rewrite_acceptance.py`、`tests/index_file_acceptance.py`、`tests/carrier_existence_acceptance.py`、`tests/path_carrier_acceptance.py`、`tests/bi10_sf1_compare.py` |
 | 迁移后的可重现构建与入口 | ✅ 在当前源码应用补丁并记录来源哈希，避免覆盖上游更新；统一引擎/执行器查找 | `engine/prepare_patch.py`、`engine/CMakeLists.txt`、`cico/engine.py` |
 | Neo4j BI 已注册索引匹配修复 | ✅ 类型化时间谓词键、OPTIONAL 分区规范化、完整 DISTINCT 分组；原始查询 8/15 | `neo4j-bi-rewrite-fix.md`、`patches/neug-*.patch` |
 | 不透明过程前缀的类型推断 | ✅ 声明式过程契约、真实前缀绑定和 schema 域闭包检查；仅生成类型探针 | `cico/queryparts.py`、`profiles/ldbc-snb-neo4j.yaml` |
@@ -220,7 +225,10 @@ NeuG FILL 文件注册后改写 Neo4j 原始查询的 11 个未命中案例，�
 | 变长关系唯一性的根路径证明（3.20） | ✅ | `cico/neo4j.py`、`tests/test_declared_constraints.py` |
 | 关系载体替换变长路径（3.21，回退阶段） | ✅ BI17 | `cico/path_carriers.py` |
 | 声明约束重试：类型推导、投影载体恰好一个见证（3.22） | ✅ BI10 | `cico/neo4j.py`、`cico/middleware.py` |
-| NeuG FILL → Neo4j BI 状态矩阵与进度文档生成 | ✅ 9/17 | `tests/neug_fill_bi_status.py`、`tests/render_bi_status.py`、`neo4j-bi-unrewritten-status.md` |
+| 键身份 T1/T2（3.23） | ✅ BI11 | `cico/neo4j.py`、`tests/bi11_fixture_acceptance.py` |
+| DISTINCT 计数按键列表分区（3.24） | ✅ BI4 | `cico/distinct_partitions.py`、`cico/subqueries.py`、`tests/bi4_fixture_acceptance.py` |
+| 常量键绑定 T3、计数见证选择（3.25） | ✅ BI8 | `cico/neo4j.py`、`cico/scalar_subqueries.py`、`tests/bi8_fixture_acceptance.py` |
+| NeuG FILL → Neo4j BI 状态矩阵与进度文档生成 | ✅ 12/17 | `tests/neug_fill_bi_status.py`、`tests/render_bi_status.py`、`neo4j-bi-unrewritten-status.md` |
 | 增量维护 | ⏸ 暂不实现 | – |
 
 ## 6. IncGQ-experiment-docs 中 Kuzu / Neo4j 查询的结果
@@ -366,10 +374,10 @@ NeuG FILL 文件注册后改写 Neo4j 原始查询的 11 个未命中案例，�
 
 **2026-11-18 起的优先项**（详见 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)，按顺序）：
 
-1. BI11：在重试阶段（3.22）之上，用 `Country.name` 唯一把对输入 `country` 节点的身份连接改写为名称比较，使 Country 不再是索引的隐藏接口顶点。
-2. BI4：新的聚合分解规则。消息的根帖唯一、帖子只属于一个论坛，`topForums` 元素互不相同，所以跨论坛 `count(DISTINCT message)` = 各 (Forum, Person) 计数之和；会员过滤与零消息分支原样保留。
-3. BI8：用 `Tag.name` 唯一把相关计数里的外层 Tag 换成按名称定位的新变量；补 `size()` 区域的见证处理。
-4. BI16 暂缓（只能替换 `cm`，收益低）；BI19/BI20【需用户决定】是否把 `bi-*-create-graph.cypher` 纳入改写；BI15 不建议。
+1. ✅ BI11（3.23）、BI4（3.24）、BI8（3.25）已完成，当前 12/17。
+2. BI16 暂缓：只能替换 `cm`，好友 OPTIONAL 仍需现场计算，收益低；若要做，需把 T3 扩展到 CALL 内 MATCH 绑定的 tag，并证明 `date(x)=date(p)` 与 UTC 半开区间等价。
+3. 【需用户决定】BI19/BI20 是否把 `bi-*-create-graph.cypher` 纳入改写（改写 GDS 投影字符串；BI19 需 `>0` 过滤保持边集，BI20 需声明 STUDY_AT 只指向 University）。
+4. BI15/BI15w 不建议（GDS 字符串内嵌改写 + 专门的权重等价证明）。
 
 2026-11-18 已实现 NeuG FILL 文件驱动的持久化加载，入口见 [文件注册与重载](neo4j-fill-file-reload.md)。接续保持编译后指纹和真实构建回执的区分，优先补齐 nullable COUNT 的独立分组存在性证明，再解除新文件目录的保守拒绝；不要仅凭“已注册”跳过物化。新的 NeuG 文档脚本审计与旧 Neo4j 15 组查询矩阵是不同口径。
 
@@ -409,6 +417,7 @@ NeuG FILL 文件注册后改写 Neo4j 原始查询的 11 个未命中案例，�
 
 变更日志：
 
+- 2026-11-18（三，BI11/BI4/BI8）：12/17。新增 `required_property` 约束（Tag.name、Country.name 非空），SF1 12/12 成立；键身份 T1/T2（BI11），DISTINCT 计数按键列表分区规则（BI4），常量键绑定 T3 与计数见证选择（BI8）。验证：110/110 回归；BI11 80/80（SF1 参数样本计数全为 0，另用夹具，25 组非零）、BI4 30/30（含重复列表元素；去掉 `WITH DISTINCT` 的变体被检出）、BI8 30/30 随机夹具结果一致，均为真实 Neo4j、事务回滚。发现并修正：T1 曾对只出现一次的键节点再次改写，产生 RewriterV4 拒绝的不连通模式。提交 `3818f688`、`ea549ab8` 及本次文档提交（`develop`）。
 - 2026-11-18（二，声明约束与理论约束改写）：按 `theory.md`（QueryPart 定理）与用户同意的声明约束，NeuG FILL 文件 → Neo4j 原始 BI 查询从 5/17 到 **9/17**。新增时间字面量规范化（BI2）、关系载体存在性规则（BI14）、声明约束与检查（10 条，SF1 全部成立）、变长关系唯一性的根路径证明与 ROOT_POST 回退替换（BI17）、声明约束重试阶段与投影载体“恰好一个见证”检查（BI10）。验证：100/100 回归；BI14、BI17 各 60/60 随机夹具结果多重集一致（真实 Neo4j，事务回滚）；BI10 在 SF1 上 3/3 组参数逐行一致（13.7s→0.09s）。修正了自己实现中的两处问题：类型标签曾可由表成员关系满足；同一子句的两条载体关系缺少唯一性证明。BI2 的根因更正为时间字面量拼写（原诊断推测为 OPTIONAL 零计数）。提交 `ab313d02`、`dd22408e`、`f0c587cf`、`5f333bd5`、`edf17e8f`（`develop`）。进度见 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)。
 - 2026-11-18：新增显式 NeuG 注册输入，以及文件加载、规范注册文本、编译物化计划 SHA-256、属性/派生关系依赖、物理数据库身份和原子成功回执。CLI/HTTP 支持只构建待构建项和重新加载，编译或 EXPLAIN 失败不触碰旧目录；执行失败禁用未完成项。引擎新增 `describe_fill`，新路径物化隐藏聚合状态并保持稳定列名，支持实体端点键和按组常量状态。81/81 回归、6/6 Neo4j 小图通过；12 个原文 NeuG BI 脚本共 84 条目标语句通过 EXPLAIN。发现 nullable COUNT 零值组的内核存在性问题，新文件目录在执行前保守拒绝；没有按 BI 查询特化，没有执行 BI 负载或重建 SF1 既有索引。见 [`neo4j-fill-file-reload.md`](neo4j-fill-file-reload.md)。
 - 2026-11-17（理论约束增强）：以 wiki binding/索引定义修订 768 和正确性证明修订 47 为核心，支持相关 `size([pattern|entity])`、COUNT/EXISTS 区域的局部改写及有限记录进入 CALL；检查全部相关 anchor、剩余图读取、单行聚合、NULL 和输入重数。CALL 分支保留原输入，并使用类型和表示一致的互斥守卫，避免数值相等但表达式不同及全局 COUNT 零行的问题。修复输入桩名字冲突、引用和参数识别。65/65 测试通过，13/13 小图用例实际结果一致，两个新规则的控制为 1/13→13/13；事务全部回滚。已有 BI 注册 9/15、原查询 8/15、EXPLAIN 80/80 不变；进一步明确 BI8/16 的 Tag 接口缺口。详见 [`neo4j-theory-hardening.md`](neo4j-theory-hardening.md)。

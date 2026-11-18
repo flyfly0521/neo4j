@@ -228,5 +228,47 @@ class DistinctPartitionTests(unittest.TestCase):
                 self.assertNotIn('BI4_MESSAGE_COUNT', r.cypher, name)
 
 
+BI8_FILL = '''FILL PERSON(bi8MessageCount) FROM (
+  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)
+  WHERE t.name='T' AND m.creationDate > TIMESTAMP('2011-07-20 00:00:00') AND m.creationDate < TIMESTAMP('2011-07-25 00:00:00')
+  RETURN p.id, count(m))'''
+SCORE = '''MATCH (tag:Tag {name: $tag})
+MATCH (person:Person)
+WITH tag, person
+RETURN person.id, size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person)
+  WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message]) AS n'''
+
+
+class ConstantKeyTests(unittest.TestCase):
+    def run_with(self, constraints, query=SCORE):
+        import datetime
+        mw = IndexMiddleware(ROOT / 'schemas/ldbc-bi.yaml', profile=profile(constraints))
+        self.addCleanup(mw.close)
+        mw.apply_ddl('ALTER TABLE PERSON ADD IF NOT EXISTS bi8MessageCount INT64 DEFAULT 0', input_dialect='neug')
+        mw.register_index([BI8_FILL], input_dialect='neug')
+        utc = datetime.timezone.utc
+        return mw.execute(query, parameters={'tag': 'T', 'startDate': datetime.datetime(2011, 7, 20, tzinfo=utc),
+                                             'endDate': datetime.datetime(2011, 7, 25, tzinfo=utc)})
+
+    def test_constant_key_node_leaves_the_count_interface(self):
+        r = self.run_with(True)
+        self.assertTrue(r.rewritten, r.to_dict())
+        self.assertIn('person.bi8MessageCount', r.cypher)
+        self.assertIn('tag', r.specialized)
+        for premise in ('unique_property: Tag.name', 'required_property: Tag.name'):
+            self.assertIn(premise, r.premises)
+
+    def test_not_applicable(self):
+        cases = {
+            'no key': (lambda c: c['kind'] not in ('unique_property', 'required_property'), SCORE),
+            'optional binding may be null': (True, SCORE.replace('MATCH (tag:Tag {name: $tag})',
+                                                                 'OPTIONAL MATCH (tag:Tag {name: $tag})')),
+        }
+        for name, (constraints, query) in cases.items():
+            with self.subTest(name):
+                r = self.run_with(constraints, query)
+                self.assertNotIn('bi8MessageCount', r.cypher, name)
+
+
 if __name__ == '__main__':
     unittest.main()

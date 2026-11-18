@@ -134,7 +134,12 @@ def _rewrite_region(mw, region, columns, types, inline):
         raise Unsupported('predicate-only graph anchor')
     pattern = list(region.pattern)
     fresh = sorted(nodes - set(by_name))
-    if fresh:
+    projected = name(region.projection[0]) if region.projection else None
+    if projected in fresh:
+        # Any fresh pattern node is non-null on every witness, so counts agree;
+        # prefer the variable the source projects, which a FILL counts too.
+        witness = mw.profile.dialect.ident(projected)
+    elif fresh:
         witness = mw.profile.dialect.ident(fresh[0])
     elif anonymous:
         taken = {name(t) for t in pattern if t.kind in ('ident', 'quoted')}

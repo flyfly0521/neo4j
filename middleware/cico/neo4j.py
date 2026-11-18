@@ -663,6 +663,9 @@ class Neo4jFrontend:
                 k = self.constraints.key(label, prop)
                 if k is None:
                     continue
+                if sum(1 for j, t in enumerate(tokens) if t.kind in ('ident', 'quoted') and _ident(t) == key
+                       and not (j and tokens[j - 1].text in ('.', ':'))) < 2:
+                    continue    # v is used nowhere else: the chain already ends in a hidden node
                 name = fresh()
                 spec = f'{_q(label)} {{{_q(prop)}: {body[6].text}}}'
                 replacements.append((at, end + 1, f'({name}:{spec})'))
@@ -709,6 +712,103 @@ class Neo4jFrontend:
         for lo, hi, text in sorted(edits, key=lambda e: (e[0], e[1]), reverse=True):
             out[lo:hi] = tokenize(' ' + text)
         return tokenize(render(out))
+
+    def key_constants(self, cypher):
+        """Relax stage, on Neo4j text: (text, premises).
+
+        T3  A variable v bound once, by a mandatory top-level
+            MATCH (v:L {p: E}) with E a parameter or literal and p a declared
+            key of L (unique + required), names the same node on every row:
+            the only L with p = E.  Wherever every WITH between the binding
+            and a use projects v as a bare item (so v is never rebound), a
+            bare (v) inside a size([...])/COUNT{}/EXISTS{} region is replaced
+            by (k:L {p: E}).  The region then no longer has v as an input
+            anchor, so a carrier that filters by the key value (and hides the
+            node) satisfies the interface condition (theory.md (M_P)(ii))."""
+        from .middleware import strip_comments
+        from .queryparts import _top_level, PROJECTION_TAIL
+        from .scalar_subqueries import regions
+        tokens = tokenize(strip_comments(cypher))
+        top = _top_level(tokens)
+        as_bound = {_ident(tokens[k]) for k in range(1, len(tokens))
+                    if tokens[k - 1].upper == 'AS' and tokens[k].kind in ('ident', 'quoted')}
+        bindings = {}
+        for k, (pos, word) in enumerate(top):
+            if word != 'MATCH' or (k and top[k - 1][1] == 'OPTIONAL' and top[k - 1][0] == pos - 1):
+                continue
+            end = top[k + 1][0] if k + 1 < len(top) else len(tokens)
+            for i in range(pos + 1, end):
+                if tokens[i].text != '(':
+                    continue
+                body = tokens[i + 1:i + 9]
+                if len(body) < 8 or body[1].text != ':' or body[3].text != '{' or body[5].text != ':' \
+                        or body[7].text != '}' or tokens[i + 9].text != ')' \
+                        or body[6].kind not in ('param', 'string', 'number'):
+                    continue
+                var, label, prop = _ident(body[0]), _ident(body[2]), _ident(body[4])
+                key = self.constraints.key(label, prop)
+                earlier = any(t.kind in ('ident', 'quoted') and _ident(t) == var for t in tokens[:i])
+                if key is None or earlier or var in as_bound or var in bindings:
+                    continue
+                bindings[var] = (i, label, prop, body[6].text, key)
+        if not bindings:
+            return None, set()
+        def carried(var, at, upto):
+            """Every WITH strictly between the binding and `upto` projects bare var."""
+            for pos, word in top:
+                if not (at < pos < upto) or word != 'WITH':
+                    continue
+                i = pos + 1 + (tokens[pos + 1].upper == 'DISTINCT')
+                items, cur, depth = [], [], 0
+                while i < len(tokens):
+                    t = tokens[i]
+                    depth += t.text in ('(', '[', '{')
+                    depth -= t.text in (')', ']', '}')
+                    if depth == 0 and t.kind == 'ident' and (t.upper in PROJECTION_TAIL or t.upper in self.CLAUSE_STARTS):
+                        break
+                    if depth == 0 and t.text == ',':
+                        items.append(cur)
+                        cur = []
+                    else:
+                        cur.append(t)
+                    i += 1
+                items.append(cur)
+                if not any(len(it) == 1 and it[0].kind in ('ident', 'quoted') and _ident(it[0]) == var for it in items):
+                    return False
+            return True
+        edits, premises = [], set()
+        taken = {_ident(t) for t in tokens if t.kind in ('ident', 'quoted')}
+        counter = [0]
+        for k, (pos, word) in enumerate(top):
+            if word not in ('WITH', 'RETURN'):
+                continue
+            end = top[k + 1][0] if k + 1 < len(top) else len(tokens)
+            try:
+                found = list(regions(tokens, pos + 1, end))
+            except Unsupported:
+                continue
+            for region in found:
+                for i in range(region.start, region.end - 2):
+                    if tokens[i].text != '(' or tokens[i + 2].text != ')' or tokens[i + 1].kind not in ('ident', 'quoted'):
+                        continue
+                    var = _ident(tokens[i + 1])
+                    if var not in bindings or not carried(var, bindings[var][0], pos):
+                        continue
+                    _, label, prop, value, key = bindings[var]
+                    counter[0] += 1
+                    fresh = f'cico_const{counter[0]}'
+                    while fresh in taken:
+                        fresh += '_'
+                    taken.add(fresh)
+                    edits.append((i, i + 3, f'({fresh}:{_q(label)} {{{_q(prop)}: {value}}})'))
+                    premises.update(c.describe() for c in key[1:])
+        if not edits:
+            return None, set()
+        out = list(tokens)
+        for lo, hi, text in sorted(edits, reverse=True):
+            new = tokenize(' ' + text)
+            out[lo:hi] = new
+        return render(out), premises
 
     # ------------------------------------------- root paths (declared constraints)
     def _root_path(self, rel):

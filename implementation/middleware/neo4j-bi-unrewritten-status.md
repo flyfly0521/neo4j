@@ -6,25 +6,25 @@
 
 - 索引：实验文档 `NeuG/queries/index/ldbc-bi/<case>/`（提交 `08f1a265`），NeuG DDL/FILL 直接注册；参数文件按 SF1 第 0 组参数渲染（BI13 的 `{}` 按 `run_workload.py` 用 `endDate` 渲染，BI15w 按文件注释的占位顺序渲染）。
 - 查询：`Neo4j/queries/baseline/ldbc-bi/bi-N.cypher` 原文；Neo4j profile 输入、输出。
-- 中间件：提交 `5f333bd5`（`develop`）。每个索引目录单独注册、单独改写一次；只编译，不物化索引、不执行 BI 查询。
+- 中间件：提交 `ea549ab8`（`develop`）。每个索引目录单独注册、单独改写一次；只编译，不物化索引、不执行 BI 查询。
 - 复现：`python3 middleware/tests/neug_fill_bi_status.py --output s.json && python3 middleware/tests/render_bi_status.py s.json`。
 
-## 总览：9/17 改写（上一轮诊断 5/17）
+## 总览：12/17 改写（上一轮诊断 5/17）
 
 | 索引目录 | 查询 | 状态 | 读取的索引 | 路径 / 结论 |
 | --- | --- | --- | --- | --- |
 | bi2 | bi-2.cypher | ✅ 本轮新增 | `TAG(bi2Window1MessageCount)`, `TAG(bi2Window2MessageCount)` | parts:1,2；只对该组 $date 有效 |
 | bi3 | bi-3.cypher | ✅ 原有 | `ROOT_POST()` | parts:2 |
+| bi4 | bi-4.cypher | ✅ 本轮新增 | `BI4_MESSAGE_COUNT()` | subqueries |
 | bi5 | bi-5.cypher | ✅ 原有 | `COMMENT(likeCount)`, `COMMENT(replyCount)`, `POST(likeCount)`, `POST(replyCount)` | parts:1,2 |
 | bi6 | bi-6.cypher | ✅ 原有 | `PERSON(likeCount)` | subqueries |
+| bi8 | bi-8.cypher | ✅ 本轮新增 | `PERSON(bi8MessageCount)` | declared_constraints:expressions；只对该组 $startDate, $endDate, $tag 有效 |
 | bi9 | bi-9.cypher | ✅ 原有 | `ROOT_POST()` | initial |
 | bi10 | bi-10.cypher | ✅ 本轮新增 | `PERSON(countryName)` | declared_constraints:parts:4 |
+| bi11 | bi-11.cypher | ✅ 本轮新增 | `PERSON(countryName)` | declared_constraints:parts:1,2,3 |
 | bi13 | bi-13.cypher | ✅ 原有 | `PERSON(bi13MessageCount)` | parts:2；只对该组 $endDate 有效 |
 | bi14 | bi-14.cypher | ✅ 本轮新增 | `KNOWS(bi14_case1_fwd)`, `KNOWS(bi14_case1_rev)`, `KNOWS(bi14_case3_fwd)`, `KNOWS(bi14_case3_rev)` | parts:2,3,4,5 |
 | bi17 | bi-17.cypher | ✅ 本轮新增 | `ROOT_POST()` | path_carriers |
-| bi4 | bi-4.cypher | ❌ | — | 可改写，需新的聚合分解规则 |
-| bi8 | bi-8.cypher | ❌ | — | 可改写，需 `Tag.name` 唯一 + 前端补充 |
-| bi11 | bi-11.cypher | ❌ | — | 可改写，下一步修复：重试阶段已就绪，还需 `Country.name` 唯一处理节点身份 |
 | bi15 | bi-15.cypher | ❌ | — | 不建议 |
 | bi15w | bi-15.cypher | ❌ | — | 不建议（同 BI15） |
 | bi16 | bi-16.cypher | ❌ | — | 理论上可改写，收益低，暂缓 |
@@ -36,308 +36,29 @@
 - BI2：6 个单测（等价瞬间同一字面量；其他窗口不改写；命名时区、月份单位不折叠）。
 - BI14：真实 Neo4j 上 30 个随机夹具 × 2 条查询，60/60 结果多重集一致（含双向、平行 KNOWS；无 KNOWS 时走 EXISTS 回退分支），事务全部回滚。[结果](validation/neo4j-bi14-carrier-existence-20261118.json)
 - BI10：SF1 实例上原查询与改写结果逐行一致 3/3 组参数（100/44/11 行；耗时 13.7s→0.09s、4.1s→0.07s、3.7s→0.07s，只读，`countryName` 已物化且 0 缺失、0 过期）。[结果](validation/neo4j-bi10-sf1-20261118.json)；另有单测：去掉任一类前提（类型域、至多一条、至少一条）都拒绝改写。
+- BI11：SF1 的参数样本计数全为 0（相等但不说明问题），另用随机夹具：20 个种子 × 2 个国家 × 2 个时间窗，80/80 一致，25 组计数非零。[夹具](validation/neo4j-bi11-fixture-20261118.json)、[SF1](validation/neo4j-bi11-sf1-20261118.json)
+- BI4：top forum 选择会扫描整个 SF1，测试把 CALL 之前的前缀换成夹具论坛列表（含一个重复元素），30/30 一致，145 行消息数非零；去掉改写中的 `WITH DISTINCT` 后同一检查失败（说明重复元素确实被测到）。[结果](validation/neo4j-bi4-fixture-20261118.json)
+- BI8：改写对 `$tag/$startDate/$endDate` 特化；夹具用唯一 Tag 名和固定时间窗注册 FILL，30/30 一致，169 行分数非零。[结果](validation/neo4j-bi8-fixture-20261118.json)
 - BI17：真实 Neo4j 上 20 个随机夹具 × delta∈{0,4,24}，60/60 一致（40 组非空，含零长度路径与同一棵回复树）。[结果](validation/neo4j-bi17-path-carrier-20261118.json)。BI17 不经 NeuG 绑定校验：NeuG 规划器对这个含 11 条关系的单个 MATCH 在 24 GB 上限下仍内存耗尽（README 7.7，上游问题），证明中记为 `neug_bind: skipped`，只做了转换和 schema 检查。
 
 ## 声明约束
 
-用户 2026-11-18 同意。写在 `middleware/profiles/ldbc-snb-neo4j.yaml` 的 `constraints:`，是个别改写步骤的前提（不是定理本身的前提），用到的写入 `Result.premises`。`middleware/tests/constraint_checks.py` 在 SF1 实例（`bolt://127.0.0.1:7693`，只读）上 10/10 条 0 违反（[结果](validation/neo4j-constraint-checks-sf1-20261118.json)）。
+用户 2026-11-18 同意。写在 `middleware/profiles/ldbc-snb-neo4j.yaml` 的 `constraints:`，是个别改写步骤的前提（不是定理本身的前提），用到的写入 `Result.premises`。`middleware/tests/constraint_checks.py` 在 SF1 实例（`bolt://127.0.0.1:7693`，只读）上 12/12 条 0 违反（[结果](validation/neo4j-constraint-checks-sf1-20261118.json)）。
 
 | 约束 | 已用于 | 计划用于 |
 | --- | --- | --- |
-| `(:Message)-[:REPLY_OF]->` 至多一条 | BI17 | BI4 |
-| `-[:CONTAINER_OF]->(:Post)` 至多一条 | BI17 | BI4 |
-| `(:Person)-[:IS_LOCATED_IN]->` 至多一条 | BI10（投影载体函数依赖） | BI11 |
-| `(:City)-[:IS_PART_OF]->` 至多一条 | BI10 | BI11 |
-| `(:Person)-[:IS_LOCATED_IN]->` 至少一条 | BI10（投影载体全覆盖：缺失分组不会读到默认值 `''`） | BI11 |
-| `(:City)-[:IS_PART_OF]->` 至少一条 | BI10 | BI11 |
-| `(:Person)-[:IS_LOCATED_IN]->(:City)` | BI10（去掉冗余 City 类型谓词） | BI11 |
-| `(:City)-[:IS_PART_OF]->(:Country)` | BI10（去掉冗余 Country 类型谓词） | BI11 |
-| `Tag.name` 唯一 | | BI8（BI16） |
-| `Country.name` 唯一 | | BI11 |
+| `(:Message)-[:REPLY_OF]->` 至多一条 | BI17、BI4（消息按论坛不相交） | |
+| `-[:CONTAINER_OF]->(:Post)` 至多一条 | BI17、BI4 | |
+| `(:Person)-[:IS_LOCATED_IN]->` 至多一条 | BI10、BI11（投影载体函数依赖） | |
+| `(:City)-[:IS_PART_OF]->` 至多一条 | BI10、BI11 | |
+| `(:Person)-[:IS_LOCATED_IN]->` 至少一条 | BI10、BI11（投影载体全覆盖：缺失分组不会读到默认值 `''`） | |
+| `(:City)-[:IS_PART_OF]->` 至少一条 | BI10、BI11 | |
+| `(:Person)-[:IS_LOCATED_IN]->(:City)` | BI10、BI11（去掉冗余 City 类型谓词） | |
+| `(:City)-[:IS_PART_OF]->(:Country)` | BI10、BI11（去掉冗余 Country 类型谓词） | |
+| `Tag.name` 唯一且非空 | BI8（常量键绑定） | BI16 |
+| `Country.name` 唯一且非空 | BI11（键身份） | |
 
 ## 未改写的查询（按计划修复顺序）
-
-### bi11 → `bi-11.cypher`：可改写，下一步修复：重试阶段已就绪，还需 `Country.name` 唯一处理节点身份
-
-- 中间件返回：`rewritten=False`，`reason=no_index_selected`
-- 注册的索引：`PERSON(countryName)`
-
-**注册的 FILL（NeuG 方言，参数已渲染）**
-
-```cypher
-FILL PERSON(countryName) FROM (
-MATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)
-RETURN person.id, country.name)
-```
-
-**原始 Neo4j 查询**
-
-```cypher
-// Q11. Friend triangles
-/*
-:params {
-  country: 'India',
-  startDate: datetime('2012-09-29'),
-  endDate: datetime('2013-01-01')
-}
-*/
-MATCH (a:Person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country:Country {name: $country}),
-      (a)-[k1:KNOWS]-(b:Person)
-WHERE a.id < b.id
-  AND $startDate <= k1.creationDate AND k1.creationDate <= $endDate
-WITH DISTINCT country, a, b
-MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)
-WITH DISTINCT country, a, b
-MATCH (b)-[k2:KNOWS]-(c:Person),
-      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)
-WHERE b.id < c.id
-  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate
-WITH DISTINCT a, b, c
-MATCH (c)-[k3:KNOWS]-(a)
-WHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate
-WITH DISTINCT a, b, c
-RETURN count(*) AS count
-```
-
-**中间件返回的 detail**
-
-```
-part 1: no_index_selected | part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected
-```
-
-**卡点**
-
-- 四段都能转换并绑定，均 `no_index_selected`（声明约束重试阶段也不匹配）。
-- 类型谓词问题已由 BI10 的重试阶段解决；剩下的是：第 1 段把 `country` **节点**投影出去（`WITH DISTINCT country, a, b`），第 2、3 段用 `(b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)` 与输入的同一个节点做身份连接。
-- 索引 `PERSON(countryName)` 只公开 Person 和国家**名称**，Country 是隐藏顶点；第 2、3 段中 `country` 属于输入绑定（$H$），于是 $A\cup(H\cap V_I)\subseteq I$ 不成立；第 1 段把隐藏顶点投影出去，$(K)$ 不成立。
-
-第 1 段原文与转换后的内部 Cypher（用于与 FILL 源对照；该段单独转换、未加输入桩，实际探针中输入变量带标签，关系表会按端点裁剪）：
-
-```cypher
-MATCH (a:Person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country:Country {name: $country}),
-      (a)-[k1:KNOWS]-(b:Person)
-WHERE a.id < b.id
-  AND $startDate <= k1.creationDate AND k1.creationDate <= $endDate
-WITH DISTINCT country, a, b
-```
-
-```cypher
-MATCH (a:PERSON)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE {name: $country, type: 'Country'}),
-      (a)-[k1:KNOWS]-(b:PERSON)
-WHERE a.id < b.id
-  AND $startDate <= k1.creationDate AND k1.creationDate <= $endDate
-WITH DISTINCT country, a, b
-```
-
-第 2 段原文与转换后的内部 Cypher（用于与 FILL 源对照；该段单独转换、未加输入桩，实际探针中输入变量带标签，关系表会按端点裁剪）：
-
-```cypher
-MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)
-WITH DISTINCT country, a, b
-```
-
-```cypher
-MATCH (b:COMMENT:ORGANISATION:PERSON:POST)-[:ISLOCATEDIN|ORGANISATION_ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE)
-WITH DISTINCT country, a, b
-```
-
-第 3 段原文与转换后的内部 Cypher（用于与 FILL 源对照；该段单独转换、未加输入桩，实际探针中输入变量带标签，关系表会按端点裁剪）：
-
-```cypher
-MATCH (b)-[k2:KNOWS]-(c:Person),
-      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)
-WHERE b.id < c.id
-  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate
-WITH DISTINCT a, b, c
-```
-
-```cypher
-MATCH (b:PERSON)-[k2:KNOWS]-(c:PERSON),
-      (c)-[:ISLOCATEDIN]->(:PLACE {type: 'City'})-[:ISPARTOF]->(country:PLACE)
-WHERE b.id < c.id
-  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate
-WITH DISTINCT a, b, c
-```
-
-**修复计划**
-
-- BI10 的类型推导已部署。
-- 再用声明约束 `Country.name` 唯一：路径终点是 Country 且名称等于 `country.name`，当且仅当它就是输入的 `country` 节点（需同时确认输入节点是 Country）。把身份连接改写为 `b.countryName = country.name`，Country 不再作为接口顶点，接口条件成立。
-- 第 1 段：保留 `MATCH (country:Country {name: $country})`（唯一名称上的索引查找），把 `a` 的地点路径换成 `a.countryName = $country`。
-
-### bi4 → `bi-4.cypher`：可改写，需新的聚合分解规则
-
-- 中间件返回：`rewritten=False`，`reason=no_index_selected`
-- 注册的索引：`BI4_MESSAGE_COUNT()`
-
-**注册的 FILL（NeuG 方言，参数已渲染）**
-
-```cypher
-FILL BI4_MESSAGE_COUNT() FROM (
-  MATCH
-    (forum:FORUM)-[:CONTAINEROF]->(post:POST)<-[:REPLYOF*0..]-
-    (message:COMMENT:POST)-[:HASCREATOR]->(person:PERSON)
-  RETURN forum.id, person.id, count(DISTINCT message)
-)
-```
-
-**原始 Neo4j 查询**
-
-```cypher
-// Q4. Top message creators in a country
-/*
-:params { date: datetime('2010-01-29') }
-*/
-MATCH (country:Country)<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(person:Person)<-[:HAS_MEMBER]-(forum:Forum)
-WHERE forum.creationDate > $date
-WITH country, forum, count(person) AS numberOfMembers
-ORDER BY numberOfMembers DESC, forum.id ASC, country.id
-WITH DISTINCT forum AS topForum
-LIMIT 100
-
-WITH collect(topForum) AS topForums
-
-CALL {
-  WITH topForums
-  UNWIND topForums AS topForum1
-  MATCH (topForum1)-[:CONTAINER_OF]->(post:Post)<-[:REPLY_OF*0..]-(message:Message)-[:HAS_CREATOR]->(person:Person)<-[:HAS_MEMBER]-(topForum2:Forum)
-  WITH person, message, topForum2
-  WHERE topForum2 IN topForums
-  RETURN person, count(DISTINCT message) AS messageCount
-UNION ALL
-  // Ensure that people who are members of top forums but have 0 messages are also returned.
-  // To this end, we return each person with a 0 messageCount
-  WITH topForums
-  UNWIND topForums AS topForum1
-  MATCH (person:Person)<-[:HAS_MEMBER]-(topForum1:Forum)
-  RETURN person, 0 AS messageCount
-}
-RETURN
-  person.id AS personId,
-  person.firstName AS personFirstName,
-  person.lastName AS personLastName,
-  person.creationDate AS personCreationDate,
-  sum(messageCount) AS messageCount
-ORDER BY
-  messageCount DESC,
-  person.id ASC
-LIMIT 100
-```
-
-**中间件返回的 detail**
-
-```
-part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected
-```
-
-**卡点**
-
-- 外层 `CALL { ... UNION ALL ... }`：两条分支在导入绑定下逐一编译，均 `no_index_selected`；去掉 CALL 的展平写法也不匹配。
-- 不匹配的原因是 **聚合粒度**：查询第一分支按 Person 做 `count(DISTINCT message)`，消息来自 `topForums` 中的任意 `topForum1`，且作者必须是某个 `topForum2`（同样属于 `topForums`）的成员；索引 `BI4_MESSAGE_COUNT` 按 (Forum, Person) 分组存 `count(DISTINCT message)`，不公开 message，也不含会员约束。把按 Person 的 `count(DISTINCT)` 拆成按 (Forum, Person) 的计数之和，需要证明同一条消息不会出现在两个 Forum 的组里——RewriterV4 没有这类证明，$(L)$ 无法建立。
-
-**修复计划**
-
-- 新规则：消息的根帖唯一（`(:Message)-[:REPLY_OF]->` 至多一条 + 无环），帖子只属于一个论坛（`-[:CONTAINER_OF]->(:Post)` 至多一条），因此 message ↦ forum 是函数，不同 `topForum1` 的消息集合互不相交；`topForums` 来自 `WITH DISTINCT forum ... collect(...)`，元素互不相同。于是 $\mathrm{count}_{\mathrm{DISTINCT}}(\text{按 Person}) = \sum_{f\in topForums} \mathrm{messageCount}(f, person)$。
-- 改写为 `UNWIND topForums AS topForum1 MATCH (topForum1)-[c:BI4_MESSAGE_COUNT]->(person) WHERE EXISTS { (person)<-[:HAS_MEMBER]-(f2) WHERE f2 IN topForums } RETURN person, sum(c.messageCount)`；UNION ALL 的零消息分支原样保留。
-
-### bi8 → `bi-8.cypher`：可改写，需 `Tag.name` 唯一 + 前端补充
-
-- 中间件返回：`rewritten=False`，`reason=no_index_selected`
-- 注册的索引：`PERSON(bi8MessageCount)`
-
-**注册的 FILL（NeuG 方言，参数已渲染）**
-
-```cypher
-FILL PERSON(bi8MessageCount) FROM (
-  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)
-  WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00') 
-  RETURN p.id,count(m)
-)
-```
-
-**原始 Neo4j 查询**
-
-```cypher
-// Q8. Central Person for a Tag
-/*
-:params { tag: 'Che_Guevara', startDate: datetime('2011-07-20'), endDate: datetime('2011-07-25') }
-*/
-MATCH (tag:Tag {name: $tag})
-// score
-OPTIONAL MATCH (tag)<-[interest:HAS_INTEREST]-(person:Person)
-WITH tag, collect(person) AS interestedPersons
-OPTIONAL MATCH (tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)
-         WHERE $startDate < message.creationDate
-           AND message.creationDate < $endDate
-WITH tag, interestedPersons, interestedPersons + collect(person) AS persons
-UNWIND persons AS person
-WITH DISTINCT tag, person
-WITH
-  tag,
-  person,
-  100 * size([(tag)<-[interest:HAS_INTEREST]-(person) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])
-  AS score
-OPTIONAL MATCH (person)-[:KNOWS]-(friend)
-// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.
-// This might change in the future with new Cypher versions and GQL.
-WITH
-  person,
-  score,
-  100 * size([(tag)<-[interest:HAS_INTEREST]-(friend) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(friend) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])
-  AS friendScore
-RETURN
-  person.id,
-  score,
-  sum(friendScore) AS friendsScore
-ORDER BY
-  score + friendsScore DESC,
-  person.id ASC
-LIMIT 100
-```
-
-**中间件返回的 detail**
-
-```
-part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are
-(INT128,INT128) -> INT128
-(INT64,INT64) -> INT64
-(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index
-```
-
-**卡点**
-
-- 第 2 段 `interestedPersons + collect(person)`（`NODE[] + NODE[]`）NeuG 不支持：`Binder exception: Cannot match a built-in function for given function +(NODE[],NODE[])`，第 3 段以后的前缀因此无法绑定（已有的列表拼接类型推断可给出类型桩）。
-- 第 5、6 段的 `size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person) WHERE ... | message])` 交给相关标量计数规则，被拒绝：`scalar count lacks a fresh non-null graph witness` / `statement changed without reading an index`。
-- 即使前端都通过，**接口条件**仍不成立：计数绑定外层**同一个 Tag 节点**（`MATCH (tag:Tag {name: $tag})` 得到的节点），索引 `PERSON(bi8MessageCount)` 按 Tag **名称**过滤、只公开 Person，Tag 是隐藏顶点却属于输入绑定 $H$。两个同名 Tag 时，索引存的是两者之和，原查询按单个节点计数。
-
-第 5 段原文与转换后的内部 Cypher（用于与 FILL 源对照；该段单独转换、未加输入桩，实际探针中输入变量带标签，关系表会按端点裁剪）：
-
-```cypher
-OPTIONAL MATCH (person)-[:KNOWS]-(friend)
-
-
-WITH
-  person,
-  score,
-  100 * size([(tag)<-[interest:HAS_INTEREST]-(friend) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(friend) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])
-  AS friendScore
-```
-
-```cypher
-OPTIONAL MATCH (person:PERSON)-[:KNOWS]-(friend:PERSON)
-
-
-WITH
-  person,
-  score,
-  100 * size([EXISTS { MATCH (tag:TAG)<-[interest:HASINTEREST]-(friend:PERSON) } | interest]) + size([EXISTS { MATCH (tag:TAG)<-[:HASTAG]-(message:COMMENT:POST)-[:HASCREATOR]->(friend:PERSON) } WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])
-  AS friendScore
-```
-
-**修复计划**
-
-- 声明约束 `Tag.name` 唯一：外层 `tag` 由名称唯一确定，相关计数里的 `(tag)` 可换成新变量 `(t:Tag {name: $tag})`，Tag 不再是输入接口，$(M_P)$(ii) 成立，计数等于 `person.bi8MessageCount`。
-- 前端：`size()` 区域的见证选择（`message` 是新鲜非空节点）需要修正；时间窗字面量问题已随 BI2 修复。
 
 ### bi16 → `bi-16.cypher`：理论上可改写，收益低，暂缓
 
@@ -413,7 +134,7 @@ CALL: no declared opaque type prefix
 
 **修复计划**
 
-- 可行路径：有限记录 CALL 按 `letter` 分支、`Tag.name` 唯一、日期按 UTC 规范化，只把 `cm` 换成 `person1.bi16MessageCountA/B`。
+- 可行路径：有限记录 CALL 按 `letter` 分支；`Tag.name` 唯一且非空现已声明（BI8 的常量键绑定 T3 可复用，但 BI16 的 tag 来自 CALL 内的 MATCH，需要扩展 T3 的绑定来源）；`date(x) = date(p)` 按 UTC 日边界规范化；只把 `cm` 换成 `person1.bi16MessageCountA/B`。
 - 判断：`cp2` 的好友 OPTIONAL 仍需现场计算，而改写后要按全体 Person 读属性筛选，可能比原查询从 Tag 出发更慢。暂缓，除非你需要。
 
 ### bi19a → `bi-19.cypher`：查询正文无可改写部分；需把 create-graph 脚本纳入范围
@@ -879,6 +600,196 @@ LIMIT 100
 
 </details>
 
+### bi4 → `bi-4.cypher`
+
+- 路径：`subqueries`；读取：`BI4_MESSAGE_COUNT()`
+- 前提（声明约束）：`at_most_one: (:Message)-[:REPLY_OF]->`, `at_most_one: -[:CONTAINER_OF]->(:Post)`
+- 证明记录：distinct_partition_carrier
+
+<details><summary>FILL、原始查询与改写输出</summary>
+
+```cypher
+FILL BI4_MESSAGE_COUNT() FROM (
+  MATCH
+    (forum:FORUM)-[:CONTAINEROF]->(post:POST)<-[:REPLYOF*0..]-
+    (message:COMMENT:POST)-[:HASCREATOR]->(person:PERSON)
+  RETURN forum.id, person.id, count(DISTINCT message)
+)
+```
+
+原始查询：
+
+```cypher
+// Q4. Top message creators in a country
+/*
+:params { date: datetime('2010-01-29') }
+*/
+MATCH (country:Country)<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(person:Person)<-[:HAS_MEMBER]-(forum:Forum)
+WHERE forum.creationDate > $date
+WITH country, forum, count(person) AS numberOfMembers
+ORDER BY numberOfMembers DESC, forum.id ASC, country.id
+WITH DISTINCT forum AS topForum
+LIMIT 100
+
+WITH collect(topForum) AS topForums
+
+CALL {
+  WITH topForums
+  UNWIND topForums AS topForum1
+  MATCH (topForum1)-[:CONTAINER_OF]->(post:Post)<-[:REPLY_OF*0..]-(message:Message)-[:HAS_CREATOR]->(person:Person)<-[:HAS_MEMBER]-(topForum2:Forum)
+  WITH person, message, topForum2
+  WHERE topForum2 IN topForums
+  RETURN person, count(DISTINCT message) AS messageCount
+UNION ALL
+  // Ensure that people who are members of top forums but have 0 messages are also returned.
+  // To this end, we return each person with a 0 messageCount
+  WITH topForums
+  UNWIND topForums AS topForum1
+  MATCH (person:Person)<-[:HAS_MEMBER]-(topForum1:Forum)
+  RETURN person, 0 AS messageCount
+}
+RETURN
+  person.id AS personId,
+  person.firstName AS personFirstName,
+  person.lastName AS personLastName,
+  person.creationDate AS personCreationDate,
+  sum(messageCount) AS messageCount
+ORDER BY
+  messageCount DESC,
+  person.id ASC
+LIMIT 100
+```
+
+改写输出：
+
+```cypher
+MATCH (country:Country)<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(person:Person)<-[:HAS_MEMBER]-(forum:Forum)
+WHERE forum.creationDate > $date
+WITH country, forum, count(person) AS numberOfMembers
+ORDER BY numberOfMembers DESC, forum.id ASC, country.id
+WITH DISTINCT forum AS topForum
+LIMIT 100
+
+WITH collect(topForum) AS topForums
+
+CALL {
+  WITH topForums UNWIND topForums AS topForum1 WITH DISTINCT topForums, topForum1 MATCH (topForum1)-[cico_part:BI4_MESSAGE_COUNT]->(person) WHERE EXISTS { MATCH (topForum2:Forum)-[:HAS_MEMBER]->(person) WHERE (topForum2 IN topForums) } RETURN person, sum(cico_part.messageCount) AS messageCount
+UNION ALL
+  
+  
+  WITH topForums
+  UNWIND topForums AS topForum1
+  MATCH (person:Person)<-[:HAS_MEMBER]-(topForum1:Forum)
+  RETURN person, 0 AS messageCount
+}
+RETURN
+  person.id AS personId,
+  person.firstName AS personFirstName,
+  person.lastName AS personLastName,
+  person.creationDate AS personCreationDate,
+  sum(messageCount) AS messageCount
+ORDER BY
+  messageCount DESC,
+  person.id ASC
+LIMIT 100
+```
+
+</details>
+
+### bi8 → `bi-8.cypher`
+
+- 路径：`declared_constraints:expressions`；读取：`PERSON(bi8MessageCount)`；参数特化：$startDate, $endDate, $tag
+- 前提（声明约束）：`required_property: Tag.name`, `unique_property: Tag.name`
+- 证明记录：constraint_implied_labels, correlated_graph_count
+
+<details><summary>FILL、原始查询与改写输出</summary>
+
+```cypher
+FILL PERSON(bi8MessageCount) FROM (
+  MATCH(p:PERSON)<-[:HASCREATOR]-(m:POST:COMMENT)-[:HASTAG]->(t:TAG)
+  WHERE t.name='Che_Guevara' AND m.creationDate > TIMESTAMP('2010-06-12 00:00:00') AND m.creationDate < TIMESTAMP('2010-06-22 00:00:00') 
+  RETURN p.id,count(m)
+)
+```
+
+原始查询：
+
+```cypher
+// Q8. Central Person for a Tag
+/*
+:params { tag: 'Che_Guevara', startDate: datetime('2011-07-20'), endDate: datetime('2011-07-25') }
+*/
+MATCH (tag:Tag {name: $tag})
+// score
+OPTIONAL MATCH (tag)<-[interest:HAS_INTEREST]-(person:Person)
+WITH tag, collect(person) AS interestedPersons
+OPTIONAL MATCH (tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)
+         WHERE $startDate < message.creationDate
+           AND message.creationDate < $endDate
+WITH tag, interestedPersons, interestedPersons + collect(person) AS persons
+UNWIND persons AS person
+WITH DISTINCT tag, person
+WITH
+  tag,
+  person,
+  100 * size([(tag)<-[interest:HAS_INTEREST]-(person) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])
+  AS score
+OPTIONAL MATCH (person)-[:KNOWS]-(friend)
+// We need to use a redundant computation due to the lack of composable graph queries in the currently supported Cypher version.
+// This might change in the future with new Cypher versions and GQL.
+WITH
+  person,
+  score,
+  100 * size([(tag)<-[interest:HAS_INTEREST]-(friend) | interest]) + size([(tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(friend) WHERE $startDate < message.creationDate AND message.creationDate < $endDate | message])
+  AS friendScore
+RETURN
+  person.id,
+  score,
+  sum(friendScore) AS friendsScore
+ORDER BY
+  score + friendsScore DESC,
+  person.id ASC
+LIMIT 100
+```
+
+改写输出：
+
+```cypher
+MATCH (tag:Tag {name: $tag})
+
+OPTIONAL MATCH (tag)<-[interest:HAS_INTEREST]-(person:Person)
+WITH tag, collect(person) AS interestedPersons
+OPTIONAL MATCH (tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)
+         WHERE $startDate < message.creationDate
+           AND message.creationDate < $endDate
+WITH tag, interestedPersons, interestedPersons + collect(person) AS persons
+UNWIND persons AS person
+WITH DISTINCT tag, person
+WITH
+  tag,
+  person,
+  100 * size([ (cico_const1:Tag {name: $tag})<-[interest:HAS_INTEREST]-(person) | interest]) + (CASE WHEN person IS NULL THEN 0 ELSE CASE WHEN (person.bi8MessageCount IS NULL) THEN 0 ELSE person.bi8MessageCount END END)
+  AS score
+OPTIONAL MATCH (person)-[:KNOWS]-(friend)
+
+
+WITH
+  person,
+  score,
+  100 * size([ (cico_const3:Tag {name: $tag})<-[interest:HAS_INTEREST]-(friend) | interest]) + (CASE WHEN friend IS NULL THEN 0 ELSE CASE WHEN (friend.bi8MessageCount IS NULL) THEN 0 ELSE friend.bi8MessageCount END END)
+  AS friendScore
+RETURN
+  person.id,
+  score,
+  sum(friendScore) AS friendsScore
+ORDER BY
+  score + friendsScore DESC,
+  person.id ASC
+LIMIT 100
+```
+
+</details>
+
 ### bi10 → `bi-10.cypher`
 
 - 路径：`declared_constraints:parts:4`；读取：`PERSON(countryName)`
@@ -959,6 +870,59 @@ WITH startPerson, collect(DISTINCT node) AS nodesCloserThanMinPathDistance CALL 
 })
 YIELD node
 WITH nodesCloserThanMinPathDistance, collect(DISTINCT node) AS nodesCloserThanMaxPathDistance WITH [n IN nodesCloserThanMaxPathDistance WHERE NOT n IN nodesCloserThanMinPathDistance] AS expertCandidatePersons UNWIND expertCandidatePersons AS expertCandidatePerson MATCH (message:Message)-[cico_r3:HAS_CREATOR]->(expertCandidatePerson) MATCH (message)-[cico_r4:HAS_TAG]->(cico_n1:Tag) MATCH (cico_n1)-[cico_r5:HAS_TYPE]->(cico_n2:TagClass) WHERE ((expertCandidatePerson.countryName = $country) AND (cico_n2.name = $tagClass)) MATCH (message)-[cico_r6:HAS_TAG]->(tag:Tag) RETURN expertCandidatePerson.id, tag.name, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, tag.name, expertCandidatePerson.id LIMIT 100
+```
+
+</details>
+
+### bi11 → `bi-11.cypher`
+
+- 路径：`declared_constraints:parts:1,2,3`；读取：`PERSON(countryName)`
+- 前提（声明约束）：`at_least_one: (:City)-[:IS_PART_OF]->`, `at_least_one: (:Person)-[:IS_LOCATED_IN]->`, `at_most_one: (:City)-[:IS_PART_OF]->`, `at_most_one: (:Person)-[:IS_LOCATED_IN]->`, `endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)`, `endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)`, `required_property: Country.name`, `unique_property: Country.name`
+- 证明记录：constraint_implied_labels
+
+<details><summary>FILL、原始查询与改写输出</summary>
+
+```cypher
+FILL PERSON(countryName) FROM (
+MATCH (country:PLACE)<-[:ISPARTOF]-(:PLACE)<-[:ISLOCATEDIN]-(person:PERSON)
+RETURN person.id, country.name)
+```
+
+原始查询：
+
+```cypher
+// Q11. Friend triangles
+/*
+:params {
+  country: 'India',
+  startDate: datetime('2012-09-29'),
+  endDate: datetime('2013-01-01')
+}
+*/
+MATCH (a:Person)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country:Country {name: $country}),
+      (a)-[k1:KNOWS]-(b:Person)
+WHERE a.id < b.id
+  AND $startDate <= k1.creationDate AND k1.creationDate <= $endDate
+WITH DISTINCT country, a, b
+MATCH (b)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)
+WITH DISTINCT country, a, b
+MATCH (b)-[k2:KNOWS]-(c:Person),
+      (c)-[:IS_LOCATED_IN]->(:City)-[:IS_PART_OF]->(country)
+WHERE b.id < c.id
+  AND $startDate <= k2.creationDate AND k2.creationDate <= $endDate
+WITH DISTINCT a, b, c
+MATCH (c)-[k3:KNOWS]-(a)
+WHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate
+WITH DISTINCT a, b, c
+RETURN count(*) AS count
+```
+
+改写输出：
+
+```cypher
+MATCH (a:Person)-[k1:KNOWS]-(b:Person) WHERE ((((a.countryName = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT a, b MATCH (country:Country) WHERE (country.name = $country) WITH DISTINCT country, a, b MATCH (b) WHERE ((b.countryName = country.name) AND (country:Country)) WITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person) WHERE (((((b.id < c.id) AND ($startDate <= k2.creationDate)) AND (k2.creationDate <= $endDate)) AND (c.countryName = country.name)) AND (country:Country)) WITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)
+WHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate
+WITH DISTINCT a, b, c RETURN count(*) AS count
 ```
 
 </details>
@@ -1186,3 +1150,6 @@ LIMIT 10
 | 变长关系唯一性的根路径证明 | `cico/neo4j.py`（`_root_path`、`_uniqueness_implied`、`contradiction`） | Neo4j 关系同构与内部同态等价的前提 |
 | 关系载体替换变长路径（回退阶段） | `cico/path_carriers.py` | $(L)$：至多一条路径 ⇒ $|G_k|=1$；同一子句的载体唯一性由过滤推出矛盾 |
 | 声明约束重试：类型谓词推导（含 `collect`/`UNWIND` 传递）、投影载体“恰好一个见证”检查 | `cico/neo4j.py`（`_implied_typed_labels`）、`cico/middleware.py`（`_relaxed`、`_projection_premises`） | $(M_F)$；投影载体 $|G_k|=1$ |
+| 键身份（T1 延后绑定、T2 键比较） | `cico/neo4j.py`（`_key_identities`） | $(M_P)$(ii)：链终点成为隐藏顶点 |
+| DISTINCT 计数按键列表分区（CALL 分支回退） | `cico/distinct_partitions.py` | $(M_P)$ 子图嵌入、接口公开、$(M_A)$(ii)；分组不相交由声明约束证明 |
+| 常量键绑定（T3）与计数见证选择 | `cico/neo4j.py`（`key_constants`）、`cico/scalar_subqueries.py` | $(M_P)$(ii)：计数区域不再以 Tag 为输入接口 |

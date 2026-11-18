@@ -1,6 +1,6 @@
 {
  "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
- "middleware_commit": "5f333bd590d529a6f67f62c682779eb9367d8b78",
+ "middleware_commit": "ea549ab819b54eb250933338699bc4be07438f4c",
  "sample": 0,
  "indexes_built": false,
  "workload_queries_executed": false,
@@ -93,15 +93,38 @@
      "detail": ""
     }
    ],
-   "rewritten": false,
-   "reason": "no_index_selected",
-   "indexes": [],
-   "route": "",
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "PERSON(countryName)"
+   ],
+   "route": "declared_constraints:parts:1,2,3",
    "specialized": [],
-   "proofs": [],
-   "premises": [],
-   "detail": "part 1: no_index_selected | part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
-   "output": "",
+   "proofs": [
+    {
+     "rule": "constraint_implied_labels",
+     "indexes": [
+      "PERSON(countryName)"
+     ],
+     "checks": [
+      "typed_labels_implied_by_endpoint_labels",
+      "round_trip_verified",
+      "projection_carriers_functional"
+     ]
+    }
+   ],
+   "premises": [
+    "at_least_one: (:City)-[:IS_PART_OF]->",
+    "at_least_one: (:Person)-[:IS_LOCATED_IN]->",
+    "at_most_one: (:City)-[:IS_PART_OF]->",
+    "at_most_one: (:Person)-[:IS_LOCATED_IN]->",
+    "endpoint_labels: (:City)-[:IS_PART_OF]->(:Country)",
+    "endpoint_labels: (:Person)-[:IS_LOCATED_IN]->(:City)",
+    "required_property: Country.name",
+    "unique_property: Country.name"
+   ],
+   "detail": "part 4: no_index_selected",
+   "output": "MATCH (a:Person)-[k1:KNOWS]-(b:Person) WHERE ((((a.countryName = $country) AND (a.id < b.id)) AND ($startDate <= k1.creationDate)) AND (k1.creationDate <= $endDate)) WITH DISTINCT a, b MATCH (country:Country) WHERE (country.name = $country) WITH DISTINCT country, a, b MATCH (b) WHERE ((b.countryName = country.name) AND (country:Country)) WITH DISTINCT country, a, b MATCH (b)-[k2:KNOWS]-(c:Person) WHERE (((((b.id < c.id) AND ($startDate <= k2.creationDate)) AND (k2.creationDate <= $endDate)) AND (c.countryName = country.name)) AND (country:Country)) WITH DISTINCT a, b, c MATCH (c)-[k3:KNOWS]-(a)\nWHERE $startDate <= k3.creationDate AND k3.creationDate <= $endDate\nWITH DISTINCT a, b, c RETURN count(*) AS count",
    "engine_restarts": 0,
    "seconds": 0.2,
    "indexes_registered": [
@@ -744,7 +767,7 @@
    "detail": "relation carrier substituted for variable-length paths",
    "output": "MATCH\n  (tag:Tag {name: $tag}),\n  (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:ROOT_POST]->(post1:Post)<-[:CONTAINER_OF]-(forum1:Forum),\n  (message1)-[:HAS_TAG]->(tag),\n\n\n  (forum1)<-[:HAS_MEMBER]->(person2:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:HAS_TAG]->(tag),\n  (forum1)<-[:HAS_MEMBER]->(person3:Person)<-[:HAS_CREATOR]-(message2:Message),\n  (comment)-[:REPLY_OF]->(message2)-[:ROOT_POST]->(post2:Post)<-[:CONTAINER_OF]-(forum2:Forum)\n\n\n\nMATCH (comment)-[:HAS_TAG]->(tag)\nMATCH (message2)-[:HAS_TAG]->(tag)\nWHERE forum1 <> forum2\n  AND message2.creationDate > message1.creationDate + duration({hours: $delta})\n  AND NOT (forum2)-[:HAS_MEMBER]->(person1)\nRETURN person1.id, count(DISTINCT message2) AS messageCount\nORDER BY messageCount DESC, person1.id ASC\nLIMIT 10",
    "engine_restarts": 4,
-   "seconds": 29.1,
+   "seconds": 29.0,
    "indexes_registered": [
     "ROOT_POST()"
    ],
@@ -895,7 +918,7 @@
    "detail": "valid only for the given values of $date",
    "output": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
    "engine_restarts": 0,
-   "seconds": 0.2,
+   "seconds": 0.1,
    "indexes_registered": [
     "TAG(bi2Window1MessageCount)",
     "TAG(bi2Window2MessageCount)"
@@ -1072,15 +1095,38 @@
      "detail": ""
     }
    ],
-   "rewritten": false,
-   "reason": "no_index_selected",
-   "indexes": [],
-   "route": "",
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "BI4_MESSAGE_COUNT()"
+   ],
+   "route": "subqueries",
    "specialized": [],
-   "proofs": [],
-   "premises": [],
-   "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
-   "output": "",
+   "proofs": [
+    {
+     "rule": "distinct_partition_carrier",
+     "carrier": "BI4_MESSAGE_COUNT(messageCount)",
+     "premises": [
+      "at_most_one: (:Message)-[:REPLY_OF]->",
+      "at_most_one: -[:CONTAINER_OF]->(:Post)"
+     ],
+     "checks": [
+      "carrier_pattern_embeds",
+      "interface_public",
+      "no_hidden_references",
+      "residual_types_disjoint",
+      "partition_functional_by_declared_constraints",
+      "list_keys_deduplicated",
+      "residual_as_exists"
+     ]
+    }
+   ],
+   "premises": [
+    "at_most_one: (:Message)-[:REPLY_OF]->",
+    "at_most_one: -[:CONTAINER_OF]->(:Post)"
+   ],
+   "detail": "part 1: no_index_selected | CALL: DISTINCT partition: RETURN must be: key, count(DISTINCT x) AS name | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+   "output": "MATCH (country:Country)<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(person:Person)<-[:HAS_MEMBER]-(forum:Forum)\nWHERE forum.creationDate > $date\nWITH country, forum, count(person) AS numberOfMembers\nORDER BY numberOfMembers DESC, forum.id ASC, country.id\nWITH DISTINCT forum AS topForum\nLIMIT 100\n\nWITH collect(topForum) AS topForums\n\nCALL {\n  WITH topForums UNWIND topForums AS topForum1 WITH DISTINCT topForums, topForum1 MATCH (topForum1)-[cico_part:BI4_MESSAGE_COUNT]->(person) WHERE EXISTS { MATCH (topForum2:Forum)-[:HAS_MEMBER]->(person) WHERE (topForum2 IN topForums) } RETURN person, sum(cico_part.messageCount) AS messageCount\nUNION ALL\n  \n  \n  WITH topForums\n  UNWIND topForums AS topForum1\n  MATCH (person:Person)<-[:HAS_MEMBER]-(topForum1:Forum)\n  RETURN person, 0 AS messageCount\n}\nRETURN\n  person.id AS personId,\n  person.firstName AS personFirstName,\n  person.lastName AS personLastName,\n  person.creationDate AS personCreationDate,\n  sum(messageCount) AS messageCount\nORDER BY\n  messageCount DESC,\n  person.id ASC\nLIMIT 100",
    "engine_restarts": 0,
    "seconds": 0.1,
    "indexes_registered": [
@@ -1252,17 +1298,74 @@
      "detail": ""
     }
    ],
-   "rewritten": false,
-   "reason": "no_index_selected",
-   "indexes": [],
-   "route": "",
-   "specialized": [],
-   "proofs": [],
-   "premises": [],
-   "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
-   "output": "",
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "PERSON(bi8MessageCount)"
+   ],
+   "route": "declared_constraints:expressions",
+   "specialized": [
+    "startDate",
+    "endDate",
+    "tag"
+   ],
+   "proofs": [
+    {
+     "rule": "correlated_graph_count",
+     "anchors": [
+      "person"
+     ],
+     "indexes": [
+      "PERSON(bi8MessageCount)"
+     ],
+     "checks": [
+      "all_correlated_inputs_bound",
+      "round_trip_verified",
+      "input_binding_unchanged",
+      "no_remaining_graph_reads",
+      "singleton_aggregate",
+      "no_hidden_references",
+      "null_anchor_zero"
+     ]
+    },
+    {
+     "rule": "correlated_graph_count",
+     "anchors": [
+      "friend"
+     ],
+     "indexes": [
+      "PERSON(bi8MessageCount)"
+     ],
+     "checks": [
+      "all_correlated_inputs_bound",
+      "round_trip_verified",
+      "input_binding_unchanged",
+      "no_remaining_graph_reads",
+      "singleton_aggregate",
+      "no_hidden_references",
+      "null_anchor_zero"
+     ]
+    },
+    {
+     "rule": "constraint_implied_labels",
+     "indexes": [
+      "PERSON(bi8MessageCount)"
+     ],
+     "checks": [
+      "typed_labels_implied_by_endpoint_labels",
+      "round_trip_verified",
+      "projection_carriers_functional"
+     ]
+    }
+   ],
+   "premises": [
+    "required_property: Tag.name",
+    "unique_property: Tag.name"
+   ],
+   "detail": "valid only for the given values of $startDate, $endDate, $tag",
+   "output": "MATCH (tag:Tag {name: $tag})\n\nOPTIONAL MATCH (tag)<-[interest:HAS_INTEREST]-(person:Person)\nWITH tag, collect(person) AS interestedPersons\nOPTIONAL MATCH (tag)<-[:HAS_TAG]-(message:Message)-[:HAS_CREATOR]->(person:Person)\n         WHERE $startDate < message.creationDate\n           AND message.creationDate < $endDate\nWITH tag, interestedPersons, interestedPersons + collect(person) AS persons\nUNWIND persons AS person\nWITH DISTINCT tag, person\nWITH\n  tag,\n  person,\n  100 * size([ (cico_const1:Tag {name: $tag})<-[interest:HAS_INTEREST]-(person) | interest]) + (CASE WHEN person IS NULL THEN 0 ELSE CASE WHEN (person.bi8MessageCount IS NULL) THEN 0 ELSE person.bi8MessageCount END END)\n  AS score\nOPTIONAL MATCH (person)-[:KNOWS]-(friend)\n\n\nWITH\n  person,\n  score,\n  100 * size([ (cico_const3:Tag {name: $tag})<-[interest:HAS_INTEREST]-(friend) | interest]) + (CASE WHEN friend IS NULL THEN 0 ELSE CASE WHEN (friend.bi8MessageCount IS NULL) THEN 0 ELSE friend.bi8MessageCount END END)\n  AS friendScore\nRETURN\n  person.id,\n  score,\n  sum(friendScore) AS friendsScore\nORDER BY\n  score + friendsScore DESC,\n  person.id ASC\nLIMIT 100",
    "engine_restarts": 0,
-   "seconds": 0.2,
+   "seconds": 0.4,
    "indexes_registered": [
     "PERSON(bi8MessageCount)"
    ],
