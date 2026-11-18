@@ -1,5 +1,13 @@
 # NeuG BI 索引改写 Neo4j 原始查询的失败定位
 
+> **2026-11-18 更新：** 本文 11 个案例中 BI2、BI10、BI14、BI17 已修复，最新状态、FILL 与查询原文见 [未改写 BI 查询进度](neo4j-bi-unrewritten-status.md)。
+> - **BI2 根因更正**：不是 OPTIONAL 零计数，而是时间字面量拼写。Neo4j 的 `datetime('...T...Z')` 转换为 `timestamp('2010-06-09T00:00:00Z')`，FILL 中是 `TIMESTAMP('2010-06-09 00:00:00')`，换成同一拼写即命中；参数内联后 `TIMESTAMP(...) + duration(...)` 又被当作字符串拼接拒绝。两处已修（README 3.18）。
+> - **BI14**：RewriterV4 连 FILL 自身的源查询都不改写，问题不在方向或评分的匹配，改由独立规则处理（README 3.19）。
+> - **BI17**：除关系唯一性外，NeuG 规划器在该模式上耗尽内存（README 7.7 补充），改由根路径证明和回退替换处理（3.20、3.21）。
+> - **BI10**：类型谓词由声明约束推出恒真后去掉，并检查投影载体每个键恰好一个见证（3.22）。
+>
+> 以下为 2026-11-17 的原始定位，保留不改。
+
 实验文档来自 `/mnt/sdb1/feiyang/IncGQ-experiment-docs` 的 `jcloud-exp`，提交 `08f1a2659ea2304b7940fd15db3c23382bf37eb7`。**索引定义取自 `NeuG/queries/index/ldbc-bi/bi*/`，使用 NeuG DDL/FILL 文件直接注册。待改写查询取自 `Neo4j/queries/baseline/ldbc-bi/bi-N.cypher`，使用 Neo4j profile 输入和输出。** 合并文件去重后有 29 个索引定义，89 条 Neo4j 物化语句通过 EXPLAIN。以下针对 SF1 第 0 组参数下未改写的 11 条原始查询。BI15 与 BI15w 共用 BI15 原始查询。成功的五条为 BI3、BI5、BI6、BI9、BI13。
 
 分类依据是原始查询中**可能利用索引的区域**。有些外层结构可以留在 Neo4j，内部 QueryPart 仍能改写。整条查询的 `no_index_selected` 仅说明没有返回索引读取，定位时还需要查片段的转换、绑定和索引接口。使用上一轮合并文件的结果，并用空索引目录对相关原文和最小片段运行转换和 NeuG 绑定。本轮未逐个插桩确认 RewriterV4 的候选拒绝点，也未物化索引或执行 BI 查询。
