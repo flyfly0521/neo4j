@@ -141,8 +141,113 @@ _FOLD = re.compile(r"CAST\(\s*(-?\d+)\s+AS\s+STRING\s*\)\s*\+\s*'([^'\\]*)'", re
 
 
 def fold_constants(text):
-    """CAST(4 AS STRING) + ' hours'  ->  '4 hours'   (string literal concat)."""
-    return _FOLD.sub(lambda m: f"'{m[1]}{m[2]}'", text)
+    """Constant folding on internal Cypher, each step an identity:
+
+      CAST(4 AS STRING) + ' hours'          ->  '4 hours'   (string literal concat)
+      timestamp('2010-06-09T00:00:00Z')     ->  TIMESTAMP('2010-06-09 00:00:00')
+      TIMESTAMP(lit) +/- duration('N days') ->  TIMESTAMP(lit')
+
+    See canonical_timestamp() and fold_timestamp_arithmetic() for the exact
+    domain; anything outside it is left as written."""
+    return fold_timestamp_arithmetic(_FOLD.sub(lambda m: f"'{m[1]}{m[2]}'", text))
+
+
+_ISO_INSTANT = re.compile(
+    r'(\d{4})-(\d{2})-(\d{2})'
+    r'(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?)?'
+    r'(Z|[+-]\d{2}(?::?\d{2})?)?')
+
+
+def canonical_timestamp(text):
+    """The instant an ISO literal denotes, as a naive UTC datetime, or None.
+
+    Accepted: calendar date, optional time, and no zone, `Z` or a fixed
+    numeric offset.  A literal without a zone is read in the default zone,
+    which this middleware takes to be UTC (Neo4j default `db.temporal.timezone`
+    is Z; the printer already emits zone-less `datetime('...')`).  Named zones
+    (`[Europe/Berlin]`), week/ordinal dates and other spellings return None, so
+    callers keep the literal unchanged."""
+    import datetime as _dt
+    m = _ISO_INSTANT.fullmatch(text.strip())
+    if not m:
+        return None
+    y, mo, d, hh, mi, ss, frac, zone = m.groups()
+    try:
+        value = _dt.datetime(int(y), int(mo), int(d), int(hh or 0), int(mi or 0), int(ss or 0),
+                             int((frac or '0')[:6].ljust(6, '0')))
+    except ValueError:
+        return None
+    if frac and len(frac) > 6 and int(frac[6:]):
+        return None  # sub-microsecond precision has no internal representation
+    if zone and zone != 'Z':
+        sign = 1 if zone[0] == '+' else -1
+        digits = zone[1:].replace(':', '')
+        value -= sign * _dt.timedelta(hours=int(digits[:2]), minutes=int(digits[2:4] or 0))
+    return value
+
+
+def timestamp_text(value):
+    text = value.strftime('%Y-%m-%d %H:%M:%S')
+    if value.microsecond:
+        text += ('.%06d' % value.microsecond).rstrip('0')
+    return text
+
+
+# Fixed-length units only: under UTC or a fixed offset a day is exactly 24
+# hours in Neo4j as well; months and years are calendar arithmetic and are
+# never folded.
+_FIXED_UNITS = {'week': 604800, 'weeks': 604800, 'day': 86400, 'days': 86400, 'hour': 3600, 'hours': 3600,
+                'minute': 60, 'minutes': 60, 'second': 1, 'seconds': 1}
+
+
+def _fixed_duration_seconds(text):
+    parts = text.strip().split()
+    if not parts or len(parts) % 2:
+        return None
+    total = 0
+    for amount, unit in zip(parts[0::2], parts[1::2]):
+        if not re.fullmatch(r'\d+', amount) or unit.lower() not in _FIXED_UNITS:
+            return None
+        total += int(amount) * _FIXED_UNITS[unit.lower()]
+    return total
+
+
+def fold_timestamp_arithmetic(text):
+    """Canonical TIMESTAMP literals; literal +/- fixed-length duration folded.
+
+    Two spellings of one instant then become one literal, which the FILL
+    matcher needs: it keys temporal predicates by the bound literal, so an
+    index built with TIMESTAMP('2010-06-09 00:00:00') was not recognised for
+    Neo4j's datetime('2010-06-09T00:00:00Z') or $date + duration({days: 100})."""
+    import datetime as _dt
+    tokenize, render, Tok = _tokens()
+    tokens = tokenize(text)
+    out, i, n = [], 0, len(tokens)
+    while i < n:
+        t = tokens[i]
+        if t.kind == 'ident' and t.upper == 'TIMESTAMP' and not (out and out[-1].text == '.') \
+                and i + 3 < n and tokens[i + 1].text == '(' and tokens[i + 2].kind == 'string' \
+                and tokens[i + 3].text == ')' and not (out and out[-1].text in ('*', '/', '%', '^', '-')):
+            value = canonical_timestamp(tokens[i + 2].text[1:-1])
+            if value is not None:
+                j = i + 4
+                while j + 4 < n and tokens[j].text in ('+', '-') and tokens[j + 1].kind == 'ident' \
+                        and tokens[j + 1].upper == 'DURATION' and tokens[j + 2].text == '(' \
+                        and tokens[j + 3].kind == 'string' and tokens[j + 4].text == ')' \
+                        and not (j + 5 < n and tokens[j + 5].text in ('*', '/', '%', '^', '.')):
+                    seconds = _fixed_duration_seconds(tokens[j + 3].text[1:-1])
+                    if seconds is None:
+                        break
+                    value += _dt.timedelta(seconds=seconds if tokens[j].text == '+' else -seconds)
+                    j += 5
+                folded = tokenize(f"TIMESTAMP('{timestamp_text(value)}')")
+                folded[0].ws = t.ws
+                out.extend(folded)
+                i = j
+                continue
+        out.append(t)
+        i += 1
+    return render(out)
 
 
 def pattern_variables(tokens):

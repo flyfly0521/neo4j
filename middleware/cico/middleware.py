@@ -68,10 +68,11 @@ def internal_literal(value):
     if isinstance(value, str):
         return "'" + value.replace('\\', '\\\\').replace("'", "\\'") + "'"
     if isinstance(value, datetime.datetime):
-        text = value.strftime('%Y-%m-%d %H:%M:%S')
-        if value.microsecond:
-            text += ('.%06d' % value.microsecond).rstrip('0')
-        return f"TIMESTAMP('{text}')"
+        from .normalize import timestamp_text
+        if value.tzinfo is not None:
+            # An aware value denotes an instant; internal TIMESTAMPs are UTC.
+            value = value.astimezone(datetime.timezone.utc).replace(tzinfo=None)
+        return f"TIMESTAMP('{timestamp_text(value)}')"
     if isinstance(value, datetime.date):
         return f"DATE('{value.isoformat()}')"
     if isinstance(value, (list, tuple)):
