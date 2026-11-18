@@ -40,6 +40,7 @@ def load_mapping(path):
     mapping.setdefault('typed_labels', {})
     mapping.setdefault('rel_types', {})
     mapping.setdefault('acyclic_rel_types', [])  # variable-length walks == trails on these
+    mapping.setdefault('constraints', [])        # declared integrity constraints (constraints.py)
     mapping.setdefault('properties', {})         # internal table -> {Neo4j property: internal property}
     return mapping
 
@@ -94,6 +95,11 @@ class Neo4jFrontend:
         self.procedure_types = {name.lower(): contract for name, contract in
                                 mapping.get('procedure_types', {}).items()}
         self.acyclic = set(mapping['acyclic_rel_types'])
+        from .constraints import Constraints
+        typed = {k: [v['table']] for k, v in mapping['typed_labels'].items()}
+        self.constraints = Constraints(mapping['constraints'], {**mapping['labels'], **typed})
+        self.relax = False      # apply constraint-justified simplifications (retry stage)
+        self.premises = set()   # constraints the last translations relied on
         self.prop_names = {t.upper(): dict(m) for t, m in mapping['properties'].items()}
         self.rel_pairs = {}     # internal relationship table -> {(src, dst)}
         self.node_names = set()
@@ -268,7 +274,10 @@ class Neo4jFrontend:
         bounds.append((n, 'END'))
         edits = []  # (position, tokens to insert)
         counter = [0]
+        clauses, part = [], 0
         for k, (start, word) in enumerate(bounds[:-1]):
+            if word in ('WITH', 'RETURN', 'UNION'):
+                part += 1
             if word not in ('MATCH', 'OPTIONAL'):
                 continue
             pattern_end = bounds[k + 1][0]
@@ -276,6 +285,9 @@ class Neo4jFrontend:
             where_end = bounds[k + 2][0] if where else None
             rels = self._clause_rels(tokens, start + (2 if word == 'OPTIONAL' else 1), pattern_end)
             unequal = self._where_unequal(tokens, pattern_end + 1, where_end) if where else set()
+            clauses.append((start, word, pattern_end, where, where_end, rels, unequal, part))
+        facts = self.part_facts(clauses)
+        for start, word, pattern_end, where, where_end, rels, unequal, part in clauses:
             pairs = []
             for i, a in enumerate(rels):
                 for b in rels[i + 1:]:
@@ -284,6 +296,10 @@ class Neo4jFrontend:
                         # Neo4j also keeps a variable-length relationship's edges
                         # distinct from the clause's other relationships; that
                         # needs a list predicate the internal dialect lacks.
+                        # Unless the part's own filters already remove every
+                        # row in which they could share an edge (root paths).
+                        if word == 'MATCH' and self._uniqueness_implied(a, b, *facts.get(part, ([], set()))):
+                            continue
                         raise Unsupported('relationship uniqueness involving a variable-length relationship')
                     if self._may_share(a, b, unequal):
                         pairs.append((a, b))
@@ -373,8 +389,155 @@ class Neo4jFrontend:
             else:
                 src, dst, src_t, dst_t, directed = prev_var, next_var, before, after, False
             rels.append(dict(open=i, var=var, tables=tables, varlen=varlen, src=src, dst=dst,
-                             src_t=src_t, dst_t=dst_t, directed=directed))
+                             src_t=src_t, dst_t=dst_t, directed=directed, types=types))
         return rels
+
+    @staticmethod
+    def part_facts(clauses):
+        """Facts holding on every row of a QueryPart: mandatory MATCH patterns
+        and their WHERE conjuncts (an OPTIONAL clause's WHERE filters nothing)."""
+        facts = {}
+        for _, word, _, _, _, rels, unequal, part in clauses:
+            if word == 'MATCH':
+                fact_rels, fact_unequal = facts.setdefault(part, ([], set()))
+                fact_rels.extend(rels)
+                fact_unequal.update(unequal)
+        return facts
+
+    def clause_table(self, tokens):
+        """[(start, word, pattern_end, where, where_end, rels, unequal, part)] of a statement."""
+        n, depth, bounds = len(tokens), 0, []
+        for i, t in enumerate(tokens):
+            if t.text in ('(', '[', '{'):
+                depth += 1
+            elif t.text in (')', ']', '}'):
+                depth -= 1
+            elif depth == 0 and t.kind == 'ident' and t.upper in self.CLAUSE_STARTS:
+                if t.upper == 'MATCH' and bounds and bounds[-1][1] == 'OPTIONAL' and bounds[-1][0] == i - 1:
+                    continue
+                bounds.append((i, t.upper))
+        bounds.append((n, 'END'))
+        clauses, part = [], 0
+        for k, (start, word) in enumerate(bounds[:-1]):
+            if word in ('WITH', 'RETURN', 'UNION'):
+                part += 1
+            if word not in ('MATCH', 'OPTIONAL'):
+                continue
+            pattern_end = bounds[k + 1][0]
+            where = bounds[k + 1][1] == 'WHERE'
+            where_end = bounds[k + 2][0] if where else None
+            rels = self._clause_rels(tokens, start + (2 if word == 'OPTIONAL' else 1), pattern_end)
+            unequal = self._where_unequal(tokens, pattern_end + 1, where_end) if where else set()
+            clauses.append((start, word, pattern_end, where, where_end, rels, unequal, part))
+        return clauses
+
+    # ------------------------------------------- root paths (declared constraints)
+    def _root_path(self, rel):
+        """The constraint making a variable-length relationship the UNIQUE path
+        from its start to a root, or None.
+
+        Requires: one acyclic type T, written start -[:T*]-> end; every
+        possible start node has at most one outgoing T (declared at_most_one);
+        no end table has an outgoing T in the schema (the end is a root).
+        Then the path is the start's root path R(start), ending at root(start),
+        whatever its length bounds."""
+        types = rel.get('types') or []
+        if not rel['varlen'] or not rel['directed'] or len(types) != 1 or types[0] not in self.acyclic:
+            return None
+        if rel['src'] is None or rel['dst'] is None or not rel['src_t'] or not rel['dst_t']:
+            return None
+        functional = self.constraints.at_most_one_out(types[0], rel['src_t'])
+        if functional is None:
+            return None
+        internal = {t.upper() for t in self.rels.get(types[0], [types[0]])}
+        ends = {t.upper() for t in rel['dst_t']}
+        if any(src in ends for group in internal for src, _ in self.rel_pairs.get(group, ())):
+            return None
+        return functional
+
+    def _uniqueness_implied(self, a, b, rels, unequal):
+        """True when no row surviving the part's filters can bind relationships
+        a and b (one variable-length) to a common edge, so Neo4j's uniqueness
+        between them removes nothing the filters keep.
+
+        In a forest (acyclic T, at most one outgoing T per node) two root
+        paths sharing an edge share their root.  A fixed edge x -[:T]-> y on
+        R(s) gives root(s) = root(y); y = s would close a cycle.  The forced
+        equality of roots is propagated through fixed relationships declared
+        at_most_one (equal targets of an at-most-one-incoming relationship
+        have equal sources, and vice versa); reaching a pair the part's
+        mandatory filters keep unequal is a contradiction."""
+        ra, rb = self._root_path(a), self._root_path(b)
+        used = set()
+        if ra and rb:
+            if a['types'] != b['types']:
+                return False
+            equal, used = (a['dst'], b['dst']), {ra, rb}
+        else:
+            path, fixed, premise = (a, b, ra) if a['varlen'] else (b, a, rb)
+            if premise is None or fixed['varlen'] or not fixed['directed'] or fixed.get('types') != path['types'] \
+                    or fixed['dst'] is None:
+                return False
+            if fixed['dst'] == path['src']:
+                self.premises.add(premise.describe())
+                return True             # the fixed edge on R(start) would close a cycle
+            other = next((r for r in rels if r is not path and r['varlen'] and r['src'] == fixed['dst']
+                          and self._root_path(r)), None)
+            if other is None:
+                return False
+            equal, used = (path['dst'], other['dst']), {premise, self._root_path(other)}
+        found = self.contradiction([equal], rels, unequal)
+        if found is None:
+            return False
+        self.premises.update(c.describe() for c in used | found)
+        return True
+
+    def contradiction(self, equalities, rels, unequal):
+        """Constraints proving that the node equalities cannot hold on a row
+        the part keeps, or None.  Equalities propagate through fixed directed
+        relationships declared at_most_one (equal targets of an
+        at-most-one-incoming relationship have equal sources, and vice
+        versa) until a pair the part's mandatory filters keep unequal meets."""
+        parent, used = {}, set()
+
+        def find(x):
+            while parent.get(x, x) != x:
+                x = parent[x]
+            return x
+
+        def union(x, y):
+            fx, fy = find(x), find(y)
+            if fx != fy:
+                parent[fx] = fy
+                return True
+            return False
+
+        for x, y in equalities:
+            if x is None or y is None:
+                return None
+            union(x, y)
+        fixed = [r for r in rels if not r['varlen'] and r['directed'] and len(r.get('types') or []) == 1
+                 and r['src'] is not None and r['dst'] is not None]
+        changed = True
+        while changed:
+            changed = False
+            for i, x in enumerate(fixed):
+                for y in fixed[i + 1:]:
+                    if x['types'] != y['types']:
+                        continue
+                    if find(x['dst']) == find(y['dst']) and find(x['src']) != find(y['src']):
+                        c = self.constraints.at_most_one_in(x['types'][0], x['dst_t'] or ())
+                        if c and self.constraints.at_most_one_in(x['types'][0], y['dst_t'] or ()):
+                            changed |= union(x['src'], y['src'])
+                            used.add(c)
+                    if find(x['src']) == find(y['src']) and find(x['dst']) != find(y['dst']):
+                        c = self.constraints.at_most_one_out(x['types'][0], x['src_t'] or ())
+                        if c and self.constraints.at_most_one_out(x['types'][0], y['src_t'] or ()):
+                            changed |= union(x['dst'], y['dst'])
+                            used.add(c)
+        if any(len(pair) == 2 and find(min(pair)) == find(max(pair)) for pair in unequal):
+            return used
+        return None
 
     @staticmethod
     def _where_unequal(tokens, start, end):

@@ -139,9 +139,13 @@ class Neo4jTranslationTests(unittest.TestCase):
         from cico.normalize import entity_id_comparisons
         out = render(entity_id_comparisons(tokenize('MATCH (a)-[r1:A]->(b), (c)-[r2:A|B]->(d) WHERE r1 <> r2 RETURN a')))
         self.assertIn('id(r1) <> id(r2)', out)
-        # a variable-length relationship sharing a type with another one of the clause
+        # a variable-length relationship sharing a type with another one of the clause:
+        # refused unless the declared constraints prove the uniqueness redundant
         with self.assertRaises(Unsupported):
-            self.fe.to_internal('MATCH (a:Message)-[:REPLY_OF]->(b:Message)-[:REPLY_OF*]->(p:Post) RETURN p')
+            self.fe.to_internal('MATCH (a:Message)-[:REPLY_OF]->(b:Message), (c:Message)-[:REPLY_OF*]->(p:Post) RETURN p')
+        # the fixed edge a->b on the root path from b would close a REPLY_OF cycle
+        out = self.fe.to_internal('MATCH (a:Message)-[:REPLY_OF]->(b:Message)-[:REPLY_OF*]->(p:Post) RETURN p')
+        self.assertIn('REPLYOF*', out)
         # implied by an endpoint inequality / separate clauses: nothing added
         out = self.fe.to_internal('MATCH (t1:Tag)<-[:HAS_TAG]-(m:Comment)-[:HAS_TAG]->(t2:Tag) WHERE t1 <> t2 RETURN m')
         self.assertNotIn('cico_u', out)

@@ -1,0 +1,1144 @@
+{
+ "docs_commit": "08f1a2659ea2304b7940fd15db3c23382bf37eb7",
+ "middleware_commit": "dd22408e58f7176988ab9e10dd6d1eadc5f01073",
+ "sample": 0,
+ "indexes_built": false,
+ "workload_queries_executed": false,
+ "cases": [
+  {
+   "case": "bi10",
+   "query": "bi-10.cypher",
+   "parameters": {
+    "country": "United_Kingdom",
+    "tagClass": "BaseballPlayer",
+    "personId": "10995116284483",
+    "minPathDistance": "3",
+    "maxPathDistance": "4"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": false,
+   "reason": "no_index_selected",
+   "indexes": [],
+   "route": "",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent | part 4: no_index_selected",
+   "output": "",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "PERSON(countryName)"
+   ]
+  },
+  {
+   "case": "bi11",
+   "query": "bi-11.cypher",
+   "parameters": {
+    "startDate": "2012-10-11 00:00:00",
+    "endDate": "2013-01-23 00:00:00",
+    "country": "India"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": false,
+   "reason": "no_index_selected",
+   "indexes": [],
+   "route": "",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "part 1: no_index_selected | part 2: no_index_selected | part 3: no_index_selected | part 4: no_index_selected",
+   "output": "",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "PERSON(countryName)"
+   ]
+  },
+  {
+   "case": "bi13",
+   "query": "bi-13.cypher",
+   "parameters": {
+    "endDate": "2012-10-28 00:00:00",
+    "country": "India"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "parameter.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "PERSON(bi13MessageCount)"
+   ],
+   "route": "parts:2",
+   "specialized": [
+    "endDate"
+   ],
+   "proofs": [],
+   "premises": [],
+   "detail": "valid only for the given values of $endDate",
+   "output": "MATCH (country:Country {name: $country})<-[:IS_PART_OF]-(:City)<-[:IS_LOCATED_IN]-(zombie:Person)\nWHERE zombie.creationDate < $endDate\nWITH country, zombie WITH country, zombie, sum(CASE WHEN (zombie.bi13MessageCount IS NULL) THEN 0 ELSE zombie.bi13MessageCount END) AS messageCount WITH\n  country,\n  zombie,\n  12 * ($endDate.year  - zombie.creationDate.year )\n     + ($endDate.month - zombie.creationDate.month)\n     + 1 AS months,\n  messageCount\nWHERE messageCount / months < 1 WITH\n  country,\n  collect(zombie) AS zombies UNWIND zombies AS zombie\nOPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerZombie:Person)\nWHERE likerZombie IN zombies\nWITH\n  zombie,\n  count(likerZombie) AS zombieLikeCount OPTIONAL MATCH\n  (zombie)<-[:HAS_CREATOR]-(message:Message)<-[:LIKES]-(likerPerson:Person)\nWHERE likerPerson.creationDate < $endDate\nWITH\n  zombie,\n  zombieLikeCount,\n  count(likerPerson) AS totalLikeCount RETURN\n  zombie.id,\n  zombieLikeCount,\n  totalLikeCount,\n  CASE totalLikeCount\n    WHEN 0 THEN 0.0\n    ELSE zombieLikeCount / toFloat(totalLikeCount)\n  END AS zombieScore\nORDER BY\n  zombieScore DESC,\n  zombie.id ASC\nLIMIT 100",
+   "engine_restarts": 0,
+   "seconds": 0.2,
+   "indexes_registered": [
+    "PERSON(bi13MessageCount)"
+   ]
+  },
+  {
+   "case": "bi14",
+   "query": "bi-14.cypher",
+   "parameters": {
+    "country1": "China",
+    "country2": "Canada"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "KNOWS(bi14_case1_fwd)",
+    "KNOWS(bi14_case1_rev)",
+    "KNOWS(bi14_case3_fwd)",
+    "KNOWS(bi14_case3_rev)"
+   ],
+   "route": "parts:2,3,4,5",
+   "specialized": [],
+   "proofs": [
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 2,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ab": "KNOWS(bi14_case1_fwd)",
+      "ba": "KNOWS(bi14_case1_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    },
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 3,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ba": "KNOWS(bi14_case1_fwd)",
+      "ab": "KNOWS(bi14_case1_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    },
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 4,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ab": "KNOWS(bi14_case3_fwd)",
+      "ba": "KNOWS(bi14_case3_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    },
+    {
+     "rule": "relationship_carrier_existence",
+     "part": 5,
+     "anchors": [
+      "person1",
+      "person2"
+     ],
+     "carriers": {
+      "ba": "KNOWS(bi14_case3_fwd)",
+      "ab": "KNOWS(bi14_case3_rev)"
+     },
+     "checks": [
+      "pattern_isomorphic_to_fill_source",
+      "no_residual_filter",
+      "relationship_inequalities_implied_by_acyclicity",
+      "existence_from_count",
+      "fresh_variables_only_null_tested",
+      "distinct_projection_without_aggregate",
+      "fallback_without_relationship"
+     ]
+    }
+   ],
+   "premises": [],
+   "detail": "part 1: no_index_selected",
+   "output": "MATCH\n  (country1:Country {name: $country1})<-[:IS_PART_OF]-(city1:City)<-[:IS_LOCATED_IN]-(person1:Person),\n  (country2:Country {name: $country2})<-[:IS_PART_OF]-(city2:City)<-[:IS_LOCATED_IN]-(person2:Person),\n  (person1)-[:KNOWS]-(person2)\nWITH person1, person2, city1, 0 AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)<-[:HAS_CREATOR]-(c:Comment)-[:REPLY_OF]->(:Message)-[:HAS_CREATOR]->(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case1_fwd, 0) > 0 ELSE coalesce(cico_k.bi14_case1_rev, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE  4 END) AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:REPLY_OF]-(:Comment)-[:HAS_CREATOR]->(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case1_rev, 0) > 0 ELSE coalesce(cico_k.bi14_case1_fwd, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE  1 END) AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)-[:LIKES]->(m:Message)-[:HAS_CREATOR]->(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case3_fwd, 0) > 0 ELSE coalesce(cico_k.bi14_case3_rev, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE 10 END) AS score OPTIONAL MATCH (person1)-[cico_k:KNOWS]-(person2) WITH person1, person2, city1, score, CASE WHEN cico_k IS NULL THEN EXISTS { MATCH (person1)<-[:HAS_CREATOR]-(m:Message)<-[:LIKES]-(person2) } WHEN startNode(cico_k) = person1 THEN coalesce(cico_k.bi14_case3_rev, 0) > 0 ELSE coalesce(cico_k.bi14_case3_fwd, 0) > 0 END AS cico_exists WITH DISTINCT person1, person2, city1, score + (CASE WHEN (NOT cico_exists) THEN 0 ELSE  1 END) AS score\n\nORDER BY\n  city1.name ASC,\n  score DESC,\n  person1.id ASC,\n  person2.id ASC WITH city1, collect({score: score, person1Id: person1.id, person2Id: person2.id})[0] AS top RETURN\n  top.person1Id,\n  top.person2Id,\n  city1.name,\n  top.score\nORDER BY\n  top.score DESC,\n  top.person1Id ASC,\n  top.person2Id ASC\nLIMIT 100",
+   "engine_restarts": 0,
+   "seconds": 0.3,
+   "indexes_registered": [
+    "KNOWS(bi14_case1_fwd)",
+    "KNOWS(bi14_case1_rev)",
+    "KNOWS(bi14_case2_fwd)",
+    "KNOWS(bi14_case2_rev)",
+    "KNOWS(bi14_case3_fwd)",
+    "KNOWS(bi14_case3_rev)",
+    "KNOWS(bi14_case4_fwd)",
+    "KNOWS(bi14_case4_rev)"
+   ]
+  },
+  {
+   "case": "bi15",
+   "query": "bi-15.cypher",
+   "parameters": {
+    "startDate": "2012-11-06 00:00:00",
+    "endDate": "2012-11-07 00:00:00",
+    "person1Id": "1450",
+    "person2Id": "21990232556222"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": false,
+   "reason": "no_index_selected",
+   "indexes": [],
+   "route": "",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+   "output": "",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
+    "KNOWS(bi14_case1_rev,bi15_post_rev)",
+    "KNOWS(bi15_weight)"
+   ]
+  },
+  {
+   "case": "bi15w",
+   "query": "bi-15.cypher",
+   "parameters": {
+    "startDate": "2012-11-06 00:00:00",
+    "endDate": "2012-11-07 00:00:00",
+    "person1Id": "1450",
+    "person2Id": "21990232556222"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": false,
+   "reason": "no_index_selected",
+   "indexes": [],
+   "route": "",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "CALL: frontend_unsupported: CALL procedure: no internal equivalent | no_index_selected: ",
+   "output": "",
+   "engine_restarts": 0,
+   "seconds": 0.2,
+   "indexes_registered": [
+    "KNOWS(bi15w_reply_fwd,bi15w_post_fwd)",
+    "KNOWS(bi15w_reply_rev,bi15w_post_rev)",
+    "KNOWS(bi15w_weight)"
+   ]
+  },
+  {
+   "case": "bi16",
+   "query": "bi-16.cypher",
+   "parameters": {
+    "dateA": "2012-07-26 00:00:00",
+    "dateB": "2012-05-08 00:00:00",
+    "maxKnowsLimit": "4",
+    "tagA": "Marc_Gicquel",
+    "tagB": "Romania"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "parameter.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "parameter.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": false,
+   "reason": "no_index_selected",
+   "indexes": [],
+   "route": "",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "CALL: no declared opaque type prefix",
+   "output": "",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "PERSON(bi16MessageCountA)",
+    "PERSON(bi16MessageCountB)"
+   ]
+  },
+  {
+   "case": "bi17",
+   "query": "bi-17.cypher",
+   "parameters": {
+    "tag": "I_Luv_Your_Girl",
+    "delta": "12"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "ROOT_POST()"
+   ],
+   "route": "path_carriers",
+   "specialized": [],
+   "proofs": [
+    {
+     "rule": "relation_carrier_path",
+     "relationship": "REPLY_OF*0..",
+     "carrier": "ROOT_POST",
+     "checks": [
+      "anonymous_unreferenced_path",
+      "same_type_direction_bounds",
+      "endpoint_tables_within_fill",
+      "acyclic_type",
+      "at_most_one_walk_between_nodes",
+      "clause_uniqueness_converted_or_proven",
+      "carrier_uniqueness_implied_by_filters"
+     ],
+     "neug_bind": "skipped: the NeuG planner exhausted its memory cap on this pattern (README 7.7); converted and schema-checked only"
+    },
+    {
+     "rule": "relation_carrier_path",
+     "relationship": "REPLY_OF*0..",
+     "carrier": "ROOT_POST",
+     "checks": [
+      "anonymous_unreferenced_path",
+      "same_type_direction_bounds",
+      "endpoint_tables_within_fill",
+      "acyclic_type",
+      "at_most_one_walk_between_nodes",
+      "clause_uniqueness_converted_or_proven",
+      "carrier_uniqueness_implied_by_filters"
+     ],
+     "neug_bind": "skipped: the NeuG planner exhausted its memory cap on this pattern (README 7.7); converted and schema-checked only"
+    }
+   ],
+   "premises": [
+    "at_most_one: (:Message)-[:REPLY_OF]->",
+    "at_most_one: -[:CONTAINER_OF]->(:Post)"
+   ],
+   "detail": "relation carrier substituted for variable-length paths",
+   "output": "MATCH\n  (tag:Tag {name: $tag}),\n  (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:ROOT_POST]->(post1:Post)<-[:CONTAINER_OF]-(forum1:Forum),\n  (message1)-[:HAS_TAG]->(tag),\n\n\n  (forum1)<-[:HAS_MEMBER]->(person2:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:HAS_TAG]->(tag),\n  (forum1)<-[:HAS_MEMBER]->(person3:Person)<-[:HAS_CREATOR]-(message2:Message),\n  (comment)-[:REPLY_OF]->(message2)-[:ROOT_POST]->(post2:Post)<-[:CONTAINER_OF]-(forum2:Forum)\n\n\n\nMATCH (comment)-[:HAS_TAG]->(tag)\nMATCH (message2)-[:HAS_TAG]->(tag)\nWHERE forum1 <> forum2\n  AND message2.creationDate > message1.creationDate + duration({hours: $delta})\n  AND NOT (forum2)-[:HAS_MEMBER]->(person1)\nRETURN person1.id, count(DISTINCT message2) AS messageCount\nORDER BY messageCount DESC, person1.id ASC\nLIMIT 10",
+   "engine_restarts": 3,
+   "seconds": 21.1,
+   "indexes_registered": [
+    "ROOT_POST()"
+   ]
+  },
+  {
+   "case": "bi19a",
+   "query": "bi-19.cypher",
+   "parameters": {
+    "city1Id": "363",
+    "city2Id": "578"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": false,
+   "reason": "frontend_unsupported",
+   "indexes": [],
+   "route": "",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+   "output": "",
+   "engine_restarts": 0,
+   "seconds": 0.2,
+   "indexes_registered": [
+    "KNOWS(bi14_case1_fwd,bi15_post_fwd)",
+    "KNOWS(bi14_case1_rev,bi15_post_rev)",
+    "KNOWS(weight_bi19)"
+   ]
+  },
+  {
+   "case": "bi2",
+   "query": "bi-2.cypher",
+   "parameters": {
+    "date": "2010-06-09 00:00:00",
+    "tagClass": "Single"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "parameter.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "parameter.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "TAG(bi2Window1MessageCount)",
+    "TAG(bi2Window2MessageCount)"
+   ],
+   "route": "parts:1,2",
+   "specialized": [
+    "date"
+   ],
+   "proofs": [],
+   "premises": [],
+   "detail": "valid only for the given values of $date",
+   "output": "MATCH (tag:Tag)-[cico_r2:HAS_TYPE]->(cico_n1:TagClass) WHERE (cico_n1.name = $tagClass) WITH tag, sum(CASE WHEN (tag.bi2Window1MessageCount IS NULL) THEN 0 ELSE tag.bi2Window1MessageCount END) AS countWindow1 WITH tag, countWindow1, sum(CASE WHEN (tag.bi2Window2MessageCount IS NULL) THEN 0 ELSE tag.bi2Window2MessageCount END) AS countWindow2 RETURN\n  tag.name,\n  countWindow1,\n  countWindow2,\n  abs(countWindow1 - countWindow2) AS diff\nORDER BY\n  diff DESC,\n  tag.name ASC\nLIMIT 100",
+   "engine_restarts": 0,
+   "seconds": 0.2,
+   "indexes_registered": [
+    "TAG(bi2Window1MessageCount)",
+    "TAG(bi2Window2MessageCount)"
+   ]
+  },
+  {
+   "case": "bi20",
+   "query": "bi-20.cypher",
+   "parameters": {
+    "person2Id": "30786325583226",
+    "company": "Avioquintana"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": false,
+   "reason": "frontend_unsupported",
+   "indexes": [],
+   "route": "",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "part 1: frontend_unsupported CALL procedure: no internal equivalent",
+   "output": "",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "KNOWS(bi20_direct)",
+    "KNOWS(bi20_weight)"
+   ]
+  },
+  {
+   "case": "bi3",
+   "query": "bi-3.cypher",
+   "parameters": {
+    "country": "India",
+    "tagClass": "Congressman"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "ROOT_POST()"
+   ],
+   "route": "parts:2",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "part 1: no_index_selected",
+   "output": "MATCH\n  (:TagClass {name: $tagClass})<-[:HAS_TYPE]-(:Tag)<-[:HAS_TAG]-\n  (message:Message)\nWITH DISTINCT message MATCH (message)-[cico_r3:ROOT_POST]->(post:Post) MATCH (forum:Forum)-[cico_r4:CONTAINER_OF]->(post) MATCH (forum)-[cico_r5:HAS_MODERATOR]->(person:Person) MATCH (person)-[cico_r6:IS_LOCATED_IN]->(cico_n1:City) MATCH (cico_n1)-[cico_r7:IS_PART_OF]->(cico_n2:Country) WHERE (cico_n2.name = $country) RETURN forum.id, forum.title, forum.creationDate, person.id, count(DISTINCT message) AS messageCount ORDER BY messageCount DESC, forum.id LIMIT 20",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "PERSON(countryName)",
+    "ROOT_POST()"
+   ]
+  },
+  {
+   "case": "bi4",
+   "query": "bi-4.cypher",
+   "parameters": {
+    "date": "2010-02-12 00:00:00"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": false,
+   "reason": "no_index_selected",
+   "indexes": [],
+   "route": "",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "part 1: no_index_selected | CALL: no_index_selected: part 1: no_index_selected | part 2: no_index_selected | no_index_selected: part 1: no_index_selected | part 2: no_index_selected",
+   "output": "",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "BI4_MESSAGE_COUNT()"
+   ]
+  },
+  {
+   "case": "bi5",
+   "query": "bi-5.cypher",
+   "parameters": {
+    "tag": "Begin_the_Beguine"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "COMMENT(likeCount)",
+    "COMMENT(replyCount)",
+    "POST(likeCount)",
+    "POST(replyCount)"
+   ],
+   "route": "parts:1,2",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "",
+   "output": "MATCH (message:Message)-[cico_r1:HAS_TAG]->(tag:Tag) MATCH (message)-[cico_r2:HAS_CREATOR]->(person:Person) WHERE (tag.name = $tag) WITH person, message, sum(CASE WHEN (message.likeCount IS NULL) THEN 0 ELSE message.likeCount END) AS likeCount WITH person, message, likeCount, sum(CASE WHEN (message.replyCount IS NULL) THEN 0 ELSE message.replyCount END) AS replyCount WITH person, count(message) AS messageCount, sum(likeCount) AS likeCount, sum(replyCount) AS replyCount RETURN\n  person.id,\n  replyCount,\n  likeCount,\n  messageCount,\n  1*messageCount + 2*replyCount + 10*likeCount AS score\nORDER BY\n  score DESC,\n  person.id ASC\nLIMIT 100",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "COMMENT(likeCount)",
+    "COMMENT(replyCount)",
+    "POST(likeCount)",
+    "POST(replyCount)"
+   ]
+  },
+  {
+   "case": "bi6",
+   "query": "bi-6.cypher",
+   "parameters": {
+    "tag": "Kingdom_of_Romania"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "PERSON(likeCount)"
+   ],
+   "route": "subqueries",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "part 1: no_index_selected",
+   "output": "MATCH (tag:Tag {name: $tag})<-[:HAS_TAG]-(message1:Message)-[:HAS_CREATOR]->(person1:Person)\nOPTIONAL MATCH (message1)<-[:LIKES]-(person2:Person)\nWITH DISTINCT person1, person2\nCALL (person2) { RETURN sum(CASE WHEN (person2.likeCount IS NULL) THEN 0 ELSE person2.likeCount END) AS likerScore\n}\nRETURN\n  person1.id,\n  sum(likerScore) AS authorityScore\nORDER BY\n  authorityScore DESC,\n  person1.id ASC\nLIMIT 100",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "PERSON(likeCount)"
+   ]
+  },
+  {
+   "case": "bi8",
+   "query": "bi-8.cypher",
+   "parameters": {
+    "startDate": "2010-06-12 00:00:00",
+    "endDate": "2010-06-22 00:00:00",
+    "tag": "Che_Guevara"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "parameter.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": false,
+   "reason": "no_index_selected",
+   "indexes": [],
+   "route": "",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "part 1: no_index_selected | part 2: frontend_unsupported NeuG: Binder exception: Cannot match a built-in function for given function +(NODE(LABELS(PERSON,))[],NODE(LABELS(PERSON,))[]). Supported inputs are\n(INT128,INT128) -> INT128\n(INT64,INT64) -> INT64\n(I | part 5: frontend_unsupported function size(): not in the NeuG catalog | expressions: scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index | scalar count: scalar count lacks a fresh non-null graph witness | scalar count: no_index_selected: statement changed without reading an index",
+   "output": "",
+   "engine_restarts": 0,
+   "seconds": 0.2,
+   "indexes_registered": [
+    "PERSON(bi8MessageCount)"
+   ]
+  },
+  {
+   "case": "bi9",
+   "query": "bi-9.cypher",
+   "parameters": {
+    "startDate": "2012-09-03 00:00:00",
+    "endDate": "2012-11-30 00:00:00"
+   },
+   "registration": [
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "no_change",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "applied",
+     "detail": ""
+    },
+    {
+     "file": "index.cypher",
+     "ok": true,
+     "reason": "registered",
+     "detail": ""
+    }
+   ],
+   "rewritten": true,
+   "reason": "rewritten",
+   "indexes": [
+    "ROOT_POST()"
+   ],
+   "route": "initial",
+   "specialized": [],
+   "proofs": [],
+   "premises": [],
+   "detail": "",
+   "output": "MATCH (post:Post)-[cico_r1:HAS_CREATOR]->(person:Person) MATCH (reply:Message)-[cico_r2:ROOT_POST]->(post) WHERE ((((post.creationDate >= $startDate) AND (post.creationDate <= $endDate)) AND (reply.creationDate >= $startDate)) AND (reply.creationDate <= $endDate)) RETURN person.id, person.firstName, person.lastName, count(DISTINCT post) AS threadCount, count(DISTINCT reply) AS messageCount ORDER BY messageCount DESC, person.id LIMIT 100",
+   "engine_restarts": 0,
+   "seconds": 0.1,
+   "indexes_registered": [
+    "ROOT_POST()"
+   ]
+  }
+ ]
+}

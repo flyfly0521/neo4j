@@ -36,6 +36,17 @@ rel_types:              # Neo4j relationship type -> internal relationship table
   IS_SUBCLASS_OF: [ISSUBCLASSOF]
 acyclic_rel_types:      # variable-length walks equal Neo4j trails only on acyclic types
   - REPLY_OF            # reply trees (LDBC data model); other types are translated as TRAIL
+constraints:            # LDBC SNB data model; premises of individual rewrite steps (cico/constraints.py).
+                        # Check them on the target: IndexMiddleware.constraint_checks() /
+                        # tests/constraint_checks.py (every violation count must be 0).
+  - {kind: at_most_one, rel: REPLY_OF, from: Message}       # a message replies to at most one message
+  - {kind: at_most_one, rel: CONTAINER_OF, to: Post}        # a post lies in at most one forum
+  - {kind: at_most_one, rel: IS_LOCATED_IN, from: Person}   # a person lives in at most one place
+  - {kind: at_most_one, rel: IS_PART_OF, from: City}        # a city lies in at most one country
+  - {kind: endpoint_labels, rel: IS_LOCATED_IN, from: Person, to: City}
+  - {kind: endpoint_labels, rel: IS_PART_OF, from: City, to: Country}
+  - {kind: unique_property, label: Tag, property: name}
+  - {kind: unique_property, label: Country, property: name}
 # Names not listed (e.g. derived index carriers such as ROOT_POST) are kept as is.
 procedure_types:
   # A type contract only: the procedure remains opaque in emitted Cypher.

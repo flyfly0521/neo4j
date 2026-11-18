@@ -1,0 +1,406 @@
+{
+ "uri": "bolt://127.0.0.1:7693",
+ "workload_queries_executed": false,
+ "transaction_rolled_back": true,
+ "rewritten": "MATCH\n  (tag:Tag {name: $tag}),\n  (person1:Person)<-[:HAS_CREATOR]-(message1:Message)-[:ROOT_POST]->(post1:Post)<-[:CONTAINER_OF]-(forum1:Forum),\n  (message1)-[:HAS_TAG]->(tag),\n\n\n  (forum1)<-[:HAS_MEMBER]->(person2:Person)<-[:HAS_CREATOR]-(comment:Comment)-[:HAS_TAG]->(tag),\n  (forum1)<-[:HAS_MEMBER]->(person3:Person)<-[:HAS_CREATOR]-(message2:Message),\n  (comment)-[:REPLY_OF]->(message2)-[:ROOT_POST]->(post2:Post)<-[:CONTAINER_OF]-(forum2:Forum)\n\n\n\nMATCH (comment)-[:HAS_TAG]->(tag)\nMATCH (message2)-[:HAS_TAG]->(tag)\nWHERE forum1 <> forum2\n  AND message2.creationDate > message1.creationDate + duration({hours: $delta})\n  AND NOT (forum2)-[:HAS_MEMBER]->(person1)\nRETURN person1.id, count(DISTINCT message2) AS messageCount\nORDER BY messageCount DESC, person1.id ASC\nLIMIT 100000",
+ "proofs": [
+  {
+   "rule": "relation_carrier_path",
+   "relationship": "REPLY_OF*0..",
+   "carrier": "ROOT_POST",
+   "checks": [
+    "anonymous_unreferenced_path",
+    "same_type_direction_bounds",
+    "endpoint_tables_within_fill",
+    "acyclic_type",
+    "at_most_one_walk_between_nodes",
+    "clause_uniqueness_converted_or_proven",
+    "carrier_uniqueness_implied_by_filters"
+   ],
+   "neug_bind": "skipped: the NeuG planner exhausted its memory cap on this pattern (README 7.7); converted and schema-checked only"
+  },
+  {
+   "rule": "relation_carrier_path",
+   "relationship": "REPLY_OF*0..",
+   "carrier": "ROOT_POST",
+   "checks": [
+    "anonymous_unreferenced_path",
+    "same_type_direction_bounds",
+    "endpoint_tables_within_fill",
+    "acyclic_type",
+    "at_most_one_walk_between_nodes",
+    "clause_uniqueness_converted_or_proven",
+    "carrier_uniqueness_implied_by_filters"
+   ],
+   "neug_bind": "skipped: the NeuG planner exhausted its memory cap on this pattern (README 7.7); converted and schema-checked only"
+  }
+ ],
+ "premises": [
+  "at_most_one: (:Message)-[:REPLY_OF]->",
+  "at_most_one: -[:CONTAINER_OF]->(:Post)"
+ ],
+ "cases": [
+  {
+   "seed": 0,
+   "delta": 0,
+   "rows": 4,
+   "equal": true
+  },
+  {
+   "seed": 0,
+   "delta": 4,
+   "rows": 4,
+   "equal": true
+  },
+  {
+   "seed": 0,
+   "delta": 24,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 1,
+   "delta": 0,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 1,
+   "delta": 4,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 1,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 2,
+   "delta": 0,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 2,
+   "delta": 4,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 2,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 3,
+   "delta": 0,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 3,
+   "delta": 4,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 3,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 4,
+   "delta": 0,
+   "rows": 5,
+   "equal": true
+  },
+  {
+   "seed": 4,
+   "delta": 4,
+   "rows": 5,
+   "equal": true
+  },
+  {
+   "seed": 4,
+   "delta": 24,
+   "rows": 3,
+   "equal": true
+  },
+  {
+   "seed": 5,
+   "delta": 0,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 5,
+   "delta": 4,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 5,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 6,
+   "delta": 0,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 6,
+   "delta": 4,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 6,
+   "delta": 24,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 7,
+   "delta": 0,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 7,
+   "delta": 4,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 7,
+   "delta": 24,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 8,
+   "delta": 0,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 8,
+   "delta": 4,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 8,
+   "delta": 24,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 9,
+   "delta": 0,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 9,
+   "delta": 4,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 9,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 10,
+   "delta": 0,
+   "rows": 3,
+   "equal": true
+  },
+  {
+   "seed": 10,
+   "delta": 4,
+   "rows": 3,
+   "equal": true
+  },
+  {
+   "seed": 10,
+   "delta": 24,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 11,
+   "delta": 0,
+   "rows": 3,
+   "equal": true
+  },
+  {
+   "seed": 11,
+   "delta": 4,
+   "rows": 3,
+   "equal": true
+  },
+  {
+   "seed": 11,
+   "delta": 24,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 12,
+   "delta": 0,
+   "rows": 4,
+   "equal": true
+  },
+  {
+   "seed": 12,
+   "delta": 4,
+   "rows": 3,
+   "equal": true
+  },
+  {
+   "seed": 12,
+   "delta": 24,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 13,
+   "delta": 0,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 13,
+   "delta": 4,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 13,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 14,
+   "delta": 0,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 14,
+   "delta": 4,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 14,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 15,
+   "delta": 0,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 15,
+   "delta": 4,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 15,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 16,
+   "delta": 0,
+   "rows": 4,
+   "equal": true
+  },
+  {
+   "seed": 16,
+   "delta": 4,
+   "rows": 4,
+   "equal": true
+  },
+  {
+   "seed": 16,
+   "delta": 24,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 17,
+   "delta": 0,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 17,
+   "delta": 4,
+   "rows": 2,
+   "equal": true
+  },
+  {
+   "seed": 17,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 18,
+   "delta": 0,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 18,
+   "delta": 4,
+   "rows": 1,
+   "equal": true
+  },
+  {
+   "seed": 18,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 19,
+   "delta": 0,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 19,
+   "delta": 4,
+   "rows": 0,
+   "equal": true
+  },
+  {
+   "seed": 19,
+   "delta": 24,
+   "rows": 0,
+   "equal": true
+  }
+ ],
+ "all_equal": true,
+ "nonempty": 40
+}

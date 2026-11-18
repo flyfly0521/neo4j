@@ -49,6 +49,7 @@ class Result:
     specialized: list = field(default_factory=list)   # parameters inlined as literals
     parts: list = field(default_factory=list)         # rewritten QueryPart numbers (1-based)
     proofs: list = field(default_factory=list)        # checked local semantic rules (not Lean certificates)
+    premises: list = field(default_factory=list)      # declared constraints the rewrite relies on
 
     def to_dict(self):
         return asdict(self)
@@ -173,6 +174,13 @@ class IndexMiddleware:
 
     def close(self):
         self.engine.close()
+
+    def constraint_checks(self):
+        """[{constraint, cypher}] counting violations of each declared
+        constraint on the target database; every count must be 0 before
+        rewrites that list it in Result.premises are trusted."""
+        constraints = getattr(self.frontend, 'constraints', None)
+        return constraints.checks() if constraints is not None else []
 
     def __enter__(self):
         return self
@@ -448,6 +456,74 @@ class IndexMiddleware:
 
     # ------------------------------------------------------------ rewrite
     def rewrite(self, cypher, parameters=None, parameter_types=None):
+        """Ordinary pipeline; then, only if it leaves the statement unchanged,
+        constraint-backed fallbacks.  Declared constraints a rewrite relied on
+        are listed in Result.premises (a superset: probes count as well)."""
+        if hasattr(self.frontend, 'premises'):
+            self.frontend.premises = set()
+        result = self._rewrite_once(cypher, parameters, parameter_types)
+        if not result.rewritten and getattr(self.frontend, 'name', '') == 'neo4j':
+            if not self.engine.alive():
+                self._restart_engine()     # the ordinary attempt may have hit the memory cap
+            result = self._path_carrier_fallback(cypher, parameters, parameter_types) or result
+        if result.rewritten and getattr(self.frontend, 'premises', None):
+            result.premises = sorted(set(result.premises) | self.frontend.premises)
+        return result
+
+    def _path_carrier_fallback(self, cypher, parameters, parameter_types):
+        from .path_carriers import substitute
+        try:
+            text, used, proofs, premises = substitute(self, cypher)
+        except (Unsupported, EngineError, ValueError):
+            return None
+        if text is None:
+            return None
+        bound = self._binds(text, parameters, parameter_types)
+        if not bound:
+            return None
+        if bound == 'engine_exhausted':
+            for proof in proofs:
+                proof['neug_bind'] = ('skipped: the NeuG planner exhausted its memory cap on this pattern '
+                                      '(README 7.7); converted and schema-checked only')
+        inner = self._rewrite_once(text, parameters, parameter_types)
+        if inner.rewritten:
+            out = inner
+            out.route = 'path_carriers:' + (inner.route or '')
+        else:
+            out = Result('query', cypher=text, rewritten=True, reason='rewritten', route='path_carriers',
+                         detail='relation carrier substituted for variable-length paths')
+        out.original = cypher
+        out.indexes = sorted(set(out.indexes) | set(used))
+        out.proofs = proofs + list(out.proofs)
+        out.premises = sorted(set(out.premises) | set(premises))
+        return out
+
+    def _binds(self, text, parameters, parameter_types):
+        """The substituted statement must convert and bind (as is, or with the
+        given parameter values inlined, as the specialization stage does)."""
+        types = parameter_types if parameter_types is not None else infer_parameter_types(parameters)
+        types = self.frontend.parameter_types(types)
+        exhausted = False
+        for inline in ([None, {k: v for k, v in (parameters or {}).items() if k in types}]
+                       if parameters else [None]):
+            try:
+                internal = self._to_internal(text, inline)
+            except (Unsupported, ValueError):
+                continue
+            rest = {k: t for k, t in types.items() if not inline or k not in inline}
+            try:
+                self.engine.bind(internal, _used(rest, internal))
+                return True
+            except EngineError as error:
+                if 'engine exited' in str(error):
+                    # The process died (address-space cap): restart it, and
+                    # record that only conversion and schema checks ran.
+                    exhausted = True
+                    self._restart_engine()
+                continue
+        return 'engine_exhausted' if exhausted else False
+
+    def _rewrite_once(self, cypher, parameters=None, parameter_types=None):
         if parameter_types is None:
             parameter_types = infer_parameter_types(parameters)
         parameter_types = self.frontend.parameter_types(parameter_types)
