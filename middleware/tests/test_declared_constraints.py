@@ -181,5 +181,52 @@ class KeyIdentityTests(ImpliedLabelTests):
                 self.assertNotIn('a.countryName', r.cypher)
 
 
+BI4_FILL = '''FILL BI4_MESSAGE_COUNT() FROM (
+  MATCH (forum:FORUM)-[:CONTAINEROF]->(post:POST)<-[:REPLYOF*0..]-(message:COMMENT:POST)-[:HASCREATOR]->(person:PERSON)
+  RETURN forum.id, person.id, count(DISTINCT message))'''
+BRANCH = '''MATCH (f:Forum) WITH collect(f) AS topForums
+CALL {
+  WITH topForums
+  UNWIND topForums AS topForum1
+  MATCH (topForum1)-[:CONTAINER_OF]->(post:Post)<-[:REPLY_OF*0..]-(message:Message)-[:HAS_CREATOR]->(person:Person)<-[:HAS_MEMBER]-(topForum2:Forum)
+  WITH person, message, topForum2
+  WHERE topForum2 IN topForums
+  RETURN person, count(DISTINCT message) AS messageCount
+}
+RETURN person.id, messageCount'''
+
+
+class DistinctPartitionTests(unittest.TestCase):
+    def run_with(self, constraints, query=BRANCH):
+        mw = IndexMiddleware(ROOT / 'schemas/ldbc-bi.yaml', profile=profile(constraints))
+        self.addCleanup(mw.close)
+        mw.apply_ddl('CREATE REL TABLE IF NOT EXISTS BI4_MESSAGE_COUNT(FROM FORUM TO PERSON, messageCount INT64)',
+                     input_dialect='neug')
+        mw.register_index([BI4_FILL], input_dialect='neug')
+        return mw.execute(query)
+
+    def test_branch_reads_partition_sums(self):
+        r = self.run_with(True)
+        self.assertTrue(r.rewritten, r.to_dict())
+        self.assertIn('WITH DISTINCT topForums, topForum1 MATCH (topForum1)-[cico_part:BI4_MESSAGE_COUNT]->(person)', r.cypher)
+        self.assertIn('EXISTS { MATCH (topForum2:Forum)-[:HAS_MEMBER]->(person) WHERE (topForum2 IN topForums) }', r.cypher)
+        self.assertIn('sum(cico_part.messageCount) AS messageCount', r.cypher)
+        self.assertEqual(sorted(r.premises), ['at_most_one: (:Message)-[:REPLY_OF]->',
+                                              'at_most_one: -[:CONTAINER_OF]->(:Post)'])
+
+    def test_not_applicable(self):
+        cases = {
+            'no REPLY_OF functionality': (lambda c: c.get('rel') != 'REPLY_OF', BRANCH),
+            'no CONTAINER_OF functionality': (lambda c: c.get('rel') != 'CONTAINER_OF', BRANCH),
+            'filter on a hidden node': (True, BRANCH.replace('WHERE topForum2 IN topForums',
+                                                              'WHERE topForum2 IN topForums AND message.length > 3')),
+            'count without DISTINCT': (True, BRANCH.replace('count(DISTINCT message)', 'count(message)')),
+        }
+        for name, (constraints, query) in cases.items():
+            with self.subTest(name):
+                r = self.run_with(constraints, query)
+                self.assertNotIn('BI4_MESSAGE_COUNT', r.cypher, name)
+
+
 if __name__ == '__main__':
     unittest.main()

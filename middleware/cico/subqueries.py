@@ -182,6 +182,19 @@ def rewrite_calls(mw, cypher, types, inline):
                 used = {k: v for k, v in {**types, **stub_types}.items()
                         if k in parameter_names(tokenize(probe))}
                 result = mw._rewrite_query(probe, used, inline)
+                if not result.rewritten and names:
+                    # DISTINCT counts over an imported key list: a separate
+                    # local rule (distinct_partitions.py), only as a fallback.
+                    from .distinct_partitions import rewrite_branch
+                    try:
+                        text, used_indexes, proof = rewrite_branch(
+                            mw, tokenize(source), names, columns, stub, stub_types, types, inline)
+                        edits.append((lo + legacy, hi, text))
+                        indexes.update(used_indexes)
+                        proofs.append(proof)
+                        continue
+                    except (Unsupported, EngineError) as error:
+                        notes.append('DISTINCT partition: ' + str(error)[:150])
                 if not result.rewritten:
                     notes.append(result.reason + ': ' + result.detail[:150])
                     continue
